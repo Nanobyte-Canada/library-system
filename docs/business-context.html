@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library Management System - Business Context & Architecture</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+:root {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-card: #1c2128;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --border: #30363d;
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+  --accent-bg: rgba(56,139,253,0.1);
+  --success: #3fb950;
+  --warning: #d29922;
+  --danger: #f85149;
+  --info: #58a6ff;
+  --tag-bg: rgba(56,139,253,0.15);
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --radius: 8px;
+  --sidebar-width: 280px;
+  --header-height: 60px;
+}
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #eaeef2;
+  --bg-card: #ffffff;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #8b949e;
+  --border: #d0d7de;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --accent-bg: rgba(9,105,218,0.08);
+  --tag-bg: rgba(9,105,218,0.1);
+  --shadow: 0 1px 3px rgba(31,35,40,0.12);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+/* Header */
+.header {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  height: var(--header-height);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+}
+.header h1 { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+.header h1 span { color: var(--accent); }
+.header-actions { display: flex; gap: 12px; align-items: center; }
+.theme-toggle {
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  color: var(--text-primary); cursor: pointer; padding: 6px 12px;
+  border-radius: 6px; font-size: 13px;
+}
+.theme-toggle:hover { border-color: var(--accent); }
+.search-box {
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  color: var(--text-primary); padding: 6px 12px; border-radius: 6px;
+  font-size: 13px; width: 220px; outline: none;
+}
+.search-box:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+/* Sidebar */
+.sidebar {
+  position: fixed; top: var(--header-height); left: 0; bottom: 0;
+  width: var(--sidebar-width); background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 16px 0; z-index: 50;
+}
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.nav-section { padding: 8px 16px; }
+.nav-section-title {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 8px;
+}
+.nav-link {
+  display: block; padding: 6px 16px; font-size: 13px;
+  color: var(--text-secondary); text-decoration: none;
+  border-radius: 6px; margin: 1px 8px; transition: all 0.15s;
+}
+.nav-link:hover { background: var(--accent-bg); color: var(--text-primary); }
+.nav-link.active { background: var(--accent-bg); color: var(--accent); font-weight: 500; }
+/* Main content */
+.main {
+  margin-left: var(--sidebar-width);
+  margin-top: var(--header-height);
+  padding: 32px 48px 80px;
+  max-width: 960px;
+}
+/* Sections */
+.section { margin-bottom: 48px; scroll-margin-top: 80px; }
+.section-title {
+  font-size: 28px; font-weight: 700; margin-bottom: 8px;
+  padding-bottom: 12px; border-bottom: 2px solid var(--border);
+}
+.section-subtitle { font-size: 20px; font-weight: 600; margin: 24px 0 12px; }
+.section-desc { color: var(--text-secondary); margin-bottom: 20px; font-size: 15px; }
+/* Cards */
+.card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.card-desc { color: var(--text-secondary); font-size: 14px; }
+/* Collapsible */
+.collapsible { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+.collapsible-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; cursor: pointer; background: var(--bg-secondary);
+  font-weight: 500; font-size: 15px; user-select: none; transition: background 0.15s;
+}
+.collapsible-header:hover { background: var(--bg-tertiary); }
+.collapsible-header .arrow { transition: transform 0.2s; font-size: 12px; color: var(--text-muted); }
+.collapsible.open .collapsible-header .arrow { transform: rotate(90deg); }
+.collapsible-body {
+  max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+  background: var(--bg-primary);
+}
+.collapsible.open .collapsible-body { max-height: 5000px; }
+.collapsible-content { padding: 16px 20px; }
+/* Tags */
+.tag {
+  display: inline-block; padding: 2px 10px; border-radius: 12px;
+  font-size: 12px; font-weight: 500; margin-right: 6px;
+}
+.tag-blue { background: var(--tag-bg); color: var(--accent); }
+.tag-green { background: rgba(63,185,80,0.15); color: var(--success); }
+.tag-orange { background: rgba(210,153,34,0.15); color: var(--warning); }
+.tag-red { background: rgba(248,81,73,0.15); color: var(--danger); }
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 12px 0; }
+th { text-align: left; padding: 10px 12px; background: var(--bg-tertiary); border: 1px solid var(--border); font-weight: 600; font-size: 13px; }
+td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+tr:hover td { background: var(--accent-bg); }
+/* Grid */
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+/* KPI */
+.kpi { text-align: center; padding: 24px; }
+.kpi-value { font-size: 36px; font-weight: 700; color: var(--accent); }
+.kpi-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+/* Stat bar */
+.stat-bar { display: flex; gap: 24px; margin: 16px 0; flex-wrap: wrap; }
+.stat-item { }
+.stat-value { font-size: 24px; font-weight: 700; }
+.stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+/* Diagram container */
+.diagram-container {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin: 16px 0;
+  overflow-x: auto;
+}
+.diagram-container .mermaid { display: flex; justify-content: center; }
+/* Code block */
+code { background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: 'SF Mono', Monaco, Consolas, monospace; }
+pre { background: var(--bg-tertiary); padding: 16px; border-radius: var(--radius); overflow-x: auto; font-size: 13px; line-height: 1.5; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+/* List */
+ul, ol { padding-left: 24px; margin: 8px 0; }
+li { margin: 4px 0; font-size: 14px; }
+/* Flow list */
+.flow-list { list-style: none; padding: 0; counter-reset: flow; }
+.flow-list li { position: relative; padding: 12px 0 12px 48px; border-left: 2px solid var(--border); margin-left: 16px; }
+.flow-list li:last-child { border-left-color: transparent; }
+.flow-list li::before {
+  counter-increment: flow; content: counter(flow);
+  position: absolute; left: -13px; top: 12px;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 24px 16px; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+/* Highlight for search */
+.highlight { background: rgba(210,153,34,0.3); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <h1><span>Library</span> Management System</h1>
+  <div class="header-actions">
+    <input type="text" class="search-box" placeholder="Search sections..." id="search" oninput="filterSections(this.value)">
+    <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="nav-section">
+    <div class="nav-section-title">Overview</div>
+    <a class="nav-link" href="#executive-summary">Executive Summary</a>
+    <a class="nav-link" href="#tech-stack">Tech Stack</a>
+    <a class="nav-link" href="#system-architecture">System Architecture</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Core Modules</div>
+    <a class="nav-link" href="#authentication">Authentication & Security</a>
+    <a class="nav-link" href="#books">Books Management</a>
+    <a class="nav-link" href="#users">User Management</a>
+    <a class="nav-link" href="#book-issues">Book Issue Tracking</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">Technical</div>
+    <a class="nav-link" href="#data-model">Data Model</a>
+    <a class="nav-link" href="#api-surface">API Surface</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main" id="main-content">
+
+<!-- ═══════════════ EXECUTIVE SUMMARY ═══════════════ -->
+<section class="section" id="executive-summary">
+  <h2 class="section-title">Executive Summary</h2>
+  <p class="section-desc">
+    The Library Management System is a REST API backend for managing library operations: cataloging books, registering users,
+    tracking book issues and returns, and generating QR codes for books. It is designed for librarians and library staff
+    who need a digital system to manage their book inventory and lending operations.
+  </p>
+
+  <div class="grid grid-3">
+    <div class="card kpi">
+      <div class="kpi-value">4</div>
+      <div class="kpi-label">Database Tables</div>
+    </div>
+    <div class="card kpi">
+      <div class="kpi-value">7</div>
+      <div class="kpi-label">API Endpoints</div>
+    </div>
+    <div class="card kpi">
+      <div class="kpi-value">2</div>
+      <div class="kpi-label">REST Controllers</div>
+    </div>
+  </div>
+  <div class="grid grid-3">
+    <div class="card kpi">
+      <div class="kpi-value">4</div>
+      <div class="kpi-label">JPA Entities</div>
+    </div>
+    <div class="card kpi">
+      <div class="kpi-value">2</div>
+      <div class="kpi-label">DB Services</div>
+    </div>
+    <div class="card kpi">
+      <div class="kpi-value">1</div>
+      <div class="kpi-label">External API</div>
+    </div>
+  </div>
+
+  <h3 class="section-subtitle">Who Is This For?</h3>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">Librarians &amp; Library Staff</div>
+      <div class="card-desc">Add and manage books in the catalog, register members, issue and return books, and generate QR codes for inventory management.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Library Administrators</div>
+      <div class="card-desc">Oversee the full library catalog, track book circulation, manage user memberships, and ensure inventory accuracy.</div>
+    </div>
+  </div>
+
+  <h3 class="section-subtitle">Core Value Proposition</h3>
+  <ul>
+    <li><strong>Book Catalog Management</strong> &mdash; Add, filter, and search books by language with pagination support</li>
+    <li><strong>User Registration</strong> &mdash; Register library members with membership IDs and contact information</li>
+    <li><strong>Book Issue Tracking</strong> &mdash; Issue books to users and track return dates</li>
+    <li><strong>QR Code Generation</strong> &mdash; Generate QR codes for books via external API for easy scanning and identification</li>
+    <li><strong>JWT Authentication</strong> &mdash; Secure login with stateless JWT tokens for API access</li>
+  </ul>
+</section>
+
+<!-- ═══════════════ TECH STACK ═══════════════ -->
+<section class="section" id="tech-stack">
+  <h2 class="section-title">Technology Stack</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-title">Backend</div>
+      <table>
+        <tr><td><strong>Language</strong></td><td>Kotlin 1.4.30</td></tr>
+        <tr><td><strong>JDK</strong></td><td>11</td></tr>
+        <tr><td><strong>Framework</strong></td><td>Spring Boot 2.4.3</td></tr>
+        <tr><td><strong>ORM</strong></td><td>Spring Data JPA / Hibernate</td></tr>
+        <tr><td><strong>Auth</strong></td><td>Spring Security + JWT (Auth0 java-jwt)</td></tr>
+        <tr><td><strong>Build</strong></td><td>Maven</td></tr>
+        <tr><td><strong>Server Port</strong></td><td>8082</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Data &amp; External</div>
+      <table>
+        <tr><td><strong>Database</strong></td><td>MySQL (4 tables)</td></tr>
+        <tr><td><strong>QR Code</strong></td><td>External API (api.qrserver.com)</td></tr>
+        <tr><td><strong>Schema Mgmt</strong></td><td>Hibernate ddl-auto</td></tr>
+        <tr><td><strong>Production DB</strong></td><td>31.220.53.211:3306/JsotLibrary</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ SYSTEM ARCHITECTURE ═══════════════ -->
+<section class="section" id="system-architecture">
+  <h2 class="section-title">System Architecture</h2>
+  <p class="section-desc">High-level view of how components interact.</p>
+
+  <div class="diagram-container">
+    <pre class="mermaid">
+graph TB
+  subgraph Client["Client Applications"]
+    C[REST Client / Postman / Frontend]
+  end
+
+  subgraph Security["Spring Security"]
+    JWTF[JWTAuthenticationFilter<br/>Login Filter]
+    JWTA[JWTAuthorizationFilter<br/>Token Validation]
+    SC[SecurityConfiguration<br/>permitAll Rules]
+  end
+
+  subgraph Controllers["REST Controllers"]
+    BC[BooksController<br/>/books/**]
+    UC[UserController<br/>/user/**]
+  end
+
+  subgraph Services["Service Layer"]
+    BDS[BooksDbService]
+    UDS[UserDbService]
+  end
+
+  subgraph Data["Data Layer"]
+    REPO[JPA Repositories]
+    DB[(MySQL<br/>4 Tables)]
+  end
+
+  subgraph External["External Services"]
+    QR[QR Code API<br/>api.qrserver.com]
+  end
+
+  C --> SC --> JWTA
+  C --> |POST /login| JWTF
+  JWTA --> BC
+  JWTA --> UC
+  BC --> BDS
+  UC --> UDS
+  BDS --> REPO --> DB
+  UDS --> REPO
+  BDS --> QR
+
+  style Client fill:#1a365d,stroke:#2b6cb0,color:#fff
+  style Security fill:#4a1d5e,stroke:#9f7aea,color:#fff
+  style Controllers fill:#1a4731,stroke:#38a169,color:#fff
+  style Services fill:#553c0e,stroke:#d69e2e,color:#fff
+  style Data fill:#4a1d2c,stroke:#f85149,color:#fff
+  style External fill:#4a1d5e,stroke:#9f7aea,color:#fff
+    </pre>
+  </div>
+
+  <h3 class="section-subtitle">Request Flow</h3>
+  <div class="diagram-container">
+    <pre class="mermaid">
+sequenceDiagram
+  participant C as Client
+  participant SEC as Spring Security
+  participant F as JWTAuthenticationFilter
+  participant A as JWTAuthorizationFilter
+  participant CTRL as Controller
+  participant SVC as Service
+  participant DB as MySQL
+
+  Note over C,DB: Authentication Flow
+  C->>F: POST /login (username + password)
+  F->>DB: Verify credentials via LibraryUserDetailService
+  F->>F: Generate JWT token
+  F-->>C: Return JWT token
+
+  Note over C,DB: Authenticated Request Flow
+  C->>A: HTTP Request + JWT Header
+  A->>A: Validate JWT, extract user
+  A->>CTRL: Authenticated request
+  CTRL->>SVC: Business logic
+  SVC->>DB: JPA query
+  DB-->>SVC: Results
+  SVC-->>CTRL: Response DTO
+  CTRL-->>C: JSON response
+    </pre>
+  </div>
+</section>
+
+<!-- ═══════════════ AUTHENTICATION ═══════════════ -->
+<section class="section" id="authentication">
+  <h2 class="section-title">Authentication &amp; Security</h2>
+  <p class="section-desc">JWT-based stateless authentication using Spring Security with Auth0 java-jwt library.</p>
+
+  <div class="collapsible open">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <span>JWT Authentication Flow</span>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="collapsible-content">
+        <div class="diagram-container">
+          <pre class="mermaid">
+sequenceDiagram
+  participant U as User
+  participant F as JWTAuthenticationFilter
+  participant UD as LibraryUserDetailService
+  participant DB as MySQL (Login Table)
+  participant H as SecurityHelper
+
+  U->>F: POST /login (username + password)
+  F->>UD: loadUserByUsername(username)
+  UD->>DB: Query Login table
+  DB-->>UD: LoginEntity
+  UD->>UD: Verify password
+  UD-->>F: LibraryUserPrincipal
+  F->>H: generateToken(userDetails)
+  H->>H: Sign JWT with HS256 secret
+  H-->>F: JWT token string
+  F-->>U: ResponseModel with token
+          </pre>
+        </div>
+
+        <h4>Key Security Features</h4>
+        <table>
+          <tr><th>Feature</th><th>Implementation</th></tr>
+          <tr><td>JWT Library</td><td>Auth0 java-jwt</td></tr>
+          <tr><td>Signing Algorithm</td><td>HMAC (HS256)</td></tr>
+          <tr><td>Authentication Filter</td><td><code>JWTAuthenticationFilter</code> — intercepts <code>POST /login</code></td></tr>
+          <tr><td>Authorization Filter</td><td><code>JWTAuthorizationFilter</code> — validates JWT on all other requests</td></tr>
+          <tr><td>UserDetailsService</td><td><code>LibraryUserDetailService</code> — loads users from Login table</td></tr>
+          <tr><td>UserDetails</td><td><code>LibraryUserPrincipal</code> — Java implementation of <code>UserDetails</code></td></tr>
+          <tr><td>Security Config</td><td><code>SecurityConfiguration</code> — defines filter chain and permitAll rules</td></tr>
+          <tr><td>Session Management</td><td>Stateless (no server-side sessions)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapsible">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <span>Security Configuration</span>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="collapsible-content">
+        <p style="font-size:14px; margin-bottom:12px;">The <code>SecurityConfiguration</code> class configures Spring Security with the following rules:</p>
+        <table>
+          <tr><th>Rule</th><th>Details</th></tr>
+          <tr><td><strong>Permit All</strong></td><td><code>/user/**</code>, <code>/books/**</code>, and <code>/login</code> are accessible without authentication</td></tr>
+          <tr><td><strong>Authentication Filter</strong></td><td><code>JWTAuthenticationFilter</code> placed before <code>UsernamePasswordAuthenticationFilter</code></td></tr>
+          <tr><td><strong>Authorization Filter</strong></td><td><code>JWTAuthorizationFilter</code> placed before <code>ExceptionTranslationFilter</code></td></tr>
+          <tr><td><strong>CORS</strong></td><td>Currently not explicitly configured</td></tr>
+          <tr><td><strong>CSRF</strong></td><td>Disabled (stateless API)</td></tr>
+        </table>
+        <p style="font-size:13px; color:var(--warning); margin-top:12px;">
+          <strong>Note:</strong> All endpoints are currently <code>permitAll()</code>, meaning authentication is not enforced on any endpoint. The JWT filters are in place but the security rules do not restrict access.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ BOOKS MANAGEMENT ═══════════════ -->
+<section class="section" id="books">
+  <h2 class="section-title">Books Management</h2>
+  <p class="section-desc">Full CRUD operations for the book catalog, including filtering, QR code generation, and book issue/return tracking.</p>
+
+  <div class="collapsible open">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <span>BooksController Endpoints</span>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="collapsible-content">
+        <table>
+          <tr><th>Method</th><th>Endpoint</th><th>Purpose</th><th>Request Body</th></tr>
+          <tr>
+            <td><span class="tag tag-green">POST</span></td>
+            <td><code>/books/add</code></td>
+            <td>Add a new book to the catalog</td>
+            <td><code>AddBookModel</code> (bookName, author, publication, language, location, numberOfCopies)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">POST</span></td>
+            <td><code>/books/issue</code></td>
+            <td>Issue a book to a registered user</td>
+            <td><code>BookIssueModel</code> (userId, bookId)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">POST</span></td>
+            <td><code>/books/return</code></td>
+            <td>Return a previously issued book</td>
+            <td><code>BookIssueModel</code> (userId, bookId)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">GET</span></td>
+            <td><code>/books/qrcode</code></td>
+            <td>Generate QR code for a book</td>
+            <td>Query param: <code>bookId</code></td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-blue">GET</span></td>
+            <td><code>/books/filterBooks</code></td>
+            <td>Filter books by language with pagination</td>
+            <td>Query params: <code>language</code>, <code>page</code>, <code>size</code></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapsible">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <span>BooksDbService Logic</span>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="collapsible-content">
+        <p style="font-size:14px; margin-bottom:12px;">The <code>BooksDbService</code> handles all book-related business logic:</p>
+        <ul>
+          <li><strong>Add Book</strong> &mdash; Creates a new <code>BooksEntity</code> with timestamps and saves to MySQL</li>
+          <li><strong>Issue Book</strong> &mdash; Creates a <code>BookIssueEntity</code> linking user to book with issue date</li>
+          <li><strong>Return Book</strong> &mdash; Updates the <code>BookIssueEntity</code> with return date</li>
+          <li><strong>QR Code</strong> &mdash; Calls external API at <code>api.qrserver.com</code> to generate QR code image</li>
+          <li><strong>Filter Books</strong> &mdash; Paginated query filtering by language using Spring Data <code>Pageable</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ USER MANAGEMENT ═══════════════ -->
+<section class="section" id="users">
+  <h2 class="section-title">User Management</h2>
+  <p class="section-desc">User registration, profile management, and JWT login functionality.</p>
+
+  <div class="collapsible open">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <span>UserController Endpoints</span>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="collapsible-content">
+        <table>
+          <tr><th>Method</th><th>Endpoint</th><th>Purpose</th><th>Request Body</th></tr>
+          <tr>
+            <td><span class="tag tag-green">POST</span></td>
+            <td><code>/user/add</code></td>
+            <td>Register a new library member</td>
+            <td><code>AddUserModel</code> (firstName, lastName, phoneNumber, emailId, membershipId)</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">POST</span></td>
+            <td><code>/login</code></td>
+            <td>JWT login (handled by JWTAuthenticationFilter)</td>
+            <td><code>LoginModel</code> (username, password)</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="collapsible">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <span>UserDbService Logic</span>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="collapsible-content">
+        <p style="font-size:14px; margin-bottom:12px;">The <code>UserDbService</code> handles user-related business logic:</p>
+        <ul>
+          <li><strong>Add User</strong> &mdash; Creates a new <code>UserEntity</code> with auto-generated membership ID, timestamps, and saves to MySQL</li>
+          <li><strong>Login</strong> &mdash; Credentials verified via <code>LibraryUserDetailService</code> which queries the <code>Login</code> table</li>
+          <li><strong>JWT Token Generation</strong> &mdash; <code>SecurityHelper</code> generates a signed JWT with user claims</li>
+        </ul>
+        <h4>User Entity Fields</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+          <tr><td><code>id</code></td><td>Long (Auto)</td><td>Primary key</td></tr>
+          <tr><td><code>membershipId</code></td><td>String</td><td>Unique membership identifier</td></tr>
+          <tr><td><code>firstName</code></td><td>String</td><td>Member first name</td></tr>
+          <tr><td><code>lastName</code></td><td>String</td><td>Member last name</td></tr>
+          <tr><td><code>phoneNumber</code></td><td>String</td><td>Contact phone number</td></tr>
+          <tr><td><code>emailId</code></td><td>String</td><td>Contact email address</td></tr>
+          <tr><td><code>createdBy</code></td><td>String</td><td>Who created the record</td></tr>
+          <tr><td><code>createdDateTime</code></td><td>LocalDateTime</td><td>Creation timestamp</td></tr>
+          <tr><td><code>lastUpdatedDateTime</code></td><td>LocalDateTime</td><td>Last modification timestamp</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ BOOK ISSUES ═══════════════ -->
+<section class="section" id="book-issues">
+  <h2 class="section-title">Book Issue Tracking</h2>
+  <p class="section-desc">Track which books are issued to which users, with issue and return dates.</p>
+
+  <div class="collapsible open">
+    <div class="collapsible-header" onclick="toggleCollapsible(this)">
+      <span>Issue &amp; Return Flow</span>
+      <span class="arrow">&#9654;</span>
+    </div>
+    <div class="collapsible-body">
+      <div class="collapsible-content">
+        <div class="diagram-container">
+          <pre class="mermaid">
+graph LR
+  A[Issue Request] --> B{Book Available?}
+  B -->|Yes| C[Create BookIssueEntity]
+  B -->|No| D[Return Error]
+  C --> E[Set Issue Date]
+  E --> F[Save to Database]
+  F --> G[Return Success]
+
+  H[Return Request] --> I{Active Issue?}
+  I -->|Yes| J[Set Return Date]
+  I -->|No| K[Return Error]
+  J --> L[Update BookIssueEntity]
+  L --> M[Save to Database]
+  M --> N[Return Success]
+
+  style A fill:#1a4731,stroke:#38a169,color:#fff
+  style H fill:#1a365d,stroke:#2b6cb0,color:#fff
+          </pre>
+        </div>
+
+        <h4>BookIssueEntity Fields</h4>
+        <table>
+          <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+          <tr><td><code>id</code></td><td>Long (Auto)</td><td>Primary key</td></tr>
+          <tr><td><code>userId</code></td><td>Long</td><td>Foreign key to User table</td></tr>
+          <tr><td><code>bookId</code></td><td>Long</td><td>Foreign key to Books table</td></tr>
+          <tr><td><code>issueDate</code></td><td>LocalDateTime</td><td>When the book was issued</td></tr>
+          <tr><td><code>returnDate</code></td><td>LocalDateTime</td><td>When the book was returned (null if still issued)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ DATA MODEL ═══════════════ -->
+<section class="section" id="data-model">
+  <h2 class="section-title">Data Model</h2>
+  <p class="section-desc">Entity relationships across the 4-table MySQL schema.</p>
+
+  <div class="diagram-container">
+    <pre class="mermaid">
+erDiagram
+  BOOKS ||--o{ BOOK_ISSUE : "issued in"
+  USER ||--o{ BOOK_ISSUE : "borrows"
+  USER ||--o| LOGIN : "has credentials"
+
+  BOOKS {
+    long id PK
+    string bookName
+    string author
+    string publication
+    string language
+    string location
+    int numberOfCopies
+    datetime createdDateTime
+    datetime lastUpdatedDateTime
+  }
+
+  USER {
+    long id PK
+    string membershipId UK
+    string firstName
+    string lastName
+    string phoneNumber
+    string emailId
+    string createdBy
+    datetime createdDateTime
+    datetime lastUpdatedDateTime
+  }
+
+  BOOK_ISSUE {
+    long id PK
+    long userId FK
+    long bookId FK
+    datetime issueDate
+    datetime returnDate
+  }
+
+  LOGIN {
+    long id PK
+    string username UK
+    string password
+    string firstName
+    string lastName
+  }
+    </pre>
+  </div>
+
+  <h3 class="section-subtitle">Table Descriptions</h3>
+  <table>
+    <tr><th>Table</th><th>Purpose</th><th>Key Relationships</th></tr>
+    <tr><td><code>Books</code></td><td>Book catalog with metadata (author, publication, language, location)</td><td>Referenced by <code>BookIssue</code></td></tr>
+    <tr><td><code>User</code></td><td>Registered library members with contact info</td><td>Referenced by <code>BookIssue</code>; credentials in <code>Login</code></td></tr>
+    <tr><td><code>BookIssue</code></td><td>Tracks book lending: who borrowed what and when</td><td>FK to <code>Books</code> and <code>User</code></td></tr>
+    <tr><td><code>Login</code></td><td>Authentication credentials for JWT login</td><td>1:1 with <code>User</code> (by username)</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════ API SURFACE ═══════════════ -->
+<section class="section" id="api-surface">
+  <h2 class="section-title">API Surface</h2>
+  <p class="section-desc">Overview of all API endpoint groups with authentication requirements.</p>
+
+  <table>
+    <tr><th>Method</th><th>Endpoint</th><th>Controller</th><th>Auth</th><th>Purpose</th></tr>
+    <tr>
+      <td><span class="tag tag-green">POST</span></td>
+      <td><code>/books/add</code></td>
+      <td>BooksController</td>
+      <td><span class="tag tag-blue">Public</span></td>
+      <td>Add a new book to the catalog</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-green">POST</span></td>
+      <td><code>/books/issue</code></td>
+      <td>BooksController</td>
+      <td><span class="tag tag-blue">Public</span></td>
+      <td>Issue a book to a user</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-green">POST</span></td>
+      <td><code>/books/return</code></td>
+      <td>BooksController</td>
+      <td><span class="tag tag-blue">Public</span></td>
+      <td>Return a previously issued book</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">GET</span></td>
+      <td><code>/books/qrcode</code></td>
+      <td>BooksController</td>
+      <td><span class="tag tag-blue">Public</span></td>
+      <td>Generate QR code for a book</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">GET</span></td>
+      <td><code>/books/filterBooks</code></td>
+      <td>BooksController</td>
+      <td><span class="tag tag-blue">Public</span></td>
+      <td>Filter books by language with pagination</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-green">POST</span></td>
+      <td><code>/user/add</code></td>
+      <td>UserController</td>
+      <td><span class="tag tag-blue">Public</span></td>
+      <td>Register a new library member</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-green">POST</span></td>
+      <td><code>/login</code></td>
+      <td>JWTAuthenticationFilter</td>
+      <td><span class="tag tag-blue">Public</span></td>
+      <td>JWT login and token generation</td>
+    </tr>
+  </table>
+
+  <p style="font-size:13px; color:var(--text-secondary); margin-top:16px;">
+    <strong>Note:</strong> All endpoints are currently <code>permitAll()</code> in the security configuration.
+    The JWT filters are in place but no endpoint enforces authentication.
+  </p>
+</section>
+
+</main>
+
+<!-- SCRIPTS -->
+<script>
+// Initialize Mermaid
+mermaid.initialize({
+  startOnLoad: true,
+  theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default',
+  securityLevel: 'loose',
+  flowchart: { useMaxWidth: true, htmlLabels: true },
+  er: { useMaxWidth: true },
+  sequence: { useMaxWidth: true }
+});
+
+// Theme toggle
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  // Re-render mermaid diagrams with new theme
+  location.reload();
+}
+
+// Restore theme
+const saved = localStorage.getItem('theme');
+if (saved) document.documentElement.setAttribute('data-theme', saved);
+
+// Collapsible sections
+function toggleCollapsible(header) {
+  const parent = header.parentElement;
+  parent.classList.toggle('open');
+}
+
+// Scroll spy for sidebar
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-80px 0px -70% 0px' });
+
+document.querySelectorAll('.section').forEach(s => observer.observe(s));
+
+// Search/filter
+function filterSections(query) {
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('.section').forEach(section => {
+    if (!q) {
+      section.style.display = '';
+      return;
+    }
+    const text = section.textContent.toLowerCase();
+    section.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+
+// Smooth scroll for sidebar links
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const id = link.getAttribute('href').slice(1);
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
