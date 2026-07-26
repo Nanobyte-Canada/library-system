@@ -1,30 +1,41 @@
 package com.digihome.library.api.database.entity
 
+import jakarta.persistence.*
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
 import org.springframework.data.jpa.repository.JpaRepository
 import java.time.LocalDateTime
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
-
-/**
- * Created by saurabhbilakhia on 2021-03-14
- */
+import java.util.*
 
 @Entity
-@Table(name = "BookIssue")
-data class BookIssueEntity (
+@Table(name = "book_issue")
+data class BookIssueEntity(
     @Id
-    var id: String = "",
+    var id: String = UUID.randomUUID().toString(),
 
-    var userId: String = "",
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    var user: UserEntity? = null,
 
-    var bookId: String = "",
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "copy_id", nullable = false)
+    var copy: BookCopyEntity? = null,
 
+    @CreationTimestamp
     var issueDate: LocalDateTime = LocalDateTime.now(),
 
-    var returnDate: LocalDateTime? = null
+    var dueDate: LocalDateTime = LocalDateTime.now().plusDays(21),
+
+    var returnDate: LocalDateTime? = null,
+
+    var renewed: Boolean = false,
+
+    @UpdateTimestamp
+    var updatedAt: LocalDateTime = LocalDateTime.now()
 )
 
 interface BookIssueRepository : JpaRepository<BookIssueEntity, String> {
-    fun findByUserIdAndBookIdAndReturnDateIsNull(userId: String, bookId: String) : BookIssueEntity?
+    fun findByUserIdAndReturnDateIsNull(userId: String): List<BookIssueEntity>
+    fun findByCopyIdAndReturnDateIsNull(copyId: String): BookIssueEntity?
+    fun countByUserIdAndReturnDateIsNull(userId: String): Long
 }

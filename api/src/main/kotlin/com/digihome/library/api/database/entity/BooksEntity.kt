@@ -1,20 +1,19 @@
 package com.digihome.library.api.database.entity
 
+import jakarta.persistence.*
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
 import org.springframework.data.jpa.repository.JpaRepository
 import java.time.LocalDateTime
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
-
-/**
- * Created by saurabhbilakhia on 2021-03-14
- */
+import java.util.*
 
 @Entity
-@Table(name = "Books")
-class BooksEntity (
+@Table(name = "books")
+class BooksEntity(
     @Id
-    var id: String = "",
+    var id: String = UUID.randomUUID().toString(),
+
+    var isbn: String = "",
 
     var bookName: String = "",
 
@@ -26,14 +25,26 @@ class BooksEntity (
 
     var location: String = "",
 
-    var numberOfCopies: Int = 0,
+    @Column(columnDefinition = "TEXT")
+    var description: String = "",
 
-    var createdDateTime: LocalDateTime = LocalDateTime.now(),
+    var coverImageUrl: String = "",
 
-    var lastUpdatedDateTime: LocalDateTime = LocalDateTime.now()
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    var category: CategoryEntity? = null,
+
+    @CreationTimestamp
+    var createdAt: LocalDateTime = LocalDateTime.now(),
+
+    @UpdateTimestamp
+    var updatedAt: LocalDateTime = LocalDateTime.now()
 )
 
 interface BooksRepository : JpaRepository<BooksEntity, String> {
-    fun findAllByOrderByCreatedDateTimeAsc() : List<BooksEntity>?
-    fun findByLanguageOrderByBookNameAsc(language: String) : List<BooksEntity>?
+    fun findAllByOrderByCreatedAtDesc(): List<BooksEntity>?
+    fun findByLanguageOrderByBookNameAsc(language: String): List<BooksEntity>?
+    fun findByBookNameContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrIsbnContaining(
+        bookName: String, author: String, isbn: String
+    ): List<BooksEntity>
 }

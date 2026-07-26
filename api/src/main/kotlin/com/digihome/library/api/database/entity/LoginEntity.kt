@@ -1,29 +1,37 @@
 package com.digihome.library.api.database.entity
 
+import jakarta.persistence.*
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
 import org.springframework.data.jpa.repository.JpaRepository
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
-
-/**
- * Created by saurabhbilakhia on 2022-04-10
- */
+import java.time.LocalDateTime
+import java.util.*
 
 @Entity
-@Table(name = "Login")
-class LoginEntity (
+@Table(name = "login")
+class LoginEntity(
     @Id
-    val id: String = "",
+    var id: String = UUID.randomUUID().toString(),
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", unique = true, nullable = false)
+    var user: UserEntity? = null,
 
     var username: String = "",
 
     var password: String = "",
 
-    var firstName: String? = "",
+    var isLocked: Boolean = false,
 
-    var lastName: String? = ""
+    var failedAttempts: Int = 0,
+
+    @CreationTimestamp
+    var createdAt: LocalDateTime = LocalDateTime.now(),
+
+    @UpdateTimestamp
+    var updatedAt: LocalDateTime = LocalDateTime.now()
 )
 
 interface LoginRepository : JpaRepository<LoginEntity, String> {
-    fun findByUsername(username: String) : LoginEntity?
+    fun findByUsername(username: String): LoginEntity?
 }
