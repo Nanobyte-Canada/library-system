@@ -1,24 +1,24 @@
 package com.digihome.library.api.models
 
-/**
- * Created by saurabhbilakhia on 2021-03-14
- */
-
-data class AddBookModel (
+data class AddBookModel(
+    var isbn: String = "",
     var bookName: String = "",
     var author: String = "",
     var publication: String = "",
     var language: String = "",
     var location: String = "",
-    var numberOfCopies: Int = 0
+    var description: String = "",
+    var coverImageUrl: String = "",
+    var categoryId: String? = null
 )
 
-data class BookIssueModel (
+data class BookIssueModel(
     var userId: String = "",
-    var bookId: String = ""
+    var bookId: String = "",
+    var copyId: String = ""
 )
 
-data class BookFilterModel (
+data class BookFilterModel(
     var language: String = "",
-    var page: Int
+    var page: Int = 1
 )
