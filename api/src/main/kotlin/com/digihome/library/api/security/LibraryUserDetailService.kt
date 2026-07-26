@@ -8,25 +8,32 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 
-/**
- * Created by saurabhbilakhia on 2022-04-10
- */
-
 @Service
 class LibraryUserDetailService(val loginRepository: LoginRepository) : UserDetailsService {
 
     val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun loadUserByUsername(username: String): UserDetails {
-        val user = loginRepository.findByUsername(username)
+        val login = loginRepository.findByUsername(username)
+            ?: run {
+                logger.error("Username = $username does not exist in DB")
+                throw UsernameNotFoundException("Username = $username does not exist in DB")
+            }
 
-        if (user == null) {
-            logger.error("Username = $username does not exist in DB")
-            throw UsernameNotFoundException("Username = $username does not exist in DB")
-        } else {
-            return LibraryUserPrincipal(user.id, user.username, user.password, user.firstName, user.lastName, setOf(
-                SimpleGrantedAuthority("ADMIN"), SimpleGrantedAuthority("USER")
-            ))
-        }
+        val user = login.user
+            ?: throw UsernameNotFoundException("User record not linked for username = $username")
+
+        val authorities = setOf(SimpleGrantedAuthority("ROLE_${user.role.name}"))
+
+        return LibraryUserPrincipal(
+            id = user.id,
+            _username = login.username,
+            _password = login.password,
+            firstName = user.firstName,
+            lastName = user.lastName,
+            email = user.emailId,
+            role = user.role.name,
+            _authorities = authorities
+        )
     }
 }
