@@ -1,0 +1,75 @@
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/stores/authStore';
+import { BookOpen, Users, LayoutDashboard, ArrowLeftRight, LogOut, Bell, Menu, X } from 'lucide-react';
+import { useState } from 'react';
+
+export function Layout() {
+  const { user, logout, hasRole } = useAuthStore();
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const isAdmin = hasRole('ADMIN');
+  const isLibrarian = hasRole('LIBRARIAN');
+  const isStaff = isAdmin || isLibrarian;
+
+  return (
+    <div className="app-layout">
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <h2>📚 Library System</h2>
+        </div>
+        <nav className="sidebar-nav">
+          <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'active' : ''}>
+            <LayoutDashboard size={18} />
+            Dashboard
+          </NavLink>
+          <NavLink to="/books" className={({ isActive }) => isActive ? 'active' : ''}>
+            <BookOpen size={18} />
+            Books
+          </NavLink>
+          {isStaff && (
+            <NavLink to="/users" className={({ isActive }) => isActive ? 'active' : ''}>
+              <Users size={18} />
+              Users
+            </NavLink>
+          )}
+          <NavLink to="/checkouts" className={({ isActive }) => isActive ? 'active' : ''}>
+            <ArrowLeftRight size={18} />
+            {isStaff ? 'Checkouts' : 'My Books'}
+          </NavLink>
+        </nav>
+        <div className="sidebar-footer">
+          <div style={{ fontSize: 13, marginBottom: 8 }}>
+            <div style={{ fontWeight: 600 }}>{user?.firstName} {user?.lastName}</div>
+            <div style={{ opacity: 0.7 }}>{user?.role}</div>
+          </div>
+          <button className="btn-secondary" onClick={handleLogout} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <LogOut size={16} />
+            Logout
+          </button>
+        </div>
+      </aside>
+      <main className="main-content">
+        <header className="header">
+          <div className="header-left">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none' }}>
+              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+          <div className="header-right">
+            <Bell size={20} style={{ cursor: 'pointer' }} />
+            <span style={{ fontSize: 14 }}>{user?.firstName}</span>
+          </div>
+        </header>
+        <div className="page-content">
+          <Outlet />
+        </div>
+      </main>
+    </div>
+  );
+}
