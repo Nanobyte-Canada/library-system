@@ -27,4 +27,6 @@ class BranchEntity(
     var updatedAt: LocalDateTime = LocalDateTime.now()
 )
 
-interface BranchRepository : JpaRepository<BranchEntity, String>
+interface BranchRepository : JpaRepository<BranchEntity, String> {
+    fun findByName(name: String): BranchEntity?
+}
