@@ -45,6 +45,14 @@ class SecurityConfig(
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                     .requestMatchers("/actuator/health").permitAll()
+                    // Sprint 2: Allow public catalog browsing
+                    .requestMatchers(HttpMethod.GET, "/api/books").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/books/{id}").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/books/search").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/books/{id}/copies").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/books/{id}/qr").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/categories/{id}").permitAll()
                     .anyRequest().authenticated()
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
