@@ -37,10 +37,11 @@ export interface Book {
   description: string;
   coverImageUrl: string;
   categoryId: string | null;
-  categoryName?: string;
+  categoryName: string | null;
+  availableCopies: number;
+  totalCopies: number;
   createdAt: string;
-  availableCopies?: number;
-  totalCopies?: number;
+  updatedAt: string;
 }
 
 export interface BookCopy {
@@ -106,4 +107,87 @@ export interface DashboardStats {
   totalUsers: number;
   activeReservations: number;
   totalBranches: number;
+}
+
+// --- Book Management Types ---
+
+export interface BookCreateRequest {
+  isbn: string;
+  bookName: string;
+  author: string;
+  publication: string;
+  language: string;
+  location: string;
+  description: string;
+  coverImageUrl: string;
+  categoryId: string | null;
+}
+
+export interface BookUpdateRequest {
+  isbn?: string;
+  bookName?: string;
+  author?: string;
+  publication?: string;
+  language?: string;
+  location?: string;
+  description?: string;
+  coverImageUrl?: string;
+  categoryId?: string;
+}
+
+export interface BookSearchParams {
+  q?: string;
+  categoryId?: string;
+  language?: string;
+  available?: boolean;
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDir?: string;
+}
+
+export interface BookCopyRequest {
+  branchId: string;
+  quantity: number;
+  barcodes?: string[];
+}
+
+export interface BookTransferRequest {
+  copyId: string;
+  fromBranchId: string;
+  toBranchId: string;
+}
+
+export interface IsbnLookupResponse {
+  isbn: string;
+  title: string;
+  author: string;
+  publication: string;
+  language: string;
+  coverImageUrl: string;
+  description: string;
+}
+
+export interface CategoryCreateRequest {
+  name: string;
+  parentId: string | null;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  parentId: string | null;
+  parentName: string | null;
+  createdAt: string;
+}
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  message: string | null;
+  code: number;
+  data: T[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
 }

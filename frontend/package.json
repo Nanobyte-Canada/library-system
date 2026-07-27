@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ag-grid-community/react": "^32.3.9",
     "@tanstack/react-query": "^5.101.4",
+    "ag-grid-community": "^36.0.2",
     "axios": "^1.18.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.27.0",
