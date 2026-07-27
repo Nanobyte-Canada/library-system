@@ -203,3 +203,58 @@ export interface PaginatedResponse<T> {
   size: number;
   totalPages: number;
 }
+
+// --- User Management Types ---
+
+export interface UserCreateRequest {
+  membershipId: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  emailId: string;
+  role: UserRole;
+  membershipType: MembershipType;
+  branchId: string | null;
+  password: string;
+}
+
+export interface UserUpdateRequest {
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  emailId?: string;
+  role?: UserRole;
+  membershipType?: MembershipType;
+  branchId?: string;
+  isActive?: boolean;
+}
+
+export interface UserResponse {
+  id: string;
+  membershipId: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  emailId: string;
+  role: UserRole;
+  membershipType: MembershipType;
+  branchId: string | null;
+  branchName: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PasswordChangeRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface UserSearchParams {
+  q?: string;
+  role?: UserRole;
+  branchId?: string;
+  isActive?: boolean;
+  page?: number;
+  size?: number;
+}
