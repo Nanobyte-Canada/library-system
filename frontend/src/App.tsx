@@ -7,8 +7,11 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { BookListPage } from './pages/admin/BookListPage';
 import { BookFormPage } from './pages/admin/BookFormPage';
 import { CategoryListPage } from './pages/admin/CategoryListPage';
+import { UserListPage } from './pages/admin/UserListPage';
+import { UserFormPage } from './pages/admin/UserFormPage';
 import { CatalogPage } from './pages/member/CatalogPage';
 import { BookDetailPage } from './pages/member/BookDetailPage';
+import { ProfilePage } from './pages/member/ProfilePage';
 import '@/App.css';
 
 const queryClient = new QueryClient({
@@ -34,12 +37,16 @@ function App() {
             <Route path="/admin/books/new" element={<BookFormPage />} />
             <Route path="/admin/books/:id" element={<BookFormPage />} />
             <Route path="/admin/categories" element={<CategoryListPage />} />
+            <Route path="/admin/users" element={<UserListPage />} />
+            <Route path="/admin/users/new" element={<UserFormPage />} />
+            <Route path="/admin/users/:id" element={<UserFormPage />} />
           </Route>
 
           {/* Member routes (also accessible to Admin/Librarian) */}
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route path="/catalog" element={<CatalogPage />} />
             <Route path="/catalog/:id" element={<BookDetailPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

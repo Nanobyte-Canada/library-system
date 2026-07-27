@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
-import { BookOpen, Users, LayoutDashboard, ArrowLeftRight, LogOut, Bell, Menu, X } from 'lucide-react';
+import { BookOpen, Users, User, LayoutDashboard, ArrowLeftRight, LogOut, Bell, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
 export function Layout() {
@@ -44,12 +44,16 @@ export function Layout() {
             <BookOpen size={18} />
             Catalog
           </NavLink>
-          {isStaff && (
-            <NavLink to="/users" className={({ isActive }) => isActive ? 'active' : ''}>
+          {isAdmin && (
+            <NavLink to="/admin/users" className={({ isActive }) => isActive ? 'active' : ''}>
               <Users size={18} />
               Users
             </NavLink>
           )}
+          <NavLink to="/profile" className={({ isActive }) => isActive ? 'active' : ''}>
+            <User size={18} />
+            Profile
+          </NavLink>
           <NavLink to="/checkouts" className={({ isActive }) => isActive ? 'active' : ''}>
             <ArrowLeftRight size={18} />
             {isStaff ? 'Checkouts' : 'My Books'}
