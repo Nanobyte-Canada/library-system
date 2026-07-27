@@ -4,6 +4,11 @@ import { Layout } from '@/components/Layout';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
+import { BookListPage } from './pages/admin/BookListPage';
+import { BookFormPage } from './pages/admin/BookFormPage';
+import { CategoryListPage } from './pages/admin/CategoryListPage';
+import { CatalogPage } from './pages/member/CatalogPage';
+import { BookDetailPage } from './pages/member/BookDetailPage';
 import '@/App.css';
 
 const queryClient = new QueryClient({
@@ -21,18 +26,22 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route
-            element={
-              <ProtectedRoute>
-                <Layout />
-              </ProtectedRoute>
-            }
-          >
+
+          {/* Admin/Librarian routes */}
+          <Route element={<ProtectedRoute roles={['ADMIN', 'LIBRARIAN']}><Layout /></ProtectedRoute>}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/books" element={<div className="page-title">Books</div>} />
-            <Route path="/users" element={<div className="page-title">Users</div>} />
-            <Route path="/checkouts" element={<div className="page-title">Checkouts</div>} />
+            <Route path="/admin/books" element={<BookListPage />} />
+            <Route path="/admin/books/new" element={<BookFormPage />} />
+            <Route path="/admin/books/:id" element={<BookFormPage />} />
+            <Route path="/admin/categories" element={<CategoryListPage />} />
           </Route>
+
+          {/* Member routes (also accessible to Admin/Librarian) */}
+          <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            <Route path="/catalog" element={<CatalogPage />} />
+            <Route path="/catalog/:id" element={<BookDetailPage />} />
+          </Route>
+
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>

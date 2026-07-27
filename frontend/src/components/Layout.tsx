@@ -28,9 +28,21 @@ export function Layout() {
             <LayoutDashboard size={18} />
             Dashboard
           </NavLink>
-          <NavLink to="/books" className={({ isActive }) => isActive ? 'active' : ''}>
+          {isAdmin && (
+            <>
+              <NavLink to="/admin/books" className={({ isActive }) => isActive ? 'active' : ''}>
+                <BookOpen size={18} />
+                Books
+              </NavLink>
+              <NavLink to="/admin/categories" className={({ isActive }) => isActive ? 'active' : ''}>
+                <BookOpen size={18} />
+                Categories
+              </NavLink>
+            </>
+          )}
+          <NavLink to="/catalog" className={({ isActive }) => isActive ? 'active' : ''}>
             <BookOpen size={18} />
-            Books
+            Catalog
           </NavLink>
           {isStaff && (
             <NavLink to="/users" className={({ isActive }) => isActive ? 'active' : ''}>
