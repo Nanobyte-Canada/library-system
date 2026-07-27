@@ -5,7 +5,11 @@ import com.digihome.library.api.database.enums.UserRole
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
 import java.util.*
 
@@ -50,4 +54,23 @@ interface UserRepository : JpaRepository<UserEntity, String> {
     fun findByPhoneNumber(phoneNumber: String): UserEntity?
     fun findByEmailId(emailId: String): UserEntity?
     fun findByRole(role: com.digihome.library.api.database.enums.UserRole): List<UserEntity>
+    fun findByMembershipId(membershipId: String): UserEntity?
+    fun findByIsActive(isActive: Boolean): List<UserEntity>
+
+    @Query("SELECT u FROM UserEntity u WHERE " +
+           "(:q IS NULL OR LOWER(u.firstName) LIKE LOWER(CONCAT('%',:q,'%')) " +
+           "OR LOWER(u.lastName) LIKE LOWER(CONCAT('%',:q,'%')) " +
+           "OR LOWER(u.emailId) LIKE LOWER(CONCAT('%',:q,'%')) " +
+           "OR LOWER(u.membershipId) LIKE LOWER(CONCAT('%',:q,'%'))) " +
+           "AND (:role IS NULL OR u.role = :role) " +
+           "AND (:branchId IS NULL OR u.branch.id = :branchId) " +
+           "AND (:isActive IS NULL OR u.isActive = :isActive) " +
+           "ORDER BY u.createdAt DESC")
+    fun searchUsers(
+        @Param("q") q: String?,
+        @Param("role") role: com.digihome.library.api.database.enums.UserRole?,
+        @Param("branchId") branchId: String?,
+        @Param("isActive") isActive: Boolean?,
+        pageable: org.springframework.data.domain.Pageable
+    ): org.springframework.data.domain.Page<UserEntity>
 }
