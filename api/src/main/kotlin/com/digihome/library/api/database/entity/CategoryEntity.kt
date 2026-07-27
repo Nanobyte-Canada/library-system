@@ -27,4 +27,7 @@ class CategoryEntity(
 
 interface CategoryRepository : JpaRepository<CategoryEntity, String> {
     fun findByName(name: String): CategoryEntity?
+    fun findByParentIdIsNullOrderByNameAsc(): List<CategoryEntity>
+    fun findByParentIdOrderByNameAsc(parentId: String): List<CategoryEntity>
+    fun findAllByOrderByNameAsc(): List<CategoryEntity>
 }

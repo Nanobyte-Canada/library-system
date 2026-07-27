@@ -3,7 +3,11 @@ package com.digihome.library.api.database.entity
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
 import java.util.*
 
@@ -47,4 +51,22 @@ interface BooksRepository : JpaRepository<BooksEntity, String> {
     fun findByBookNameContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrIsbnContaining(
         bookName: String, author: String, isbn: String
     ): List<BooksEntity>
+
+    // Sprint 2 methods
+    fun findByCategoryIdOrderByBookNameAsc(categoryId: String): List<BooksEntity>
+    fun findByLanguageContainingIgnoreCaseOrderByBookNameAsc(language: String): List<BooksEntity>
+
+    @Query("SELECT b FROM BooksEntity b WHERE " +
+           "(:q IS NULL OR LOWER(b.bookName) LIKE LOWER(CONCAT('%',:q,'%')) " +
+           "OR LOWER(b.author) LIKE LOWER(CONCAT('%',:q,'%')) " +
+           "OR LOWER(b.isbn) LIKE LOWER(CONCAT('%',:q,'%'))) " +
+           "AND (:categoryId IS NULL OR b.category.id = :categoryId) " +
+           "AND (:language IS NULL OR LOWER(b.language) LIKE LOWER(CONCAT('%',:language,'%'))) " +
+           "ORDER BY b.createdAt DESC")
+    fun searchBooks(
+        @Param("q") q: String?,
+        @Param("categoryId") categoryId: String?,
+        @Param("language") language: String?,
+        pageable: Pageable
+    ): Page<BooksEntity>
 }
