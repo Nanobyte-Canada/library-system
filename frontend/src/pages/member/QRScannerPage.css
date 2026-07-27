@@ -1,0 +1,157 @@
+.qr-scanner-page {
+  padding: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.qr-scanner-page h1 {
+  margin: 0 0 24px 0;
+  font-size: 24px;
+  color: #1f2937;
+}
+
+.scanner-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.action-toggle,
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn,
+.mode-btn {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.action-btn:hover,
+.mode-btn:hover {
+  background: #f3f4f6;
+}
+
+.action-btn.active.checkout {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.action-btn.active.return {
+  background: #059669;
+  color: white;
+  border-color: #059669;
+}
+
+.mode-btn.active {
+  background: #1f2937;
+  color: white;
+  border-color: #1f2937;
+}
+
+.scanner-container {
+  background: #1f2937;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+#qr-reader {
+  width: 100%;
+}
+
+.scan-hint {
+  text-align: center;
+  color: #9ca3af;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.manual-input {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.manual-input input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.manual-input input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.submit-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 24px;
+}
+
+.result.success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.result.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.result span {
+  flex: 1;
+}
+
+.result .dismiss {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.result .dismiss:hover {
+  opacity: 1;
+}

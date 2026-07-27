@@ -2,9 +2,11 @@ target/
 .idea
 .eclipse
 *.properties
+!gradle/wrapper/gradle-wrapper.properties
 *.yml
 *.class
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 *.war
 *.ear
 *.logs

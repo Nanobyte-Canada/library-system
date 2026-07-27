@@ -12,6 +12,9 @@ import { UserFormPage } from './pages/admin/UserFormPage';
 import { CatalogPage } from './pages/member/CatalogPage';
 import { BookDetailPage } from './pages/member/BookDetailPage';
 import { ProfilePage } from './pages/member/ProfilePage';
+import { MyBooksPage } from './pages/member/MyBooksPage';
+import { QRScannerPage } from './pages/member/QRScannerPage';
+import { CheckoutDeskPage } from './pages/librarian/CheckoutDeskPage';
 import '@/App.css';
 
 const queryClient = new QueryClient({
@@ -47,6 +50,11 @@ function App() {
             <Route path="/catalog" element={<CatalogPage />} />
             <Route path="/catalog/:id" element={<BookDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+
+            {/* Checkout routes */}
+            <Route path="/checkouts" element={<MyBooksPage />} />
+            <Route path="/scan" element={<QRScannerPage />} />
+            <Route path="/checkout-desk" element={<CheckoutDeskPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

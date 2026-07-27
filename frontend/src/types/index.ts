@@ -61,6 +61,7 @@ export interface BookIssue {
   copyId: string;
   bookName?: string;
   barcode?: string;
+  branchName?: string;
   issueDate: string;
   dueDate: string;
   returnDate: string | null;

@@ -4,6 +4,8 @@ import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
 import java.util.*
 
@@ -38,4 +40,10 @@ interface BookIssueRepository : JpaRepository<BookIssueEntity, String> {
     fun findByUserIdAndReturnDateIsNull(userId: String): List<BookIssueEntity>
     fun findByCopyIdAndReturnDateIsNull(copyId: String): BookIssueEntity?
     fun countByUserIdAndReturnDateIsNull(userId: String): Long
+
+    @Query("SELECT bi FROM BookIssueEntity bi WHERE bi.user.id = :userId ORDER BY bi.issueDate DESC")
+    fun findAllByUserIdOrderByIssueDateDesc(@Param("userId") userId: String): List<BookIssueEntity>
+
+    @Query("SELECT bi FROM BookIssueEntity bi WHERE bi.returnDate IS NULL AND bi.dueDate < :now")
+    fun findOverdueIssues(@Param("now") now: java.time.LocalDateTime): List<BookIssueEntity>
 }

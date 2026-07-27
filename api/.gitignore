@@ -1,12 +1,14 @@
 HELP.md
 target/
 *.properties
+!gradle/wrapper/gradle-wrapper.properties
 *.yml
 !src/main/resources/application.yml
 !src/main/resources/application-dev.yml
 !src/main/resources/application-prod.yml
 *.class
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 *.war
 *.ear
 *.logs

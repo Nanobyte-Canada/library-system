@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
-import { BookOpen, Users, User, LayoutDashboard, ArrowLeftRight, LogOut, Bell, Menu, X } from 'lucide-react';
+import { BookOpen, Users, User, LayoutDashboard, ArrowLeftRight, LogOut, Bell, Menu, X, ScanLine } from 'lucide-react';
 import { useState } from 'react';
 
 export function Layout() {
@@ -54,9 +54,20 @@ export function Layout() {
             <User size={18} />
             Profile
           </NavLink>
-          <NavLink to="/checkouts" className={({ isActive }) => isActive ? 'active' : ''}>
-            <ArrowLeftRight size={18} />
-            {isStaff ? 'Checkouts' : 'My Books'}
+          {isStaff ? (
+            <NavLink to="/checkout-desk" className={({ isActive }) => isActive ? 'active' : ''}>
+              <ArrowLeftRight size={18} />
+              Checkout Desk
+            </NavLink>
+          ) : (
+            <NavLink to="/checkouts" className={({ isActive }) => isActive ? 'active' : ''}>
+              <ArrowLeftRight size={18} />
+              My Books
+            </NavLink>
+          )}
+          <NavLink to="/scan" className={({ isActive }) => isActive ? 'active' : ''}>
+            <ScanLine size={18} />
+            QR Scanner
           </NavLink>
         </nav>
         <div className="sidebar-footer">
