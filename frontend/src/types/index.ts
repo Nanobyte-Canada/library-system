@@ -152,6 +152,18 @@ export interface BookCopyRequest {
   barcodes?: string[];
 }
 
+export interface BookCopyResponse {
+  id: string;
+  bookId: string;
+  bookName: string;
+  branchId: string;
+  branchName: string;
+  barcode: string;
+  status: CopyStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface BookTransferRequest {
   copyId: string;
   fromBranchId: string;
