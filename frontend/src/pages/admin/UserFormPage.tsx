@@ -37,7 +37,7 @@ export function UserFormPage() {
 
   const loadBranches = async () => {
     try {
-      const response = await branchService.listBranches();
+      const response = await branchService.getAllBranches();
       if (response.success) {
         setBranches(response.data);
       }

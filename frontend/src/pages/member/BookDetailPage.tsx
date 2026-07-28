@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, MapPin, Clock } from 'lucide-react';
+import { ArrowLeft, BookOpen, MapPin, Clock, Bookmark } from 'lucide-react';
 import { bookService } from '../../services/bookService';
+import { reservationService } from '@/services/reservationService';
+import { branchService, Branch } from '@/services/branchService';
 import type { Book, BookCopyResponse } from '../../types';
 import './BookDetailPage.css';
 
@@ -12,11 +14,21 @@ export function BookDetailPage() {
   const [copies, setCopies] = useState<BookCopyResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [selectedBranchId, setSelectedBranchId] = useState('');
+  const [reserveLoading, setReserveLoading] = useState(false);
+  const [reserveSuccess, setReserveSuccess] = useState('');
+  const [reserveError, setReserveError] = useState('');
 
   useEffect(() => {
     if (id) {
       loadBookDetail(id);
     }
+    branchService.getAllBranches().then(res => {
+      if (res.success && res.data) {
+        setBranches(res.data);
+      }
+    });
   }, [id]);
 
   const loadBookDetail = async (bookId: string) => {
@@ -40,6 +52,26 @@ export function BookDetailPage() {
       setError('Failed to load book details');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReserve = async () => {
+    if (!id || !selectedBranchId) return;
+    setReserveLoading(true);
+    setReserveError('');
+    setReserveSuccess('');
+    try {
+      const response = await reservationService.reserveBook(id, selectedBranchId);
+      if (response.success) {
+        setReserveSuccess('Reservation placed successfully!');
+        setSelectedBranchId('');
+      } else {
+        setReserveError(response.message || 'Failed to reserve book');
+      }
+    } catch (err) {
+      setReserveError('Failed to reserve book');
+    } finally {
+      setReserveLoading(false);
     }
   };
 
@@ -156,6 +188,33 @@ export function BookDetailPage() {
                     </span>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {book.availableCopies === 0 && (
+              <div className="reserve-section">
+                <p className="reserve-note">No copies currently available. You can reserve this book to be notified when it becomes available.</p>
+                <div className="reserve-form">
+                  <select
+                    value={selectedBranchId}
+                    onChange={e => setSelectedBranchId(e.target.value)}
+                  >
+                    <option value="">Select a branch...</option>
+                    {branches.map(branch => (
+                      <option key={branch.id} value={branch.id}>{branch.name}</option>
+                    ))}
+                  </select>
+                  <button
+                    className="btn-reserve"
+                    onClick={handleReserve}
+                    disabled={reserveLoading || !selectedBranchId}
+                  >
+                    <Bookmark size={14} />
+                    {reserveLoading ? 'Reserving...' : 'Reserve'}
+                  </button>
+                </div>
+                {reserveSuccess && <p className="reserve-success">{reserveSuccess}</p>}
+                {reserveError && <p className="reserve-error">{reserveError}</p>}
               </div>
             )}
           </div>

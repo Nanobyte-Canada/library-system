@@ -2,6 +2,7 @@ package com.digihome.library.api.database.entity
 
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
+import org.springframework.data.jpa.repository.JpaRepository
 import java.time.LocalDateTime
 import java.util.*
 
@@ -28,4 +29,7 @@ class AuditLogEntity(
     var createdAt: LocalDateTime = LocalDateTime.now()
 )
 
-interface AuditLogRepository : JpaRepository<AuditLogEntity, String>
+interface AuditLogRepository : JpaRepository<AuditLogEntity, String> {
+    fun findByEntityTypeOrderByCreatedAtDesc(entityType: String): List<AuditLogEntity>
+    fun findAllByOrderByCreatedAtDesc(): List<AuditLogEntity>
+}

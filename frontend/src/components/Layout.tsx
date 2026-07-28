@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
-import { BookOpen, Users, User, LayoutDashboard, ArrowLeftRight, LogOut, Bell, Menu, X, ScanLine } from 'lucide-react';
+import { BookOpen, Users, User, LayoutDashboard, ArrowLeftRight, LogOut, Bell, Menu, X, ScanLine, Building, Shield, Calendar } from 'lucide-react';
 import { useState } from 'react';
 
 export function Layout() {
@@ -44,10 +44,28 @@ export function Layout() {
             <BookOpen size={18} />
             Catalog
           </NavLink>
+          {!isStaff && (
+            <NavLink to="/reservations" className={({ isActive }) => isActive ? 'active' : ''}>
+              <Calendar size={18} />
+              Reservations
+            </NavLink>
+          )}
           {isAdmin && (
             <NavLink to="/admin/users" className={({ isActive }) => isActive ? 'active' : ''}>
               <Users size={18} />
               Users
+            </NavLink>
+          )}
+          {isAdmin && (
+            <NavLink to="/admin/branches" className={({ isActive }) => isActive ? 'active' : ''}>
+              <Building size={18} />
+              Branches
+            </NavLink>
+          )}
+          {isAdmin && (
+            <NavLink to="/admin/audit-logs" className={({ isActive }) => isActive ? 'active' : ''}>
+              <Shield size={18} />
+              Audit Log
             </NavLink>
           )}
           <NavLink to="/profile" className={({ isActive }) => isActive ? 'active' : ''}>

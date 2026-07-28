@@ -15,6 +15,10 @@ import { ProfilePage } from './pages/member/ProfilePage';
 import { MyBooksPage } from './pages/member/MyBooksPage';
 import { QRScannerPage } from './pages/member/QRScannerPage';
 import { CheckoutDeskPage } from './pages/librarian/CheckoutDeskPage';
+import { ReservationsPage } from './pages/member/ReservationsPage';
+import { BranchListPage } from './pages/admin/BranchListPage';
+import { BranchFormPage } from './pages/admin/BranchFormPage';
+import { AuditLogPage } from './pages/admin/AuditLogPage';
 import '@/App.css';
 
 const queryClient = new QueryClient({
@@ -43,6 +47,10 @@ function App() {
             <Route path="/admin/users" element={<UserListPage />} />
             <Route path="/admin/users/new" element={<UserFormPage />} />
             <Route path="/admin/users/:id" element={<UserFormPage />} />
+            <Route path="/admin/branches" element={<BranchListPage />} />
+            <Route path="/admin/branches/new" element={<BranchFormPage />} />
+            <Route path="/admin/branches/:id" element={<BranchFormPage />} />
+            <Route path="/admin/audit-logs" element={<AuditLogPage />} />
           </Route>
 
           {/* Member routes (also accessible to Admin/Librarian) */}
@@ -50,6 +58,7 @@ function App() {
             <Route path="/catalog" element={<CatalogPage />} />
             <Route path="/catalog/:id" element={<BookDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/reservations" element={<ReservationsPage />} />
 
             {/* Checkout routes */}
             <Route path="/checkouts" element={<MyBooksPage />} />
