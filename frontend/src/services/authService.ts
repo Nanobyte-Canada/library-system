@@ -9,11 +9,6 @@ export const authService = {
     return { token, user: response.data.data };
   },
 
-  async refreshToken(): Promise<string> {
-    const response = await api.post<ApiResponse<{ token: string }>>('/auth/refresh');
-    return response.data.data.token;
-  },
-
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
