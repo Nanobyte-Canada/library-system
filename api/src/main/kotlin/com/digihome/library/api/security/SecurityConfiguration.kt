@@ -34,7 +34,7 @@ class SecurityConfig(
         authConfig.authenticationManager
 
     @Bean
-    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+    fun filterChain(http: HttpSecurity, authenticationManager: AuthenticationManager): SecurityFilterChain {
         http
             .cors { }
             .csrf { it.disable() }
@@ -57,10 +57,10 @@ class SecurityConfig(
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .addFilter(
-                JWTAuthenticationFilter(authenticationManager(null), jwtConfig, objectMapper)
+                JWTAuthenticationFilter(authenticationManager, jwtConfig, objectMapper)
             )
             .addFilter(
-                JWTAuthorizationFilter(authenticationManager(null), jwtConfig, objectMapper)
+                JWTAuthorizationFilter(authenticationManager, jwtConfig, objectMapper)
             )
 
         return http.build()
