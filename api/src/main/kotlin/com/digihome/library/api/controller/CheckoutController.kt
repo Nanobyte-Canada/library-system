@@ -5,6 +5,7 @@ import com.digihome.library.api.models.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -77,10 +78,17 @@ class CheckoutController(
     }
 
     @PostMapping("/api/checkout/{id}/renew")
-    fun renewIssue(@PathVariable id: String): ResponseEntity<ResponseModel> {
+    fun renewIssue(@PathVariable id: String, authentication: Authentication): ResponseEntity<ResponseModel> {
         logger.info("Renew request: issue=$id")
         return try {
-            val serviceResponse = checkoutDbService.renewIssue(RenewRequest(issueId = id))
+            val callerIsStaff = authentication.authorities.any {
+                it.authority == "ROLE_ADMIN" || it.authority == "ROLE_LIBRARIAN"
+            }
+            val serviceResponse = checkoutDbService.renewIssue(
+                RenewRequest(issueId = id),
+                authentication.principal as String,
+                callerIsStaff
+            )
             ResponseEntity(ResponseModel(true, serviceResponse.message, HttpStatus.OK.value()), HttpStatus.OK)
         } catch (e: Exception) {
             logger.error("Renew failed: ${e.message}")

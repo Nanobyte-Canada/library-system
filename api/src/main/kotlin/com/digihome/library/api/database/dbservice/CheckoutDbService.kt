@@ -92,9 +92,13 @@ class CheckoutDbService(
         return returnBook(ReturnRequest(copyId = copy.id))
     }
 
-    fun renewIssue(request: RenewRequest): ServiceResponseModel {
+    fun renewIssue(request: RenewRequest, callerId: String, callerIsStaff: Boolean): ServiceResponseModel {
         val issue = bookIssueRepository.findById(request.issueId)
             .orElseThrow { Exception("Issue not found: ${request.issueId}") }
+
+        if (!callerIsStaff && issue.user?.id != callerId) {
+            throw Exception("You can only renew your own checkouts")
+        }
 
         if (issue.returnDate != null) {
             throw Exception("This book has already been returned")
