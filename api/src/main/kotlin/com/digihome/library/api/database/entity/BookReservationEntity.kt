@@ -55,4 +55,6 @@ interface BookReservationRepository : JpaRepository<BookReservationEntity, Strin
     fun countPendingByBookId(@Param("bookId") bookId: String): Long
 
     fun findByStatusOrderByReservedAtDesc(status: ReservationStatus): List<BookReservationEntity>
+
+    fun findByBookIdAndStatusOrderByQueuePositionAsc(bookId: String, status: ReservationStatus): List<BookReservationEntity>
 }

@@ -5,7 +5,7 @@ package com.digihome.library.api.models
  */
 
 data class ServiceResponseModel (
-    val success: Boolean,
-    val message: String,
-    val data: Any? = null
-)
+    override val success: Boolean,
+    override val message: String,
+    override val data: Any? = null
+) : ResponseModel(success = success, message = message, data = data)
