@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS branch (
     phone VARCHAR(20) NOT NULL,
     email VARCHAR(100) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS category (
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS category (
     name VARCHAR(100) NOT NULL,
     parent_id VARCHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (parent_id) REFERENCES category(id) ON DELETE SET NULL
 );
 
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS books (
     cover_image_url VARCHAR(500) DEFAULT '',
     category_id VARCHAR(36),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE SET NULL
 );
 
@@ -39,27 +39,27 @@ CREATE TABLE IF NOT EXISTS book_copies (
     book_id VARCHAR(36) NOT NULL,
     branch_id VARCHAR(36) NOT NULL,
     barcode VARCHAR(50) NOT NULL UNIQUE,
-    status ENUM('AVAILABLE', 'LOANED', 'LOST', 'DAMAGED') DEFAULT 'AVAILABLE',
+    status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE' CHECK (status IN ('AVAILABLE', 'LOANED', 'LOST', 'DAMAGED')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
     FOREIGN KEY (branch_id) REFERENCES branch(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS `user` (
+CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(36) PRIMARY KEY,
     membership_id VARCHAR(20) DEFAULT '',
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     phone_number VARCHAR(20) NOT NULL,
     email_id VARCHAR(100) DEFAULT '',
-    role ENUM('ADMIN', 'LIBRARIAN', 'MEMBER') DEFAULT 'MEMBER',
-    membership_type ENUM('STUDENT', 'FACULTY', 'PUBLIC') DEFAULT 'PUBLIC',
+    role VARCHAR(20) NOT NULL DEFAULT 'MEMBER' CHECK (role IN ('ADMIN', 'LIBRARIAN', 'MEMBER')),
+    membership_type VARCHAR(20) NOT NULL DEFAULT 'PUBLIC' CHECK (membership_type IN ('STUDENT', 'FACULTY', 'PUBLIC')),
     branch_id VARCHAR(36),
     is_active BOOLEAN DEFAULT TRUE,
     created_by VARCHAR(36) DEFAULT '',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (branch_id) REFERENCES branch(id) ON DELETE SET NULL
 );
 
@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS login (
     is_locked BOOLEAN DEFAULT FALSE,
     failed_attempts INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE CASCADE
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS book_issue (
@@ -83,8 +83,8 @@ CREATE TABLE IF NOT EXISTS book_issue (
     due_date TIMESTAMP NOT NULL,
     return_date TIMESTAMP NULL,
     renewed BOOLEAN DEFAULT FALSE,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE CASCADE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (copy_id) REFERENCES book_copies(id) ON DELETE CASCADE
 );
 
@@ -93,13 +93,13 @@ CREATE TABLE IF NOT EXISTS book_reservation (
     user_id VARCHAR(36) NOT NULL,
     book_id VARCHAR(36) NOT NULL,
     branch_id VARCHAR(36) NOT NULL,
-    status ENUM('PENDING', 'READY', 'EXPIRED', 'CANCELLED', 'FULFILLED') DEFAULT 'PENDING',
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'READY', 'EXPIRED', 'CANCELLED', 'FULFILLED')),
     queue_position INT DEFAULT 0,
     reserved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     notified_at TIMESTAMP NULL,
     expires_at TIMESTAMP NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE CASCADE,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
     FOREIGN KEY (branch_id) REFERENCES branch(id) ON DELETE CASCADE
 );
@@ -110,9 +110,9 @@ CREATE TABLE IF NOT EXISTS email_log (
     email_type VARCHAR(50) NOT NULL,
     subject VARCHAR(200) NOT NULL,
     sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('SENT', 'FAILED') DEFAULT 'SENT',
+    status VARCHAR(10) NOT NULL DEFAULT 'SENT' CHECK (status IN ('SENT', 'FAILED')),
     error_message TEXT NULL,
-    FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS audit_log (
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
     entity_id VARCHAR(36) NOT NULL,
     details JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES `user`(id) ON DELETE SET NULL
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 CREATE INDEX idx_books_isbn ON books(isbn);
@@ -131,9 +131,9 @@ CREATE INDEX idx_books_book_name ON books(book_name);
 CREATE INDEX idx_book_copies_book_id ON book_copies(book_id);
 CREATE INDEX idx_book_copies_branch_id ON book_copies(branch_id);
 CREATE INDEX idx_book_copies_barcode ON book_copies(barcode);
-CREATE INDEX idx_user_phone_number ON `user`(phone_number);
-CREATE INDEX idx_user_email_id ON `user`(email_id);
-CREATE INDEX idx_user_role ON `user`(role);
+CREATE INDEX idx_user_phone_number ON users(phone_number);
+CREATE INDEX idx_user_email_id ON users(email_id);
+CREATE INDEX idx_user_role ON users(role);
 CREATE INDEX idx_login_username ON login(username);
 CREATE INDEX idx_book_issue_user_id ON book_issue(user_id);
 CREATE INDEX idx_book_issue_copy_id ON book_issue(copy_id);

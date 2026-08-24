@@ -30,14 +30,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     // Database
-    runtimeOnly("com.mysql:mysql-connector-j")
+    runtimeOnly("org.postgresql:postgresql")
 
     // Auth
     implementation("com.auth0:java-jwt:3.10.2")
 
     // Flyway
     implementation("org.flywaydb:flyway-core")
-    implementation("org.flywaydb:flyway-mysql")
+    implementation("org.flywaydb:flyway-database-postgresql")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")

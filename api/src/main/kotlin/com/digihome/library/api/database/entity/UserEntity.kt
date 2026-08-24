@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 class UserEntity(
     @Id
     var id: String = UUID.randomUUID().toString(),

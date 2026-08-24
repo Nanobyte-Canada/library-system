@@ -12,7 +12,7 @@ INSERT INTO category (id, name, parent_id) VALUES
 ('c0000001-0000-0000-0000-000000000006', 'History', 'c0000001-0000-0000-0000-000000000004'),
 ('c0000001-0000-0000-0000-000000000007', 'Technology', 'c0000001-0000-0000-0000-000000000004');
 
-INSERT INTO `user` (id, membership_id, first_name, last_name, phone_number, email_id, role, membership_type, branch_id, is_active, created_by) VALUES
+INSERT INTO users (id, membership_id, first_name, last_name, phone_number, email_id, role, membership_type, branch_id, is_active, created_by) VALUES
 ('u0000001-0000-0000-0000-000000000001', 'ADM001', 'Admin', 'User', '+1-416-555-1000', 'admin@library.com', 'ADMIN', 'PUBLIC', 'b0000001-0000-0000-0000-000000000001', TRUE, 'system'),
 ('u0000001-0000-0000-0000-000000000002', 'LIB001', 'Jane', 'Librarian', '+1-416-555-1001', 'jane@library.com', 'LIBRARIAN', 'PUBLIC', 'b0000001-0000-0000-0000-000000000001', TRUE, 'u0000001-0000-0000-0000-000000000001'),
 ('u0000001-0000-0000-0000-000000000003', 'MEM001', 'John', 'Member', '+1-416-555-1002', 'john@example.com', 'MEMBER', 'STUDENT', 'b0000001-0000-0000-0000-000000000001', TRUE, 'u0000001-0000-0000-0000-000000000001');
