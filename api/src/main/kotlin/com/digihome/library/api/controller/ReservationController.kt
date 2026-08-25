@@ -5,6 +5,7 @@ import com.digihome.library.api.models.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -14,7 +15,7 @@ class ReservationController(
     val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostMapping("/api/reservations")
-    fun reserveBook(@RequestHeader("X-User-Id") userId: String, @RequestBody request: ReserveBookRequest): ResponseEntity<ResponseModel> {
+    fun reserveBook(@AuthenticationPrincipal userId: String, @RequestBody request: ReserveBookRequest): ResponseEntity<ResponseModel> {
         return try {
             val sr = reservationDbService.reserveBook(userId, request)
             ResponseEntity(ResponseModel(true, sr.message, HttpStatus.OK.value()), HttpStatus.OK)
@@ -24,7 +25,7 @@ class ReservationController(
     }
 
     @PostMapping("/api/reservations/{id}/cancel")
-    fun cancelReservation(@RequestHeader("X-User-Id") userId: String, @PathVariable id: String): ResponseEntity<ResponseModel> {
+    fun cancelReservation(@AuthenticationPrincipal userId: String, @PathVariable id: String): ResponseEntity<ResponseModel> {
         return try {
             val sr = reservationDbService.cancelReservation(userId, CancelReservationRequest(id))
             ResponseEntity(ResponseModel(true, sr.message, HttpStatus.OK.value()), HttpStatus.OK)
@@ -34,7 +35,7 @@ class ReservationController(
     }
 
     @GetMapping("/api/reservations/my")
-    fun myReservations(@RequestHeader("X-User-Id") userId: String): ResponseEntity<ResponseModel> {
+    fun myReservations(@AuthenticationPrincipal userId: String): ResponseEntity<ResponseModel> {
         return try {
             val reservations = reservationDbService.getMyReservations(userId)
             ResponseEntity(ResponseModel(true, null, HttpStatus.OK.value(), reservations), HttpStatus.OK)

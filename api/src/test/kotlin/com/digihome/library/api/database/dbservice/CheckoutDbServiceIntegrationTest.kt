@@ -4,6 +4,7 @@ import com.digihome.library.api.database.entity.*
 import com.digihome.library.api.database.enums.CopyStatus
 import com.digihome.library.api.database.enums.ReservationStatus
 import com.digihome.library.api.models.CheckoutRequest
+import com.digihome.library.api.models.LoginModel
 import com.digihome.library.api.models.RenewRequest
 import com.digihome.library.api.models.ReturnRequest
 import com.digihome.library.api.support.AbstractIntegrationTest
@@ -12,6 +13,9 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.http.*
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
 
 class CheckoutDbServiceIntegrationTest : AbstractIntegrationTest() {
@@ -23,6 +27,9 @@ class CheckoutDbServiceIntegrationTest : AbstractIntegrationTest() {
     @Autowired lateinit var bookCopyRepository: BookCopyRepository
     @Autowired lateinit var bookIssueRepository: BookIssueRepository
     @Autowired lateinit var bookReservationRepository: BookReservationRepository
+    @Autowired lateinit var passwordEncoder: BCryptPasswordEncoder
+    @Autowired lateinit var loginRepository: LoginRepository
+    @Autowired lateinit var restTemplate: TestRestTemplate
 
     private fun newUser(suffix: String): UserEntity =
         userRepository.save(
@@ -42,6 +49,18 @@ class CheckoutDbServiceIntegrationTest : AbstractIntegrationTest() {
         return bookCopyRepository.save(
             BookCopyEntity(book = book, branch = branch, barcode = "BC-$suffix", status = status)
         )
+    }
+
+    private fun loginAs(user: UserEntity, username: String, password: String): String {
+        loginRepository.save(
+            LoginEntity(user = user, username = username, password = passwordEncoder.encode(password))
+        )
+        val response = restTemplate.postForEntity(
+            "http://localhost:$port/api/auth/login",
+            HttpEntity(LoginModel(username, password)),
+            String::class.java
+        )
+        return response.headers.getFirst("Authorization")!!
     }
 
     @Test
@@ -147,5 +166,24 @@ class CheckoutDbServiceIntegrationTest : AbstractIntegrationTest() {
             checkoutDbService.renewIssue(RenewRequest(issueId = issue.id), user.id, callerIsStaff = false)
         }
         assertTrue(ex.message!!.contains("pending reservations"))
+    }
+
+    @Test
+    fun `scan checkout works with bearer token alone - no X-User-Id header`() {
+        val user = newUser("scan")
+        val copy = newCopy("scan")
+        val token = loginAs(user, "scan-user", "password1")
+
+        val headers = HttpHeaders().apply {
+            contentType = MediaType.APPLICATION_JSON
+            set(HttpHeaders.AUTHORIZATION, "Bearer ${token.removePrefix("Bearer ")}")
+        }
+        val response = restTemplate.postForEntity(
+            "http://localhost:$port/api/checkout/scan",
+            HttpEntity(mapOf("barcode" to copy.barcode), headers),
+            String::class.java
+        )
+
+        assertEquals(HttpStatus.OK, response.statusCode)
     }
 }

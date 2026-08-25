@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -46,7 +47,7 @@ class CheckoutController(
 
     @PostMapping("/api/checkout/scan")
     fun scanCheckout(
-        @RequestHeader("X-User-Id") userId: String,
+        @AuthenticationPrincipal userId: String,
         @RequestBody request: ScanCheckoutRequest
     ): ResponseEntity<ResponseModel> {
         logger.info("Scan checkout: barcode=${request.barcode}")
@@ -100,7 +101,7 @@ class CheckoutController(
     }
 
     @GetMapping("/api/checkout/my")
-    fun myCheckouts(@RequestHeader("X-User-Id") userId: String): ResponseEntity<ResponseModel> {
+    fun myCheckouts(@AuthenticationPrincipal userId: String): ResponseEntity<ResponseModel> {
         logger.info("My checkouts: user=$userId")
         return try {
             val checkouts = checkoutDbService.getActiveCheckouts(userId)
@@ -116,7 +117,7 @@ class CheckoutController(
 
     @GetMapping("/api/checkout/history")
     fun checkoutHistory(
-        @RequestHeader("X-User-Id") userId: String
+        @AuthenticationPrincipal userId: String
     ): ResponseEntity<ResponseModel> {
         logger.info("Checkout history: user=$userId")
         return try {

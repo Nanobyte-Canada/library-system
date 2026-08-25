@@ -5,6 +5,7 @@ import com.digihome.library.api.models.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -109,7 +110,7 @@ class UserManagementController(
     }
 
     @GetMapping("/me")
-    fun getProfile(@RequestHeader("X-User-Id") userId: String): ResponseEntity<ResponseModel> {
+    fun getProfile(@AuthenticationPrincipal userId: String): ResponseEntity<ResponseModel> {
         logger.info("Get profile: $userId")
         return try {
             val user = userManagementDbService.getProfile(userId)
@@ -132,7 +133,7 @@ class UserManagementController(
 
     @PutMapping("/me")
     fun updateProfile(
-        @RequestHeader("X-User-Id") userId: String,
+        @AuthenticationPrincipal userId: String,
         @RequestBody request: UserUpdateRequest
     ): ResponseEntity<ResponseModel> {
         logger.info("Update profile: $userId")
@@ -150,7 +151,7 @@ class UserManagementController(
 
     @PutMapping("/me/password")
     fun changePassword(
-        @RequestHeader("X-User-Id") userId: String,
+        @AuthenticationPrincipal userId: String,
         @RequestBody request: PasswordChangeRequest
     ): ResponseEntity<ResponseModel> {
         logger.info("Change password: $userId")
