@@ -1,0 +1,67 @@
+# deploy/prod/docker-compose.yml — Production deploy
+services:
+  api:
+    image: ghcr.io/nanobyte-canada/library-api:${IMAGE_TAG}
+    container_name: prod-library-api
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://host.docker.internal:15432/library
+      DB_USERNAME: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SIGNING_KEY: ${JWT_SIGNING_KEY}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      MAIL_FROM: ${MAIL_FROM}
+    ports:
+      - "10180:8082"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: "5"
+    networks:
+      - prod-library-network
+
+  frontend:
+    image: ghcr.io/nanobyte-canada/library-frontend:${IMAGE_TAG}
+    container_name: prod-library-frontend
+    ports:
+      - "10100:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    logging:
+      driver: json-file
+      options:
+        max-size: 50m
+        max-file: "5"
+    networks:
+      - prod-library-network
+
+networks:
+  prod-library-network:
+    driver: bridge
