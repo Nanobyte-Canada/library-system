@@ -4,6 +4,8 @@ target/
 *.properties
 !gradle/wrapper/gradle-wrapper.properties
 *.yml
+!.github/workflows/
+!.github/workflows/*.yml
 !deploy/prod/docker-compose.yml
 !deploy/uat/docker-compose.yml
 !docker-compose.yml
