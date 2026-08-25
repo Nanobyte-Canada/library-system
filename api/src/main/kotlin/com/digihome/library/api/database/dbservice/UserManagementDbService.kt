@@ -1,6 +1,7 @@
 package com.digihome.library.api.database.dbservice
 
 import com.digihome.library.api.database.entity.*
+import com.digihome.library.api.database.enums.MembershipType
 import com.digihome.library.api.database.enums.UserRole
 import com.digihome.library.api.models.*
 import org.slf4j.LoggerFactory
@@ -8,6 +9,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -157,6 +159,47 @@ class UserManagementDbService(
 
     fun updateProfile(userId: String, request: UserUpdateRequest): ServiceResponseModel {
         return updateUser(userId, request)
+    }
+
+    @Transactional
+    fun register(request: RegisterRequest): UserEntity {
+        require(request.firstName.isNotBlank()) { "First name is required" }
+        require(request.lastName.isNotBlank()) { "Last name is required" }
+        require(request.email.isNotBlank() && "@" in request.email) { "A valid email is required" }
+        require(request.password.length >= 6) { "Password must be at least 6 characters" }
+
+        userRepository.findByEmailId(request.email)?.let {
+            throw Exception("Email is already registered")
+        }
+        loginRepository.findByUsername(request.email)?.let {
+            throw Exception("Username is already taken")
+        }
+        if (request.membershipId.isNotBlank()) {
+            userRepository.findByMembershipId(request.membershipId)?.let {
+                throw Exception("Membership ID is already in use")
+            }
+        }
+
+        val user = userRepository.save(
+            UserEntity(
+                firstName = request.firstName.trim(),
+                lastName = request.lastName.trim(),
+                phoneNumber = request.phoneNumber,
+                emailId = request.email.trim().lowercase(),
+                role = UserRole.MEMBER,
+                membershipType = MembershipType.PUBLIC,
+                isActive = true,
+                createdBy = "self-registration"
+            )
+        )
+        loginRepository.save(
+            LoginEntity(
+                user = user,
+                username = request.email.trim().lowercase(),
+                password = passwordEncoder.encode(request.password)
+            )
+        )
+        return user
     }
 
     private fun mapToUserResponse(user: UserEntity): UserResponse {
