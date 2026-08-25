@@ -1,5 +1,6 @@
 package com.digihome.library.api.controller
 
+import com.digihome.library.api.database.dbservice.AuditLogDbService
 import com.digihome.library.api.database.dbservice.BookManagementDbService
 import com.digihome.library.api.models.*
 import com.digihome.library.api.service.OpenLibraryService
@@ -9,22 +10,27 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/books")
 class BookManagementController(
     val bookManagementDbService: BookManagementDbService,
-    val openLibraryService: OpenLibraryService
+    val openLibraryService: OpenLibraryService,
+    val auditLogDbService: AuditLogDbService
 ) {
     val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
-    fun createBook(@RequestBody request: BookCreateRequest): ResponseEntity<ResponseModel> {
+    fun createBook(
+        @RequestBody request: BookCreateRequest,
+        authentication: Authentication
+    ): ResponseEntity<ResponseModel> {
         logger.info("Create book request: ${request.bookName}")
         return try {
-            val response = bookManagementDbService.createBook(request)
+            val response = bookManagementDbService.createBook(request, authentication.principal as String)
             ResponseEntity(response, HttpStatus.CREATED)
         } catch (e: Exception) {
             logger.error("Create book failed: ${e.message}")
@@ -37,10 +43,14 @@ class BookManagementController(
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
-    fun updateBook(@PathVariable id: String, @RequestBody request: BookUpdateRequest): ResponseEntity<ResponseModel> {
+    fun updateBook(
+        @PathVariable id: String,
+        @RequestBody request: BookUpdateRequest,
+        authentication: Authentication
+    ): ResponseEntity<ResponseModel> {
         logger.info("Update book request: $id")
         return try {
-            val response = bookManagementDbService.updateBook(id, request)
+            val response = bookManagementDbService.updateBook(id, request, authentication.principal as String)
             ResponseEntity(response, HttpStatus.OK)
         } catch (e: Exception) {
             logger.error("Update book failed: ${e.message}")

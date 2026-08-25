@@ -1,5 +1,6 @@
 package com.digihome.library.api.controller
 
+import com.digihome.library.api.database.dbservice.AuditLogDbService
 import com.digihome.library.api.database.dbservice.CheckoutDbService
 import com.digihome.library.api.models.*
 import org.slf4j.LoggerFactory
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 class CheckoutController(
-    val checkoutDbService: CheckoutDbService
+    val checkoutDbService: CheckoutDbService,
+    val auditLogDbService: AuditLogDbService
 ) {
     val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -22,6 +24,10 @@ class CheckoutController(
         logger.info("Checkout request: user=${request.userId}, copy=${request.copyId}")
         return try {
             val serviceResponse = checkoutDbService.checkout(request)
+            auditLogDbService.logAction(
+                userId = request.userId, action = "CHECKOUT", entityType = "BOOK_ISSUE",
+                entityId = request.copyId, details = "desk checkout"
+            )
             ResponseEntity(ResponseModel(true, serviceResponse.message, HttpStatus.OK.value()), HttpStatus.OK)
         } catch (e: Exception) {
             logger.error("Checkout failed: ${e.message}")
@@ -38,6 +44,10 @@ class CheckoutController(
         logger.info("Return request: copy=${request.copyId}")
         return try {
             val serviceResponse = checkoutDbService.returnBook(request)
+            auditLogDbService.logAction(
+                userId = null, action = "RETURN", entityType = "BOOK_COPY",
+                entityId = request.copyId, details = "desk return"
+            )
             ResponseEntity(ResponseModel(true, serviceResponse.message, HttpStatus.OK.value()), HttpStatus.OK)
         } catch (e: Exception) {
             logger.error("Return failed: ${e.message}")
@@ -56,6 +66,10 @@ class CheckoutController(
         logger.info("Scan checkout: barcode=${request.barcode}")
         return try {
             val serviceResponse = checkoutDbService.scanCheckoutForUser(userId, request.barcode)
+            auditLogDbService.logAction(
+                userId = userId, action = "CHECKOUT", entityType = "BOOK_ISSUE",
+                entityId = request.barcode, details = "scan checkout"
+            )
             ResponseEntity(ResponseModel(true, serviceResponse.message, HttpStatus.OK.value()), HttpStatus.OK)
         } catch (e: Exception) {
             logger.error("Scan checkout failed: ${e.message}")
@@ -71,6 +85,10 @@ class CheckoutController(
         logger.info("Scan return: barcode=${request.barcode}")
         return try {
             val serviceResponse = checkoutDbService.scanReturn(request)
+            auditLogDbService.logAction(
+                userId = null, action = "RETURN", entityType = "BOOK_COPY",
+                entityId = request.barcode, details = "scan return"
+            )
             ResponseEntity(ResponseModel(true, serviceResponse.message, HttpStatus.OK.value()), HttpStatus.OK)
         } catch (e: Exception) {
             logger.error("Scan return failed: ${e.message}")
@@ -92,6 +110,10 @@ class CheckoutController(
                 RenewRequest(issueId = id),
                 authentication.principal as String,
                 callerIsStaff
+            )
+            auditLogDbService.logAction(
+                userId = authentication.principal as String, action = "RENEW",
+                entityType = "BOOK_ISSUE", entityId = id
             )
             ResponseEntity(ResponseModel(true, serviceResponse.message, HttpStatus.OK.value()), HttpStatus.OK)
         } catch (e: Exception) {

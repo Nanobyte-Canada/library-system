@@ -21,7 +21,8 @@ class BookManagementDbService(
     val categoryRepository: CategoryRepository,
     val branchRepository: BranchRepository,
     val restTemplate: RestTemplate,
-    val objectMapper: ObjectMapper
+    val objectMapper: ObjectMapper,
+    val auditLogDbService: AuditLogDbService
 ) {
     val logger = LoggerFactory.getLogger(this::class.java)
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
@@ -31,7 +32,7 @@ class BookManagementDbService(
 
     // --- Book CRUD ---
 
-    fun createBook(request: BookCreateRequest): ServiceResponseModel {
+    fun createBook(request: BookCreateRequest, actorId: String?): ServiceResponseModel {
         val category = request.categoryId?.let {
             categoryRepository.findById(it).orElseThrow { Exception("Category not found: $it") }
         }
@@ -50,10 +51,14 @@ class BookManagementDbService(
         )
 
         booksRepository.save(book)
+        auditLogDbService.logAction(
+            userId = actorId, action = "BOOK_CREATE", entityType = "BOOK",
+            entityId = book.id, details = request.bookName
+        )
         return ServiceResponseModel(true, "Book created successfully")
     }
 
-    fun updateBook(bookId: String, request: BookUpdateRequest): ServiceResponseModel {
+    fun updateBook(bookId: String, request: BookUpdateRequest, actorId: String?): ServiceResponseModel {
         val book = booksRepository.findById(bookId)
             .orElseThrow { Exception("Book not found: $bookId") }
 
@@ -73,6 +78,10 @@ class BookManagementDbService(
         book.updatedAt = LocalDateTime.now()
 
         booksRepository.save(book)
+        auditLogDbService.logAction(
+            userId = actorId, action = "BOOK_UPDATE", entityType = "BOOK",
+            entityId = bookId, details = request.bookName
+        )
         return ServiceResponseModel(true, "Book updated successfully")
     }
 
