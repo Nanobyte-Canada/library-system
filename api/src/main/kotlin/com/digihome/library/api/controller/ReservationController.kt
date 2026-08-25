@@ -46,6 +46,7 @@ class ReservationController(
     }
 
     @GetMapping("/api/reservations")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     fun allReservations(): ResponseEntity<ResponseModel> {
         return try {
             val reservations = reservationDbService.getAllReservations()
