@@ -1,0 +1,70 @@
+# docker-compose.yml — Local development
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+      target: build
+    container_name: library-api
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://postgres:5432/library
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      JWT_SIGNING_KEY: dev-secret-key-change-in-prod
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - library-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      target: development
+    container_name: library-frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:8082
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - library-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: library-postgres
+    environment:
+      POSTGRES_DB: library
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - library-network
+
+volumes:
+  postgres_data:
+
+networks:
+  library-network:
+    driver: bridge
