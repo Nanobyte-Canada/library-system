@@ -5,6 +5,8 @@ target/
 !gradle/wrapper/gradle-wrapper.properties
 *.yml
 !deploy/prod/docker-compose.yml
+!deploy/uat/docker-compose.yml
+!docker-compose.yml
 *.class
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
