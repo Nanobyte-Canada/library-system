@@ -5,6 +5,7 @@ import com.digihome.library.api.models.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -34,6 +35,7 @@ class BranchController(
     }
 
     @PostMapping("/api/branches")
+    @PreAuthorize("hasRole('ADMIN')")
     fun createBranch(@RequestBody request: BranchCreateRequest): ResponseEntity<ResponseModel> {
         return try {
             val sr = branchDbService.createBranch(request)
@@ -44,6 +46,7 @@ class BranchController(
     }
 
     @PutMapping("/api/branches/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun updateBranch(@PathVariable id: String, @RequestBody request: BranchCreateRequest): ResponseEntity<ResponseModel> {
         return try {
             val sr = branchDbService.updateBranch(id, request)
@@ -54,6 +57,7 @@ class BranchController(
     }
 
     @DeleteMapping("/api/branches/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun deleteBranch(@PathVariable id: String): ResponseEntity<ResponseModel> {
         return try {
             val sr = branchDbService.deleteBranch(id)

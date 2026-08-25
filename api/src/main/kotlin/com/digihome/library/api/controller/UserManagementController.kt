@@ -5,6 +5,7 @@ import com.digihome.library.api.models.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
@@ -16,6 +17,7 @@ class UserManagementController(
     val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     fun createUser(@RequestBody request: UserCreateRequest): ResponseEntity<ResponseModel> {
         logger.info("Create user request: ${request.emailId}")
         return try {
@@ -31,6 +33,7 @@ class UserManagementController(
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun updateUser(@PathVariable id: String, @RequestBody request: UserUpdateRequest): ResponseEntity<ResponseModel> {
         logger.info("Update user request: $id")
         return try {
@@ -46,6 +49,7 @@ class UserManagementController(
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun getUser(@PathVariable id: String): ResponseEntity<ResponseModel> {
         logger.info("Get user: $id")
         return try {
@@ -68,6 +72,7 @@ class UserManagementController(
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     fun listUsers(
         @RequestParam(defaultValue = "1") page: Int,
         @RequestParam(defaultValue = "20") size: Int
@@ -86,6 +91,7 @@ class UserManagementController(
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
     fun searchUsers(
         @RequestParam(required = false) q: String?,
         @RequestParam(required = false) role: String?,

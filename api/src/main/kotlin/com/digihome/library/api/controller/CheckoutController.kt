@@ -5,6 +5,7 @@ import com.digihome.library.api.models.*
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -16,6 +17,7 @@ class CheckoutController(
     val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostMapping("/api/checkout")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     fun checkout(@RequestBody request: CheckoutRequest): ResponseEntity<ResponseModel> {
         logger.info("Checkout request: user=${request.userId}, copy=${request.copyId}")
         return try {
@@ -31,6 +33,7 @@ class CheckoutController(
     }
 
     @PostMapping("/api/return")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     fun returnBook(@RequestBody request: ReturnRequest): ResponseEntity<ResponseModel> {
         logger.info("Return request: copy=${request.copyId}")
         return try {

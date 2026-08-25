@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -19,6 +20,7 @@ class BookManagementController(
     val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     fun createBook(@RequestBody request: BookCreateRequest): ResponseEntity<ResponseModel> {
         logger.info("Create book request: ${request.bookName}")
         return try {
@@ -34,6 +36,7 @@ class BookManagementController(
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     fun updateBook(@PathVariable id: String, @RequestBody request: BookUpdateRequest): ResponseEntity<ResponseModel> {
         logger.info("Update book request: $id")
         return try {
@@ -136,6 +139,7 @@ class BookManagementController(
     }
 
     @PostMapping("/{id}/copies")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     fun addCopies(@PathVariable id: String, @RequestBody request: BookCopyRequest): ResponseEntity<ResponseModel> {
         logger.info("Add copies request: book=$id, quantity=${request.quantity}")
         return try {
@@ -166,6 +170,7 @@ class BookManagementController(
     }
 
     @PostMapping("/{id}/transfer")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     fun transferCopy(@PathVariable id: String, @RequestBody request: BookTransferRequest): ResponseEntity<ResponseModel> {
         logger.info("Transfer copy request: copy=${request.copyId}, to=${request.toBranchId}")
         return try {

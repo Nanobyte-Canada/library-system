@@ -7,6 +7,7 @@ import com.digihome.library.api.models.ResponseModel
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -15,6 +16,7 @@ class CategoryController(val categoryDbService: CategoryDbService) {
     val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     fun createCategory(@RequestBody request: CategoryCreateRequest): ResponseEntity<ResponseModel> {
         logger.info("Create category request: ${request.name}")
         return try {
