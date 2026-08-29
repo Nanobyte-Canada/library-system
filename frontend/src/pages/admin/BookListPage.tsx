@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AgGridReact } from '@ag-grid-community/react';
+import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, CellClickedEvent } from 'ag-grid-community';
 import { AllCommunityModule } from 'ag-grid-community';
-import '@ag-grid-community/styles/ag-grid.css';
-import '@ag-grid-community/styles/ag-theme-alpine.css';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Plus } from 'lucide-react';
 import { bookService } from '../../services/bookService';
 import type { Book } from '../../types';
@@ -82,7 +82,7 @@ export function BookListPage() {
           paginationPageSize={20}
           onCellClicked={onCellClicked}
           loading={loading}
-          noRowsOverlay="No books found"
+          overlayNoRowsTemplate="No books found"
         />
       </div>
 

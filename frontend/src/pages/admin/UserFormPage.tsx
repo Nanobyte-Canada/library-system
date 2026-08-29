@@ -96,7 +96,7 @@ export function UserFormPage() {
           emailId: formData.emailId,
           role: formData.role,
           membershipType: formData.membershipType,
-          branchId: formData.branchId,
+          branchId: formData.branchId ?? undefined,
         };
         await userService.updateUser(id, updateData);
         setSuccess('User updated successfully');

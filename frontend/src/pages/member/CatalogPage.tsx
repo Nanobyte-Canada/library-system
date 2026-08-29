@@ -176,7 +176,7 @@ export function CatalogPage() {
               <button
                 className="btn-secondary"
                 disabled={pagination.page === 1}
-                onClick={() => setSearchParams(prev => ({ ...prev, page: prev.page - 1 }))}
+                onClick={() => setSearchParams(prev => ({ ...prev, page: (prev.page ?? 1) - 1 }))}
               >
                 Previous
               </button>
@@ -186,7 +186,7 @@ export function CatalogPage() {
               <button
                 className="btn-secondary"
                 disabled={pagination.page === pagination.totalPages}
-                onClick={() => setSearchParams(prev => ({ ...prev, page: prev.page + 1 }))}
+                onClick={() => setSearchParams(prev => ({ ...prev, page: (prev.page ?? 1) + 1 }))}
               >
                 Next
               </button>

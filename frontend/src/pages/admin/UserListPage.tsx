@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AgGridReact } from '@ag-grid-community/react';
+import { AgGridReact } from 'ag-grid-react';
 import type { ColDef, CellClickedEvent } from 'ag-grid-community';
 import { AllCommunityModule } from 'ag-grid-community';
-import '@ag-grid-community/styles/ag-grid.css';
-import '@ag-grid-community/styles/ag-theme-alpine.css';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Plus } from 'lucide-react';
 import { userService } from '../../services/userService';
 import type { UserResponse } from '../../types';
@@ -98,7 +98,7 @@ export function UserListPage() {
           paginationPageSize={20}
           onCellClicked={onCellClicked}
           loading={loading}
-          noRowsOverlay="No users found"
+          overlayNoRowsTemplate="No users found"
         />
       </div>
 

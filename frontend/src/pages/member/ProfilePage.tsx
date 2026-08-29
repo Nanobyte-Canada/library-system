@@ -6,7 +6,7 @@ import type { UserResponse, UserUpdateRequest, PasswordChangeRequest } from '../
 import './ProfilePage.css';
 
 export function ProfilePage() {
-  const { user: authUser } = useAuthStore();
+  const { user: _authUser } = useAuthStore();
   const [profile, setProfile] = useState<UserResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
