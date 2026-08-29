@@ -42,7 +42,8 @@ jobs:
           cache-read-only: false
 
       - name: Run API tests
-        run: ./gradlew :api:test :api:compileTestKotlin
+        run: ./gradlew :test :compileTestKotlin
+        working-directory: api
         env:
           DB_URL: jdbc:postgresql://localhost:5432/library_test
           DB_USERNAME: test
