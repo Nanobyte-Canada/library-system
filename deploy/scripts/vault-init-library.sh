@@ -6,20 +6,31 @@
 set -euo pipefail
 
 VAULT_CONTAINER="${VAULT_CONTAINER:-portfolio-vault}"
-VAULT_CMD="docker exec ${VAULT_CONTAINER}"
+VAULT_CMD="docker exec -e VAULT_TOKEN=${VAULT_TOKEN} ${VAULT_CONTAINER}"
 
 echo "=== Library Vault Initialization ==="
 echo "Vault container: ${VAULT_CONTAINER}"
 echo ""
 
-# --- 0. Verify container is running ---
-echo "[0/4] Checking that '${VAULT_CONTAINER}' container is running..."
+# --- 0. Verify prerequisites ---
+echo "[0/4] Checking prerequisites..."
+
 if ! docker inspect --format='{{.State.Running}}' "${VAULT_CONTAINER}" 2>/dev/null | grep -q "true"; then
     echo "ERROR: Container '${VAULT_CONTAINER}' is not running."
     echo "Start it first: docker compose up -d portfolio-vault"
     exit 1
 fi
 echo "  Container is running."
+
+if [ -z "${VAULT_TOKEN:-}" ]; then
+    echo "ERROR: VAULT_TOKEN not set."
+    echo "Usage: VAULT_TOKEN=<root_token> bash deploy/scripts/vault-init-library.sh"
+    echo ""
+    echo "If you just initialized Vault, use the root token from the init output."
+    echo "If Vault was already initialized, use your admin token."
+    exit 1
+fi
+echo "  VAULT_TOKEN is set."
 
 # --- 1. Create library-deploy policy ---
 echo ""
