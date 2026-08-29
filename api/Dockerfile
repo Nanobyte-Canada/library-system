@@ -4,9 +4,9 @@ FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 
 # Copy Gradle wrapper and build files first (cached layer)
-COPY gradle ./gradle
-COPY gradlew build.gradle.kts settings.gradle.kts ./
-RUN ./gradlew dependencies --no-daemon || true
+COPY api/gradle ./gradle
+COPY api/gradlew api/build.gradle.kts api/settings.gradle.kts ./
+RUN chmod +x gradlew && ./gradlew dependencies --no-daemon || true
 
 # Copy API source
 COPY api/ ./api/
