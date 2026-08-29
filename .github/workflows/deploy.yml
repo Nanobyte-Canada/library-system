@@ -161,10 +161,10 @@ jobs:
       - name: Health gate
         run: |
           ENV="${{ github.event.inputs.environment }}"
-          PORT=${{ env.ENV == 'prod' && '10180' || '20180' }}
-          echo "Checking health on port ${PORT}..."
+          SUBDOMAIN="${{ env.ENV == 'prod' && 'library' || 'uatlibrary' }}"
+          echo "Checking health at https://${SUBDOMAIN}.nanobyte.ca/ ..."
           for i in $(seq 1 30); do
-            STATUS=$(curl -sf "http://localhost:${PORT}/actuator/health" | jq -r '.status' 2>/dev/null || echo "DOWN")
+            STATUS=$(curl -sf "https://${SUBDOMAIN}.nanobyte.ca/api/health" | python3 -c "import sys,json; print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "DOWN")
             if [ "$STATUS" = "UP" ]; then
               echo "Health check passed"
               exit 0
