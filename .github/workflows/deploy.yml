@@ -27,8 +27,8 @@ jobs:
     steps:
       - name: Validate tag format
         run: |
-          if [[ ! "${{ github.event.inputs.tag }}" =~ ^(main-[a-f0-9]{7,}|latest)$ ]]; then
-            echo "::error::Invalid tag format. Expected: main-<short-sha> or latest"
+          if [[ ! "${{ github.event.inputs.tag }}" =~ ^(master-[a-f0-9]{7,}|main-[a-f0-9]{7,}|latest)$ ]]; then
+            echo "::error::Invalid tag format. Expected: master-<short-sha>, main-<short-sha>, or latest"
             exit 1
           fi
 
