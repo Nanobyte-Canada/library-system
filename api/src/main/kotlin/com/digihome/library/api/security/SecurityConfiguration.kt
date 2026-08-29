@@ -34,6 +34,20 @@ class SecurityConfig(
         authConfig.authenticationManager
 
     @Bean
+    @Order(1)
+    fun actuatorFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http
+            .securityMatcher("/actuator/**")
+            .authorizeHttpRequests { auth ->
+                auth.anyRequest().permitAll()
+            }
+            .csrf { it.disable() }
+            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+        return http.build()
+    }
+
+    @Bean
+    @Order(2)
     fun filterChain(http: HttpSecurity, authenticationManager: AuthenticationManager): SecurityFilterChain {
         http
             .cors { }
@@ -44,7 +58,6 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                    .requestMatchers("/actuator/health").permitAll()
                     // Sprint 2: Allow public catalog browsing
                     .requestMatchers(HttpMethod.GET, "/api/books").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/books/{id}").permitAll()
