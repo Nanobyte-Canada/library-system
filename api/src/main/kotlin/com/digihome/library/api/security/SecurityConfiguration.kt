@@ -59,6 +59,8 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                    .requestMatchers("/health", "/ready").permitAll()
+                    .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                     // Sprint 2: Allow public catalog browsing
                     .requestMatchers(HttpMethod.GET, "/api/books").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/books/{id}").permitAll()
