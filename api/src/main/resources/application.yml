@@ -32,6 +32,15 @@ jwt:
   expiration: 60000000
   secret: ${JWT_SECRET:dev-jwt-secret-change-in-production}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
 logging:
   level:
     com.digihome.library.api: DEBUG
