@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # deploy/scripts/backup.sh
 # Nightly backup of library database from existing Postgres containers.
-# Cron: 0 3 * * * /opt/library/scripts/backup.sh >> /opt/library/backups/backup.log 2>&1
+# Shares Postgres containers with pc repo — reads POSTGRES_USER from portfolio .env files.
+# Cron: 15 3 * * * /opt/library/deploy/scripts/backup.sh >> /opt/library/backups/backup.log 2>&1
 set -euo pipefail
 
 BACKUP_DIR="/opt/library/backups"
@@ -16,6 +17,7 @@ log() {
 
 backup_db() {
     local env="$1"
+    local db_user="$2"
     local container="${env}-postgres"
 
     mkdir -p "${BACKUP_DIR}/${env}/daily" "${BACKUP_DIR}/${env}/weekly"
@@ -24,7 +26,7 @@ backup_db() {
 
     log "Backing up ${env} library database..."
 
-    docker exec "${container}" pg_dump -U postgres library | gzip > "${daily_file}"
+    docker exec "${container}" pg_dump -U "${db_user}" library | gzip > "${daily_file}"
 
     local size
     size=$(du -h "${daily_file}" | cut -f1)
@@ -44,7 +46,25 @@ backup_db() {
 
 log "=== Starting library database backups ==="
 
-backup_db "prod"
-backup_db "uat"
+# Source env files to get credentials (same Postgres containers as pc repo)
+if [ -f /opt/portfolio/prod/.env ]; then
+    # shellcheck disable=SC1091
+    source /opt/portfolio/prod/.env
+    backup_db "prod" "${POSTGRES_USER}"
+else
+    log "WARNING: /opt/portfolio/prod/.env not found, skipping prod backup"
+fi
+
+if [ -f /opt/portfolio/uat/.env ]; then
+    # Save prod user, load UAT
+    PROD_USER="${POSTGRES_USER:-}"
+    # shellcheck disable=SC1091
+    source /opt/portfolio/uat/.env
+    backup_db "uat" "${POSTGRES_USER}"
+    # Restore prod user
+    POSTGRES_USER="${PROD_USER}"
+else
+    log "WARNING: /opt/portfolio/uat/.env not found, skipping UAT backup"
+fi
 
 log "=== Library backups complete ==="
