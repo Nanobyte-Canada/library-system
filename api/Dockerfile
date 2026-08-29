@@ -4,15 +4,15 @@ FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 
 # Copy Gradle wrapper and build files first (cached layer)
-COPY api/gradle ./gradle
-COPY api/gradlew api/build.gradle.kts api/settings.gradle.kts ./
+COPY gradle ./gradle
+COPY gradlew build.gradle.kts settings.gradle.kts ./
 RUN chmod +x gradlew && ./gradlew dependencies --no-daemon || true
 
 # Copy API source
-COPY api/ ./api/
+COPY src/ ./src/
 
 # Build fat JAR, skip tests
-RUN ./gradlew :api:bootJar --no-daemon -x test
+RUN ./gradlew bootJar --no-daemon -x test
 
 # Runtime stage
 FROM eclipse-temurin:17-jre
@@ -27,7 +27,7 @@ RUN groupadd -g 1001 appgroup && \
     useradd -u 1001 -g appgroup -s /bin/bash appuser
 
 WORKDIR /app
-COPY --from=build /app/api/build/libs/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 RUN chown -R appuser:appgroup /app
 USER appuser
