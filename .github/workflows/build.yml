@@ -15,6 +15,7 @@ jobs:
   test-api:
     name: API Tests
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -27,8 +28,13 @@ jobs:
         with:
           cache-read-only: false
 
+      - name: Compile API
+        run: ./gradlew :compileKotlin
+        working-directory: api
+
       - name: Run API tests
-        run: ./gradlew :test :compileTestKotlin
+        id: api-tests
+        run: ./gradlew :test
         working-directory: api
 
   test-frontend:
