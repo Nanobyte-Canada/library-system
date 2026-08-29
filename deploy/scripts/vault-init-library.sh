@@ -1,18 +1,30 @@
 #!/usr/bin/env bash
 # deploy/scripts/vault-init-library.sh
 # One-time setup: creates library-deploy policy + AppRole on existing Vault server.
+# Runs vault commands inside the portfolio-vault container via docker exec.
 # Usage: bash deploy/scripts/vault-init-library.sh
 set -euo pipefail
 
-VAULT_ADDR="${VAULT_ADDR:-https://vault.nanobyte.ca}"
+VAULT_CONTAINER="${VAULT_CONTAINER:-portfolio-vault}"
+VAULT_CMD="docker exec ${VAULT_CONTAINER}"
 
 echo "=== Library Vault Initialization ==="
-echo "Vault: ${VAULT_ADDR}"
+echo "Vault container: ${VAULT_CONTAINER}"
 echo ""
 
+# --- 0. Verify container is running ---
+echo "[0/4] Checking that '${VAULT_CONTAINER}' container is running..."
+if ! docker inspect --format='{{.State.Running}}' "${VAULT_CONTAINER}" 2>/dev/null | grep -q "true"; then
+    echo "ERROR: Container '${VAULT_CONTAINER}' is not running."
+    echo "Start it first: docker compose up -d portfolio-vault"
+    exit 1
+fi
+echo "  Container is running."
+
 # --- 1. Create library-deploy policy ---
+echo ""
 echo "[1/4] Creating 'library-deploy' policy..."
-cat <<EOF | vault policy write library-deploy -
+${VAULT_CMD} sh -c 'cat <<POLICY | vault policy write library-deploy -
 path "secret/data/library/*" {
   capabilities = ["read"]
 }
@@ -20,13 +32,13 @@ path "secret/data/library/*" {
 path "secret/metadata/library/*" {
   capabilities = ["read", "list"]
 }
-EOF
+POLICY'
 echo "  Policy 'library-deploy' created."
 
 # --- 2. Create AppRole role ---
 echo ""
 echo "[2/4] Creating AppRole role 'library-deploy'..."
-vault write auth/approle/role/library-deploy \
+${VAULT_CMD} vault write auth/approle/role/library-deploy \
     token_policies="library-deploy" \
     token_ttl=10m \
     token_max_ttl=30m \
@@ -36,8 +48,8 @@ echo "  AppRole role created (TTL=10m, Max TTL=30m)."
 # --- 3. Fetch role_id and generate secret_id ---
 echo ""
 echo "[3/4] Fetching role_id and generating secret_id..."
-ROLE_ID=$(vault read -field=role_id auth/approle/role/library-deploy/role-id)
-SECRET_ID=$(vault write -field=secret_id -f auth/approle/role/library-deploy/secret-id)
+ROLE_ID=$(${VAULT_CMD} vault read -field=role_id auth/approle/role/library-deploy/role-id)
+SECRET_ID=$(${VAULT_CMD} vault write -field=secret_id -f auth/approle/role/library-deploy/secret-id)
 
 echo ""
 echo "=========================================="
@@ -53,17 +65,22 @@ echo ""
 echo "[4/4] Next steps:"
 echo "  1. Add VAULT_ROLE_ID=${ROLE_ID} to GitHub repo secrets"
 echo "  2. Add VAULT_SECRET_ID=${SECRET_ID} to GitHub repo secrets"
-echo "  3. Populate secrets:"
+echo "  3. Populate secrets (run inside vault container):"
 echo ""
-echo "     vault kv put secret/library/common/POSTGRES_USER=library_user"
-echo "     vault kv put secret/library/common/POSTGRES_PASSWORD='<password>'"
-echo "     vault kv put secret/library/common/JWT_SIGNING_KEY='<key>'"
-echo "     vault kv put secret/library/common/SMTP_HOST=smtp.gmail.com"
-echo "     vault kv put secret/library/common/SMTP_PORT=587"
-echo "     vault kv put secret/library/common/SMTP_USER='<email>'"
-echo "     vault kv put secret/library/common/SMTP_PASS='<app-password>'"
-echo "     vault kv put secret/library/common/MAIL_FROM='<email>'"
-echo "     vault kv put secret/library/prod/PUBLIC_URL=https://library.nanobyte.ca"
-echo "     vault kv put secret/library/uat/PUBLIC_URL=https://uatlibrary.nanobyte.ca"
+echo "     docker exec -e VAULT_TOKEN=<root_token> ${VAULT_CONTAINER} \\"
+echo "       vault kv put secret/library/common/POSTGRES_USER=library_user \\"
+echo "       POSTGRES_PASSWORD='<password>' \\"
+echo "       JWT_SIGNING_KEY='<key>' \\"
+echo "       SMTP_HOST=smtp.gmail.com \\"
+echo "       SMTP_PORT=587 \\"
+echo "       SMTP_USER='<email>' \\"
+echo "       SMTP_PASS='<app-password>' \\"
+echo "       MAIL_FROM='<email>'"
+echo ""
+echo "     docker exec -e VAULT_TOKEN=<root_token> ${VAULT_CONTAINER} \\"
+echo "       vault kv put secret/library/prod/PUBLIC_URL=https://library.nanobyte.ca"
+echo ""
+echo "     docker exec -e VAULT_TOKEN=<root_token> ${VAULT_CONTAINER} \\"
+echo "       vault kv put secret/library/uat/PUBLIC_URL=https://uatlibrary.nanobyte.ca"
 echo ""
 echo "=== Vault Initialization Complete ==="
