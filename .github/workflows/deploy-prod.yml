@@ -1,20 +1,9 @@
-# .github/workflows/deploy.yml
-name: Deploy
+# .github/workflows/deploy-prod.yml
+name: Deploy to Production
 
 on:
-  workflow_run:
-    workflows: ["Build"]
-    types: [completed]
-    branches: [main, master]
   workflow_dispatch:
     inputs:
-      environment:
-        description: "Target environment"
-        required: true
-        type: choice
-        options:
-          - uat
-          - prod
       tag:
         description: "Image tag to deploy (e.g., main-a1b2c3d or latest)"
         required: true
@@ -26,24 +15,13 @@ env:
 
 jobs:
   deploy:
-    name: Deploy to ${{ github.event.inputs.environment }}
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    name: Deploy to production
     runs-on: ubuntu-latest
+    environment: prod
     steps:
-      - name: Determine image tag
-        id: tag
-        run: |
-          if [ -n "${{ github.event.inputs.tag }}" ]; then
-            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-          elif [ -n "${{ github.event.workflow_run.head_sha }}" ]; then
-            echo "tag=main-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-          else
-            echo "tag=main-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-          fi
-
       - name: Validate tag format
         run: |
-          if [[ ! "${{ steps.tag.outputs.tag }}" =~ ^(master-[a-f0-9]{7,}|main-[a-f0-9]{7,}|latest)$ ]]; then
+          if [[ ! "${{ github.event.inputs.tag }}" =~ ^(master-[a-f0-9]{7,}|main-[a-f0-9]{7,}|latest)$ ]]; then
             echo "::error::Invalid tag format. Expected: master-<short-sha>, main-<short-sha>, or latest"
             exit 1
           fi
@@ -53,8 +31,7 @@ jobs:
 
       - name: Fetch secrets from Vault
         run: |
-          ENV="${{ github.event.inputs.environment }}"
-          TAG="${{ steps.tag.outputs.tag }}"
+          TAG="${{ github.event.inputs.tag }}"
 
           echo "Authenticating to Vault..."
           VAULT_TOKEN=$(curl -sf \
@@ -81,14 +58,14 @@ jobs:
             echo "Exported $(echo "$COMMON_JSON" | jq -r 'keys | length') keys from library/common"
           fi
 
-          # Tier 2: Environment-specific secrets
-          echo "Fetching secrets for environment: ${ENV}..."
+          # Tier 2: Environment-specific secrets (prod)
+          echo "Fetching secrets for environment: prod..."
           ENV_JSON=$(curl -sf \
             --header "X-Vault-Token: ${VAULT_TOKEN}" \
-            "${VAULT_ADDR}/v1/secret/data/library/${ENV}" | jq -r '.data.data // "{}"')
+            "${VAULT_ADDR}/v1/secret/data/library/prod" | jq -r '.data.data // "{}"')
           if [ "$ENV_JSON" != "{}" ]; then
             echo "$ENV_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value)"' >> /tmp/deploy.env
-            echo "Exported $(echo "$ENV_JSON" | jq -r 'keys | length') keys from library/${ENV}"
+            echo "Exported $(echo "$ENV_JSON" | jq -r 'keys | length') keys from library/prod"
           fi
 
           # Append IMAGE_TAG
@@ -126,21 +103,20 @@ jobs:
             ProxyCommand cloudflared access ssh --hostname %h
           EOF
 
-      - name: Deploy to ${{ github.event.inputs.environment }}
+      - name: Deploy to production
         run: |
-          ENV="${{ github.event.inputs.environment }}"
-          TAG="${{ steps.tag.outputs.tag }}"
+          TAG="${{ github.event.inputs.tag }}"
 
           # Copy compose file and .env to server
           echo "Uploading docker-compose.yml and .env to server..."
-          scp deploy/${ENV}/docker-compose.yml deploy:${DEPLOY_PATH}/${ENV}/docker-compose.yml
-          scp /tmp/deploy.env deploy:${DEPLOY_PATH}/${ENV}/.env
+          scp deploy/prod/docker-compose.yml deploy:${DEPLOY_PATH}/prod/docker-compose.yml
+          scp /tmp/deploy.env deploy:${DEPLOY_PATH}/prod/.env
 
           ssh deploy << REMOTE_SCRIPT
             set -euo pipefail
-            cd ${DEPLOY_PATH}/${ENV}
+            cd ${DEPLOY_PATH}/prod
 
-            echo "=== Deploying ${TAG} to ${ENV} ==="
+            echo "=== Deploying ${TAG} to prod ==="
 
             # Authenticate to GHCR
             GH_PROJECT_TOKEN=\$(grep '^GHCR_TOKEN=' .env | cut -d= -f2- || echo "${{ secrets.GITHUB_TOKEN }}")
@@ -176,11 +152,9 @@ jobs:
 
       - name: Health gate
         run: |
-          ENV="${{ github.event.inputs.environment }}"
-          SUBDOMAIN="${{ env.ENV == 'prod' && 'library' || 'uatlibrary' }}"
-          echo "Checking health at https://${SUBDOMAIN}.nanobyte.ca/ ..."
+          echo "Checking health at https://library.nanobyte.ca/ ..."
           for i in $(seq 1 30); do
-            STATUS=$(curl -sf "https://${SUBDOMAIN}.nanobyte.ca/api/health" | python3 -c "import sys,json; print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "DOWN")
+            STATUS=$(curl -sf "https://library.nanobyte.ca/api/health" | python3 -c "import sys,json; print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "DOWN")
             if [ "$STATUS" = "UP" ]; then
               echo "Health check passed"
               exit 0
@@ -199,8 +173,8 @@ jobs:
         run: |
           echo "### Deploy Successful :rocket:" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Environment:** ${{ github.event.inputs.environment }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Tag:** \`${{ steps.tag.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Environment:** prod" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Tag:** \`${{ github.event.inputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Secrets:** Fetched from Vault" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Triggered by:** ${{ github.actor }}" >> "$GITHUB_STEP_SUMMARY"
 
@@ -212,5 +186,5 @@ jobs:
           webhook-type: incoming-webhook
           payload: |
             {
-              "text": "${{ job.status == 'success' && ':rocket:' || ':x:' }} Library deploy *${{ steps.tag.outputs.tag }}* to *${{ github.event.inputs.environment }}* ${{ job.status }}\nTriggered by: ${{ github.actor }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+              "text": "${{ job.status == 'success' && ':rocket:' || ':x:' }} Library deploy *${{ github.event.inputs.tag }}* to *prod* ${{ job.status }}\nTriggered by: ${{ github.actor }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
             }
