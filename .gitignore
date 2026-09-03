@@ -17,4 +17,6 @@ target/
 *.logs
 *.iml
 HELP.md
+api/.gradle/
+api/build/
 
