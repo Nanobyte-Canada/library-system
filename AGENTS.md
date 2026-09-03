@@ -47,6 +47,28 @@ Applies to **any agent or model** working in this repo:
 - Any change to **compose files, ports, networks, CI/CD workflows, or DB schema REQUIRES adding a new ADR entry** to `docs/adr.md` **in the same commit/PR**. Never delete or rewrite past ADR entries — supersede them with a new entry referencing the old one.
 - If the high-level overview changes (stack, services, URLs, local dev), update `README.md` in the same change.
 
+## UAT E2E Testing
+
+The `e2e/` directory holds the Playwright suite that validates the deployed UAT
+environment (`https://uatlibrary.nanobyte.ca`).
+
+**Rule:** Any PR that changes user-visible behavior (API or frontend) must add or
+update tests in the matching `e2e/tests/<area>.spec.ts` **in the same PR**. A new
+area means a new spec file plus an entry in the `suite` choice list in
+`.github/workflows/uat-e2e.yml`.
+
+- Suites (per-area files): `auth`, `admin-books`, `admin-settings`, `librarian`,
+  `member`, `roles` — see the e2e README for what each covers.
+- Run locally: `cd e2e && npm ci && npx playwright install chromium && npx playwright test`
+  (single suite: append `tests/<area>.spec.ts`).
+- Run in CI: Actions → **UAT E2E** → Run workflow → pick a suite. Dispatch **after
+  the latest Deploy run for master has completed** — overlapping an in-flight deploy
+  can hit mid-restart containers and produce false failures.
+- Test data: fixed "Playwright"-prefixed names, **tolerates duplicates** — creation
+  tests with fixed names (books, categories) pre-check the API and skip when the
+  entity already exists. Never delete shared seed data. Tests run sequentially
+  against the shared UAT DB.
+
 ## Git Rules
 
 **Commit messages:**

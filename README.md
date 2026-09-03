@@ -12,6 +12,7 @@ A REST API for managing a library: **books**, **users**, **book issues/returns**
 | Auth | Spring Security + JWT (Auth0 java-jwt) |
 | QR Code | External API (api.qrserver.com) |
 | Frontend | TypeScript SPA (Vite), served by nginx |
+| E2E | Playwright 1.62 (TypeScript), run against deployed UAT |
 | CI/CD | GitHub Actions → GHCR → Docker Compose on shared host, secrets via Vault |
 
 ## Architecture Overview
@@ -57,7 +58,7 @@ Port scheme: `1xxxx` = prod, `2xxxx` = uat, 100 gap between apps.
 | Prod | https://library.nanobyte.ca | Manual only (`deploy-prod.yml`, `environment: prod` protection) |
 | UAT | https://uatlibrary.nanobyte.ca | Auto on Build success (push to master) or manual |
 
-Health endpoints (used by CI health gates): `https://library.nanobyte.ca/api/health` and `https://uatlibrary.nanobyte.ca/api/health`.
+Health endpoints (used by CI health gates): `https://library.nanobyte.ca/health` and `https://uatlibrary.nanobyte.ca/health`.
 
 ## CI/CD Usage
 
@@ -74,6 +75,14 @@ gh workflow run deploy.yml -f environment=uat -f tag=main-a1b2c3d   # or tag=lat
 ```bash
 gh workflow run deploy-prod.yml -f tag=main-a1b2c3d                 # or tag=latest
 ```
+
+**UAT E2E** runs the Playwright suite against UAT on demand:
+
+```bash
+gh workflow run uat-e2e.yml -f suite=all        # or: auth | admin-books | admin-settings | librarian | member | roles
+```
+
+Dispatch after the latest Deploy run for master has completed.
 
 Deploys scp the compose file + Vault-generated `.env` to `/opt/library/{uat,prod}` on the server, run `docker compose pull && docker compose up -d`, then gate on the public health URL.
 
@@ -94,6 +103,14 @@ npm ci          # install dependencies
 npm run dev     # dev server (Vite)
 npm run lint    # lint (oxlint)
 npm run build   # type check (tsc -b) + production build
+```
+
+### E2E (from `e2e/`)
+
+```bash
+npm ci                              # install dependencies
+npx playwright install chromium     # one-time browser install
+npx playwright test                 # full suite against https://uatlibrary.nanobyte.ca
 ```
 
 ## Documentation
