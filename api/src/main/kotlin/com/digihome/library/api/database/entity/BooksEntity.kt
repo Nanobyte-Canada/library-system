@@ -56,15 +56,16 @@ interface BooksRepository : JpaRepository<BooksEntity, String> {
     fun findByCategoryIdOrderByBookNameAsc(categoryId: String): List<BooksEntity>
     fun findByLanguageContainingIgnoreCaseOrderByBookNameAsc(language: String): List<BooksEntity>
 
-    // CAST(...) IS NULL gives Hibernate an explicit type for the nullable parameters;
-    // without it PostgreSQL binds them as bytea and the query fails with
-    // "function lower(bytea) does not exist" (Hibernate 6 untyped-param inference).
+    // CAST(...) gives Hibernate an explicit type for every occurrence of the nullable
+    // parameters. Without it PostgreSQL binds the context-free occurrences (inside
+    // CONCAT) as bytea and the query fails with "function lower(bytea) does not exist"
+    // (Hibernate 6 untyped-param inference).
     @Query("SELECT b FROM BooksEntity b WHERE " +
-           "(CAST(:q AS string) IS NULL OR LOWER(b.bookName) LIKE LOWER(CONCAT('%',:q,'%')) " +
-           "OR LOWER(b.author) LIKE LOWER(CONCAT('%',:q,'%')) " +
-           "OR LOWER(b.isbn) LIKE LOWER(CONCAT('%',:q,'%'))) " +
+           "(CAST(:q AS string) IS NULL OR LOWER(b.bookName) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%')) " +
+           "OR LOWER(b.author) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%')) " +
+           "OR LOWER(b.isbn) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%'))) " +
            "AND (CAST(:categoryId AS string) IS NULL OR b.category.id = :categoryId) " +
-           "AND (CAST(:language AS string) IS NULL OR LOWER(b.language) LIKE LOWER(CONCAT('%',:language,'%'))) " +
+           "AND (CAST(:language AS string) IS NULL OR LOWER(b.language) LIKE LOWER(CONCAT('%', CAST(:language AS string), '%'))) " +
            "ORDER BY b.createdAt DESC")
     fun searchBooks(
         @Param("q") q: String?,

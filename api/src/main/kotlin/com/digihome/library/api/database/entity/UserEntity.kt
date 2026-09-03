@@ -57,14 +57,14 @@ interface UserRepository : JpaRepository<UserEntity, String> {
     fun findByMembershipId(membershipId: String): UserEntity?
     fun findByIsActive(isActive: Boolean): List<UserEntity>
 
-    // CAST(...) IS NULL gives Hibernate an explicit type for the nullable parameters;
-    // without it PostgreSQL binds them as bytea and the query fails at runtime
-    // (Hibernate 6 untyped-param inference — same issue as the books search).
+    // CAST(...) gives Hibernate an explicit type for every occurrence of the nullable
+    // parameters. Without it PostgreSQL binds the context-free occurrences (inside
+    // CONCAT) as bytea and the query fails at runtime (same issue as books search).
     @Query("SELECT u FROM UserEntity u WHERE " +
-           "(CAST(:q AS string) IS NULL OR LOWER(u.firstName) LIKE LOWER(CONCAT('%',:q,'%')) " +
-           "OR LOWER(u.lastName) LIKE LOWER(CONCAT('%',:q,'%')) " +
-           "OR LOWER(u.emailId) LIKE LOWER(CONCAT('%',:q,'%')) " +
-           "OR LOWER(u.membershipId) LIKE LOWER(CONCAT('%',:q,'%'))) " +
+           "(CAST(:q AS string) IS NULL OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%')) " +
+           "OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%')) " +
+           "OR LOWER(u.emailId) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%')) " +
+           "OR LOWER(u.membershipId) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%'))) " +
            "AND (CAST(:role AS string) IS NULL OR u.role = :role) " +
            "AND (CAST(:branchId AS string) IS NULL OR u.branch.id = :branchId) " +
            "AND (CAST(:isActive AS boolean) IS NULL OR u.isActive = :isActive) " +
