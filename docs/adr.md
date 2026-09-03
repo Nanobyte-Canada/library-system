@@ -129,3 +129,17 @@ The deploy workflow assembles the `.env` file in-memory on the runner, scp's it 
 - The deploy workflow **derives the target environment** (defaults to `uat` for `workflow_run` auto-deploys) and the health gate checks the public **`/health`** endpoint (ADR-0005).
 
 **Consequences:** Login works end-to-end against `/api/auth/login`; failures return meaningful status codes and are observable in logs. Seed password changes require a new migration. Any login-route change must update `jwt.url` and this log together.
+
+## ADR-0010: UAT e2e testing workflow
+**Status:** Accepted | **Date:** 2026-09-03
+
+**Context:** The 32-test Playwright suite lived only on a developer machine, untracked. Regressions were caught by ad-hoc local runs after deploys. The team wants every new user-visible feature to land with UAT e2e coverage in the same PR, and the suite to be runnable against UAT on demand.
+
+**Decision:**
+- The suite is committed under `e2e/` and reorganized into **per-area spec files** (`auth`, `admin-books`, `admin-settings`, `librarian`, `member`, `roles`) sharing `tests/helpers/shared.ts` (`USERS`, `login()`, `getApiToken()`, `authedGet()`).
+- A new **`UAT E2E` workflow** (`.github/workflows/uat-e2e.yml`) runs on **`workflow_dispatch` only** with a `suite` input (`all` or one area, mapping to the spec filename). It runs Chromium against the UAT public URL (`BASE_URL`, default `https://uatlibrary.nanobyte.ca`), uploads the HTML report and traces as artifacts (14-day retention), and notifies Slack on failure.
+- No deploy chaining, no cron, no hard gate: a failed e2e run signals (red run + Slack) and a human decides.
+- Tests run **sequentially** (1 worker, no retries) against the shared UAT database. Test data uses fixed "Playwright"-prefixed names and **tolerates duplicates**; shared seed data is never deleted.
+- **Contract:** any PR changing user-visible behavior must add/update tests in the matching area spec in the same PR (documented in AGENTS.md, enforced via PR-template checklist). New areas get a new spec file plus an entry in the workflow's `suite` choice list.
+
+**Consequences:** Feature regressions are caught at the UAT level on demand; the suite's quality depends on the PR contract being followed. Adding an area means two small edits (spec file + workflow choice list). Node 22 and Playwright 1.62.1 are pinned; browser install adds ~2 min to each run.

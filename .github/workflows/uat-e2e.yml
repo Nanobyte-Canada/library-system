@@ -1,0 +1,83 @@
+# .github/workflows/uat-e2e.yml
+name: UAT E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Test suite to run"
+        required: true
+        type: choice
+        default: all
+        options:
+          - all
+          - auth
+          - admin-books
+          - admin-settings
+          - librarian
+          - member
+          - roles
+
+concurrency:
+  group: uat-e2e
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    name: UAT E2E — ${{ inputs.suite }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Install dependencies
+        working-directory: e2e
+        run: npm ci
+
+      - name: Install Playwright browser
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        working-directory: e2e
+        env:
+          BASE_URL: https://uatlibrary.nanobyte.ca
+        run: |
+          SUITE="${{ inputs.suite }}"
+          ARGS=""
+          if [ "$SUITE" != "all" ]; then
+            ARGS="tests/$SUITE.spec.ts"
+          fi
+          npx playwright test $ARGS
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-${{ inputs.suite }}
+          path: |
+            e2e/report
+            e2e/test-results
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Notify Slack
+        if: failure()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":x: Library UAT e2e suite *${{ inputs.suite }}* failed — <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+            }
