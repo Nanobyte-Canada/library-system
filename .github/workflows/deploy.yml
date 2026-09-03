@@ -26,19 +26,23 @@ env:
 
 jobs:
   deploy:
-    name: Deploy to ${{ github.event.inputs.environment }}
+    name: Deploy to ${{ github.event.inputs.environment || 'uat' }}
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Determine image tag
+      - name: Determine image tag and environment
         id: tag
         run: |
           if [ -n "${{ github.event.inputs.tag }}" ]; then
             echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-          elif [ -n "${{ github.event.workflow_run.head_sha }}" ]; then
-            echo "tag=main-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
           else
             echo "tag=main-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          fi
+          if [ -n "${{ github.event.inputs.environment }}" ]; then
+            echo "env=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            # Auto-deploy triggered by workflow_run (Build success) targets UAT
+            echo "env=uat" >> $GITHUB_OUTPUT
           fi
 
       - name: Validate tag format
@@ -53,7 +57,7 @@ jobs:
 
       - name: Fetch secrets from Vault
         run: |
-          ENV="${{ github.event.inputs.environment }}"
+          ENV="${{ steps.tag.outputs.env }}"
           TAG="${{ steps.tag.outputs.tag }}"
 
           echo "Authenticating to Vault..."
@@ -126,9 +130,9 @@ jobs:
             ProxyCommand cloudflared access ssh --hostname %h
           EOF
 
-      - name: Deploy to ${{ github.event.inputs.environment }}
+      - name: Deploy to ${{ steps.tag.outputs.env }}
         run: |
-          ENV="${{ github.event.inputs.environment }}"
+          ENV="${{ steps.tag.outputs.env }}"
           TAG="${{ steps.tag.outputs.tag }}"
 
           # Copy compose file and .env to server
@@ -176,11 +180,11 @@ jobs:
 
       - name: Health gate
         run: |
-          ENV="${{ github.event.inputs.environment }}"
-          SUBDOMAIN="${{ env.ENV == 'prod' && 'library' || 'uatlibrary' }}"
+          ENV="${{ steps.tag.outputs.env }}"
+          if [ "$ENV" = "prod" ]; then SUBDOMAIN=library; else SUBDOMAIN=uatlibrary; fi
           echo "Checking health at https://${SUBDOMAIN}.nanobyte.ca/ ..."
           for i in $(seq 1 30); do
-            STATUS=$(curl -sf "https://${SUBDOMAIN}.nanobyte.ca/api/health" | python3 -c "import sys,json; print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "DOWN")
+            STATUS=$(curl -sf "https://${SUBDOMAIN}.nanobyte.ca/health" | python3 -c "import sys,json; print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "DOWN")
             if [ "$STATUS" = "UP" ]; then
               echo "Health check passed"
               exit 0
@@ -199,7 +203,7 @@ jobs:
         run: |
           echo "### Deploy Successful :rocket:" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Environment:** ${{ github.event.inputs.environment }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Environment:** ${{ steps.tag.outputs.env }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Tag:** \`${{ steps.tag.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Secrets:** Fetched from Vault" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Triggered by:** ${{ github.actor }}" >> "$GITHUB_STEP_SUMMARY"
@@ -212,5 +216,5 @@ jobs:
           webhook-type: incoming-webhook
           payload: |
             {
-              "text": "${{ job.status == 'success' && ':rocket:' || ':x:' }} Library deploy *${{ steps.tag.outputs.tag }}* to *${{ github.event.inputs.environment }}* ${{ job.status }}\nTriggered by: ${{ github.actor }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+              "text": "${{ job.status == 'success' && ':rocket:' || ':x:' }} Library deploy *${{ steps.tag.outputs.tag }}* to *${{ steps.tag.outputs.env }}* ${{ job.status }}\nTriggered by: ${{ github.actor }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
             }

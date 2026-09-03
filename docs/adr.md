@@ -114,3 +114,18 @@ The deploy workflow assembles the `.env` file in-memory on the runner, scp's it 
 - **Embeds NO database (or other infra) services** — the DB is the centralized shared Postgres (ADR-0002).
 
 **Consequences:** Deploying or tearing down library cannot affect other apps. The external networks must pre-exist (created by the nanobyte-services infra repo). UAT must never reference prod infra networks, and vice versa.
+
+## ADR-0009: Login authentication flow, error visibility, and deploy pipeline fix
+**Status:** Accepted | **Date:** 2026-09-03
+
+**Context:** UAT returned an opaque `403` with an empty body for `POST /api/auth/login`, masking several stacked defects: (1) `AuthController` exposes only `/register` — authentication was meant to run in `JWTAuthenticationFilter`, which extended `UsernamePasswordAuthenticationFilter` **without** overriding its default process URL (`POST /login`), so the filter never intercepted the `jwt.url` (`/api/auth/login`) the frontend actually calls → the request had no handler. (2) Spring Boot forwards error dispatches (401/404/405) to `/error`, which the security chain did not permit, so **every** error surfaced as an empty `403` via `Http403ForbiddenEntryPoint`. (3) `application-prod.yml` forced `org.springframework.security` logging to `INFO`, hiding the filter-chain trace during diagnosis. (4) The seed migration `V2__seed_data.sql` stored a placeholder BCrypt hash that does not match `password123`, so even `POST /login` failed password verification. (5) The deploy workflow derived its target environment only from `workflow_dispatch` inputs, so auto-deploys (`workflow_run`) ran with an empty `ENV` and failed at `scp` (exit 255); its health gate also checked `/api/health`, which does not exist (the endpoint is `/health`), so it could never pass.
+
+**Decision:**
+- `JWTAuthenticationFilter` calls **`setFilterProcessesUrl(jwtConfig.url)`** — the filter processes `POST /api/auth/login`, the URL both the frontend and `jwt.url` use.
+- `unsuccessfulAuthentication` returns a JSON `ResponseModel` with **HTTP 401** directly instead of forwarding to `/error`.
+- The main security chain **permits `/error`** so real status codes (404/405) reach clients instead of a masked empty 403.
+- `application-prod.yml` **no longer overrides Spring Security logging** (DEBUG from `application.yml` applies).
+- New migration **`V3__fix_seed_passwords.sql`** resets the `admin`/`jane`/`john` seed passwords to a BCrypt(9) hash of `password123` (V2 is immutable — Flyway checksum).
+- The deploy workflow **derives the target environment** (defaults to `uat` for `workflow_run` auto-deploys) and the health gate checks the public **`/health`** endpoint (ADR-0005).
+
+**Consequences:** Login works end-to-end against `/api/auth/login`; failures return meaningful status codes and are observable in logs. Seed password changes require a new migration. Any login-route change must update `jwt.url` and this log together.

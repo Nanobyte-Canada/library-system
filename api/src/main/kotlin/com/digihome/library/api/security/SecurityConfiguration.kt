@@ -60,6 +60,9 @@ class SecurityConfig(
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                     .requestMatchers("/health", "/ready").permitAll()
+                    // Spring Boot forwards error dispatches (401/404/405) to /error;
+                    // permit it so real status codes reach clients instead of a masked 403.
+                    .requestMatchers("/error").permitAll()
                     .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                     // Sprint 2: Allow public catalog browsing
                     .requestMatchers(HttpMethod.GET, "/api/books").permitAll()

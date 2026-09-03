@@ -24,6 +24,12 @@ class JWTAuthenticationFilter(
     val objectMapper: ObjectMapper
 ) : UsernamePasswordAuthenticationFilter() {
 
+    init {
+        // Intercept POST {jwt.url} (e.g. /api/auth/login) — the URL the frontend calls —
+        // instead of the UsernamePasswordAuthenticationFilter default (/login).
+        setFilterProcessesUrl(jwtConfig.url)
+    }
+
     @Throws(AuthenticationException::class)
     override fun attemptAuthentication(req: HttpServletRequest, res: HttpServletResponse?): Authentication? {
         return try {
@@ -69,6 +75,23 @@ class JWTAuthenticationFilter(
         res.contentType = "application/json"
         res.characterEncoding = "UTF-8"
         res.writer.write(responseModelJson)
+        res.writer.flush()
+        res.writer.close()
+    }
+
+    @Throws(IOException::class)
+    override fun unsuccessfulAuthentication(
+        req: HttpServletRequest?,
+        res: HttpServletResponse,
+        failed: AuthenticationException
+    ) {
+        // Return a JSON 401 directly instead of forwarding to /error, so failed
+        // logins surface as meaningful responses for the frontend.
+        val responseModel = ResponseModel(message = "Invalid username or password", data = null)
+        res.status = HttpServletResponse.SC_UNAUTHORIZED
+        res.contentType = "application/json"
+        res.characterEncoding = "UTF-8"
+        res.writer.write(objectMapper.writeValueAsString(responseModel))
         res.writer.flush()
         res.writer.close()
     }

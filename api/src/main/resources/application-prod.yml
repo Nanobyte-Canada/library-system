@@ -6,7 +6,3 @@ spring:
 
 jwt:
   secret: ${JWT_SIGNING_KEY}
-
-logging:
-  level:
-    org.springframework.security: INFO
