@@ -17,7 +17,7 @@
 - Never delete or modify shared seed data; creation tests use fixed "Playwright"-prefixed names and **tolerate duplicates** (spec decision).
 - Suite runs sequentially: `fullyParallel: false`, workers 1, `retries: 0` — tests share the live UAT database.
 - `@playwright/test` pinned to `1.62.1`; CI uses Node 22, Chromium only.
-- UAT is a shared live environment — running the suite mutates data (accepted by spec).
+- UAT is a shared live environment — running the suite mutates data (accepted by spec); creation tests 9/14 are idempotent (API pre-check → skip if the fixed-name entity already exists) to bound data growth.
 - `e2e/` is currently **untracked**: "moving" a test = create the new file (`git add`), and `uat.spec.ts` is deleted with plain `rm` (no `git rm`) in Task 5.
 - Local Playwright runs execute against the **real UAT** (`https://uatlibrary.nanobyte.ca`).
 - Suite test counts for verification: auth 6, admin-books 6, admin-settings 7, librarian 4, member 7, roles 2 = **32 total**.
@@ -42,6 +42,7 @@ e2e/
 │   └── uat.spec.ts           # DELETE (Task 5, plain rm — untracked source of all moves)
 ├── .github/workflows/uat-e2e.yml   # CREATE (repo root .github/)
 ├── .github/pull_request_template.md# CREATE (repo root .github/)
+├── README.md                       # MODIFY: E2E stack row, /health fix, dispatch + local-dev sections
 ├── docs/adr.md                     # MODIFY: append ADR-0010
 └── AGENTS.md                       # MODIFY: add "UAT E2E Testing" section
 ```
@@ -96,10 +97,12 @@ export default defineConfig({
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,
+  workers: 1,
   retries: 0,
   forbidOnly: !!process.env.CI,
   reporter: [
     ['list'],
+    ...(process.env.CI ? [['github']] : []),
     ['html', { outputFolder: 'report', open: 'never' }],
   ],
   use: {
@@ -114,7 +117,9 @@ export default defineConfig({
 
 - [ ] **Step 4: Write `e2e/README.md`**
 
-```markdown
+(Note the four-backtick outer fence — the content below contains triple-backtick bash blocks.)
+
+````markdown
 # UAT E2E Tests
 
 Playwright suite validating the deployed library UAT environment
@@ -132,25 +137,29 @@ npx playwright test tests/auth.spec.ts   # one suite
 
 ## Suites
 
-| File | Area | Tests |
-|------|------|-------|
-| tests/auth.spec.ts | health, login (all roles), logout | 6 |
-| tests/admin-books.spec.ts | admin dashboard, books CRUD, copies, QR | 6 |
-| tests/admin-settings.spec.ts | categories, users, branches, audit logs | 7 |
-| tests/librarian.spec.ts | librarian dashboard/books/search/checkout desk | 4 |
-| tests/member.spec.ts | member dashboard, catalog, profile, my books, reservations, scanner | 7 |
-| tests/roles.spec.ts | role guards (member blocked from admin) | 2 |
+| File | Area |
+|------|------|
+| tests/auth.spec.ts | health, login (all roles), logout |
+| tests/admin-books.spec.ts | admin dashboard, books CRUD, copies, QR |
+| tests/admin-settings.spec.ts | categories, users, branches, audit logs |
+| tests/librarian.spec.ts | librarian dashboard/books/search/checkout desk |
+| tests/member.spec.ts | member dashboard, catalog, profile, my books, reservations, scanner |
+| tests/roles.spec.ts | role guards (member blocked from admin) |
 
 ## Run in CI
 
 GitHub Actions → **UAT E2E** → Run workflow → pick a suite (or `all`).
-Failure artifacts (HTML report + traces) are uploaded to the run; Slack is notified.
+Dispatch **after the latest Deploy run for master has completed** — a dispatch
+overlapping an in-flight deploy can hit mid-restart containers and produce false
+failures. Failure artifacts (HTML report + traces) are uploaded to the run; Slack
+is notified on failure.
 
 ## Conventions (see AGENTS.md)
 
 - Any PR changing user-visible behavior must add/update tests in the matching spec file, same PR.
-- Test data uses fixed "Playwright"-prefixed names and **tolerates duplicates** — do not delete shared seed data.
-```
+- Creation tests with fixed "Playwright"-prefixed names (books, categories) pre-check the API and skip if the entity already exists — no data accumulation.
+- Test data **tolerates duplicates** — do not delete shared seed data.
+````
 
 - [ ] **Step 5: Regenerate lockfile + verify install and discovery**
 
@@ -300,7 +309,7 @@ git commit -m "test(e2e): shared helpers + auth suite (health, login, logout)"
 
 **Interfaces:**
 - Consumes: `USERS`, `login` from `./helpers/shared`.
-- Produces: duplicate-tolerant creation tests (9, 14, 16, 18) with a layout-visibility sanity check — this is the pattern for all future creation tests.
+- Produces: **idempotent** creation tests 9/14 — an API pre-check calls `test.skip()` when the fixed-name entity already exists, bounding data growth (books list sorts `createdAt DESC` at page size 20; unbounded accumulation would push seed titles off page 1 and false-fail tests 8/21/25) — plus the layout-visibility sanity check in 9/14/16/18. Tests 9/14 establish the canonical new-test idiom `waitFor({ state: 'visible', timeout }).then(() => true).catch(() => false)`; tests 10–12, 16, 18 retain the inherited `isVisible({ timeout })` verbatim (known quirk: Playwright ignores that timeout).
 
 - [ ] **Step 1: Write `e2e/tests/admin-books.spec.ts`**
 
@@ -314,28 +323,34 @@ import { login } from './helpers/shared';
 Tests move **verbatim** from `e2e/tests/uat.spec.ts`:
 - test 7 (admin dashboard) = lines 72–77
 - test 8 (books list) = lines 81–87
-- test 9 (create book) = lines 91–113, **modified — replace the final screenshot section** (original lines 106–113: submit + screenshot) with the code below
+- test 9 (create book) = lines 91–113, **replaced in full** by the code below (idempotency pre-check + `waitFor` idiom)
 - test 10 (edit book) = lines 117–129
 - test 11 (copies) = lines 133–149
 - test 12 (QR) = lines 153–168
 
-Test 9 full replacement body (the only modified test in this file):
+Test 9 full replacement body:
 
 ```typescript
-test('9. Admin can create a new book', async ({ page }) => {
+test('9. Admin can create a new book', async ({ page, request }) => {
+  // Idempotency pre-check: skip if the fixed-name book already exists, so repeated
+  // runs don't accumulate rows that push seed titles off page 1 (books list sorts
+  // createdAt DESC, page size 20 — tests 8/21/25 depend on seed titles being visible).
+  const res = await request.get('/api/books/search?q=' + encodeURIComponent('Playwright Test Book'));
+  const body = await res.json();
+  test.skip((body.data?.length ?? 0) > 0, 'Playwright Test Book already exists — tolerate duplicates');
   await login(page, 'admin');
   await page.goto('/admin/books/new');
   await expect(page).toHaveURL(/admin\/books\/new/);
   const nameInput = page.locator('input[name="bookName"], input[placeholder*="name" i], input[placeholder*="title" i]').first();
-  if (await nameInput.isVisible({ timeout: 3000 }).catch(() => false)) {
+  if (await nameInput.waitFor({ state: 'visible', timeout: 3000 }).then(() => true).catch(() => false)) {
     await nameInput.fill('Playwright Test Book');
   }
   const authorInput = page.locator('input[name="author"], input[placeholder*="author" i]').first();
-  if (await authorInput.isVisible({ timeout: 2000 }).catch(() => false)) {
+  if (await authorInput.waitFor({ state: 'visible', timeout: 2000 }).then(() => true).catch(() => false)) {
     await authorInput.fill('Test Author');
   }
   const submitBtn = page.getByRole('button', { name: /save|submit|create/i });
-  if (await submitBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+  if (await submitBtn.waitFor({ state: 'visible', timeout: 2000 }).then(() => true).catch(() => false)) {
     await submitBtn.click();
     await page.waitForTimeout(2000);
   }
@@ -346,33 +361,76 @@ test('9. Admin can create a new book', async ({ page }) => {
 });
 ```
 
+(Both endpoints used in pre-checks are public (`permitAll`): `GET /api/books/search` and `GET /api/categories` — no token needed.)
+
 - [ ] **Step 2: Write `e2e/tests/admin-settings.spec.ts`**
 
 Import header: same as Task 3 Step 1.
 
 Tests move **verbatim** from `e2e/tests/uat.spec.ts`:
 - test 13 (categories list) = lines 172–177
-- test 14 (create category) = lines 181–201, **modified — append before the final screenshot** the same sanity check as test 9:
+- test 14 (create category) = lines 181–201, **replaced in full** by the code below (idempotency pre-check + `waitFor` idiom)
 - test 15 (users list) = lines 205–210
-- test 16 (create user) = lines 214–233, **modified — append the same sanity check before the final screenshot**
+- test 16 (create user) = lines 214–233, **append the sanity-check snippet** immediately before the final screenshot (test never submits — no pre-check needed)
 - test 17 (branches list) = lines 237–242
-- test 18 (create branch) = lines 246–255, **modified — append the same sanity check before the final screenshot**
+- test 18 (create branch) = lines 246–255, **append the sanity-check snippet** immediately before the final screenshot (test never submits — no pre-check needed)
 - test 19 (audit logs) = lines 259–264
 
-The sanity-check snippet to insert in tests 14, 16, 18 (immediately before each test's final `await page.screenshot(...)` line):
+Test 14 full replacement body:
 
 ```typescript
-  // Duplicate tolerance: submit may succeed, be rejected ("already exists"),
+test('14. Admin can create a new category', async ({ page, request }) => {
+  // Idempotency pre-check: skip if the fixed-name category already exists.
+  const res = await request.get('/api/categories');
+  const categories = (await res.json()).data ?? [];
+  test.skip(
+    categories.some((c: { name: string }) => c.name === 'Playwright Category'),
+    'Playwright Category already exists — tolerate duplicates'
+  );
+  await login(page, 'admin');
+  await page.goto('/admin/categories');
+  await expect(page).toHaveURL(/admin\/categories/);
+  const addBtn = page.getByRole('button', { name: /add|new|create/i });
+  if (await addBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+    await addBtn.click();
+    await page.waitForTimeout(1000);
+  }
+  const nameInput = page.locator('input[name="name"], input[placeholder*="name" i]').first();
+  if (await nameInput.waitFor({ state: 'visible', timeout: 3000 }).then(() => true).catch(() => false)) {
+    await nameInput.fill('Playwright Category');
+    const saveBtn = page.getByRole('button', { name: /save|submit|create/i });
+    if (await saveBtn.waitFor({ state: 'visible', timeout: 2000 }).then(() => true).catch(() => false)) {
+      await saveBtn.click();
+      await page.waitForTimeout(2000);
+    }
+  }
+  // Duplicate tolerance: creation may succeed, be rejected ("already exists"),
   // or be a no-op — the page must remain functional (layout rendered, no crash).
+  await expect(page.getByText('📚 Library System')).toBeVisible();
+  await page.screenshot({ path: 'test-results/14-create-category.png' });
+});
+```
+
+The sanity-check snippet to insert in tests 16 and 18 (immediately before each test's final `await page.screenshot(...)` line):
+
+```typescript
+  // Page must remain functional (layout rendered, no crash).
   await expect(page.getByText('📚 Library System')).toBeVisible();
 ```
 
-- [ ] **Step 3: Run to verify**
+- [ ] **Step 3: Run to verify — including idempotency**
 
 ```bash
 cd e2e && npx playwright test tests/admin-books.spec.ts tests/admin-settings.spec.ts
 ```
-Expected: **13 passed** (6 + 7).
+Expected: **13 tests total**. If "Playwright Test Book" / "Playwright Category" already exist in UAT from earlier runs, tests 9/14 report **skipped** — that is the idempotency pre-check working, not a failure (typical first run after migration: 11 passed, 2 skipped).
+
+Then run `admin-books.spec.ts` a second time to prove no duplicate row is created across runs:
+
+```bash
+cd e2e && npx playwright test tests/admin-books.spec.ts
+```
+Expected: identical result to the first run — test 9 skipped again (no new book row).
 
 - [ ] **Step 4: Commit**
 
@@ -456,7 +514,7 @@ rm e2e/tests/uat.spec.ts
 ```bash
 cd e2e && npx playwright test
 ```
-Expected: **32 passed** across 6 files, ~1–2 minutes. If any test fails here, fix the migrated file (not UAT) before committing — the baseline was 32/32 on 2026-09-03.
+Expected: 32 tests, **0 failures** — steady state is **30 passed, 2 skipped** (tests 9/14 skip via the idempotency pre-checks when "Playwright Test Book" / "Playwright Category" already exist from earlier runs). ~1–2 minutes. If any test FAILS here, fix the migrated file (not UAT) before committing — the baseline was 32/32 on 2026-09-03.
 
 - [ ] **Step 3: Commit**
 
@@ -511,6 +569,8 @@ jobs:
     name: UAT E2E — ${{ inputs.suite }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -600,7 +660,7 @@ sleep 15
 RUN_ID=$(gh run list --workflow=uat-e2e.yml --limit 1 --json databaseId --jq '.[0].databaseId')
 gh run watch "$RUN_ID" --exit-status
 ```
-Expected: green run; 32 tests pass (~5 min including browser install). Check the run page shows the `playwright-all` artifact.
+Expected: green run; steady state is **30 passed, 2 skipped** (tests 9/14 skip via the idempotency pre-checks when their entities already exist) — ~5 min including browser install. Check the run page shows the `playwright-all` artifact.
 
 - [ ] **Step 5: Verify in CI — targeted suite**
 
@@ -633,16 +693,65 @@ update tests in the matching `e2e/tests/<area>.spec.ts` **in the same PR**. A ne
 area means a new spec file plus an entry in the `suite` choice list in
 `.github/workflows/uat-e2e.yml`.
 
-- Suites: `auth` (6), `admin-books` (6), `admin-settings` (7), `librarian` (4),
-  `member` (7), `roles` (2).
+- Suites (per-area files): `auth`, `admin-books`, `admin-settings`, `librarian`,
+  `member`, `roles` — see the e2e README for what each covers.
 - Run locally: `cd e2e && npm ci && npx playwright install chromium && npx playwright test`
   (single suite: append `tests/<area>.spec.ts`).
-- Run in CI: Actions → **UAT E2E** → Run workflow → pick a suite.
-- Test data: fixed "Playwright"-prefixed names, **tolerates duplicates** — never
-  delete shared seed data. Tests run sequentially against the shared UAT DB.
+- Run in CI: Actions → **UAT E2E** → Run workflow → pick a suite. Dispatch **after
+  the latest Deploy run for master has completed** — overlapping an in-flight deploy
+  can hit mid-restart containers and produce false failures.
+- Test data: fixed "Playwright"-prefixed names, **tolerates duplicates** — creation
+  tests with fixed names (books, categories) pre-check the API and skip when the
+  entity already exists. Never delete shared seed data. Tests run sequentially
+  against the shared UAT DB.
 ```
 
-- [ ] **Step 2: Write `.github/pull_request_template.md`**
+- [ ] **Step 2: Update root `README.md`** (documentation contract — local-dev and CI/CD overview changed)
+
+Four exact edits:
+
+2a. Stack table — add row after the `Frontend` row (README.md:14):
+
+```markdown
+| E2E | Playwright 1.62 (TypeScript), run against deployed UAT |
+```
+
+2b. Line 60 — fix the stale health-gate reference (endpoint moved to `/health` by ADR-0009):
+
+old:
+```markdown
+Health endpoints (used by CI health gates): `https://library.nanobyte.ca/api/health` and `https://uatlibrary.nanobyte.ca/api/health`.
+```
+new:
+```markdown
+Health endpoints (used by CI health gates): `https://library.nanobyte.ca/health` and `https://uatlibrary.nanobyte.ca/health`.
+```
+
+2c. CI/CD Usage — add after the Prod block (after README.md:76):
+
+```markdown
+**UAT E2E** runs the Playwright suite against UAT on demand:
+
+```bash
+gh workflow run uat-e2e.yml -f suite=all        # or: auth | admin-books | admin-settings | librarian | member | roles
+```
+
+Dispatch after the latest Deploy run for master has completed.
+```
+
+2d. Local Development — add E2E subsection after the Frontend subsection (after README.md:97):
+
+```markdown
+### E2E (from `e2e/`)
+
+```bash
+npm ci                              # install dependencies
+npx playwright install chromium     # one-time browser install
+npx playwright test                 # full suite against https://uatlibrary.nanobyte.ca
+```
+```
+
+- [ ] **Step 3: Write `.github/pull_request_template.md`**
 
 ```markdown
 ## Summary
@@ -656,15 +765,15 @@ area means a new spec file plus an entry in the `suite` choice list in
 - [ ] ADR entry added to docs/adr.md (if compose files, ports, networks, CI/CD workflows, or DB schema changed)
 ```
 
-- [ ] **Step 3: Commit + push**
+- [ ] **Step 4: Commit + push**
 
 ```bash
-git add AGENTS.md .github/pull_request_template.md
-git commit -m "docs: UAT e2e coverage rule in AGENTS.md + PR template checklist"
+git add AGENTS.md .github/pull_request_template.md README.md
+git commit -m "docs: UAT e2e coverage rule in AGENTS.md, PR template checklist, README e2e sections"
 git push origin master
 ```
 
-- [ ] **Step 4: Final sanity**
+- [ ] **Step 5: Final sanity**
 
 ```bash
 cd e2e && npx playwright test --list

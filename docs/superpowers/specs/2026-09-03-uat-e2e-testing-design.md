@@ -48,20 +48,24 @@ e2e/
 
 Rules:
 
-- **1:1 migration** — all 32 tests move unchanged except creation tests (9, 14, 16, 18), which gain a "page still responsive after submit" sanity check instead of strict created-once assertions (duplicate tolerance decision).
-- **Single worker, sequential** (`fullyParallel: false`, workers 1, retries 0) — tests share the UAT DB and its seed users.
+- **1:1 migration** — all 32 tests move unchanged except:
+  - Creation tests **9 (book)** and **14 (category)** gain an **idempotency pre-check**: before the UI flow, query the public API (`/api/books/search`, `/api/categories`) and `test.skip()` if the fixed-name entity already exists. This honors the tolerate-duplicates/no-cleanup decision while **bounding data growth** — without it, repeated runs accumulate "Playwright Test Book" rows; books list sorts `createdAt DESC` with page size 20, so seed titles eventually fall off page 1 and tests 8/21/25 would false-fail.
+  - Creation tests **16 (user)** and **18 (branch)** never submit (fill + screenshot only) — they gain only the "page remains functional" sanity check (`Layout` heading still visible), inserted before the final screenshot.
+- **Single worker, sequential** (`fullyParallel: false`, `workers: 1`, retries 0) — tests share the UAT DB and its seed users. Note: `fullyParallel: false` alone does NOT prevent the six spec *files* from running across parallel workers; `workers: 1` is required.
+- The inherited `isVisible({ timeout })` idiom ignores its timeout (Playwright returns immediately). Tests 10–12, 16, 18 keep it verbatim (inherited quirk, noted); the rewritten tests 9 and 14 use `waitFor({ state: 'visible', timeout }).then(() => true).catch(() => false)` as the canonical idiom for new tests.
 - **`helpers/shared.ts`** exports:
   - `USERS` — admin/jane/john credentials (already public seed data in the repo's migrations)
   - `login(page, user)` — UI login helper (moved from uat.spec.ts)
   - `getApiToken(request, user)` — API login via `POST /api/auth/login`, returns the JWT from the `Authorization` response header
   - `authedGet(request, path, token)` — authenticated API GET for fast state setup in future tests
-- **`playwright.config.ts`** — `baseURL: process.env.BASE_URL ?? 'https://uatlibrary.nanobyte.ca'`; add `forbidOnly: true`.
+- **`playwright.config.ts`** — `baseURL: process.env.BASE_URL ?? 'https://uatlibrary.nanobyte.ca'`; `forbidOnly: !!process.env.CI` (deliberately CI-conditional: locals may use `test.only` during development); in CI the `github` reporter is added so failures annotate inline in the Actions UI; `workers: 1`.
 
 ## 2. CI workflow (`.github/workflows/uat-e2e.yml`)
 
 - **Name:** `UAT E2E`
 - **Trigger:** `workflow_dispatch` only, inputs:
   - `suite` (choice, default `all`): `all | auth | admin-books | admin-settings | librarian | member | roles`
+- **Job permissions:** `contents: read` (no token use beyond checkout)
 - **Concurrency:** group `uat-e2e`, `cancel-in-progress: false`
 - **Timeout:** 20 minutes
 - **Steps:**
@@ -82,14 +86,17 @@ Rules:
   - Test-data convention: fixed "Playwright"-prefixed names, tolerate pre-existing data, never delete shared seed data.
   - How to run: locally (`cd e2e && npx playwright test`) and in CI (Actions → UAT E2E → Run workflow → pick suite).
 - **`.github/pull_request_template.md`** (new file) — checklist including: `- [ ] UAT e2e suite updated (if user-visible behavior changed)`.
+- **Root `README.md`** — updated in the same change (documentation contract: local-dev and CI/CD overview changed): add an E2E stack-table row, an E2E Local Development subsection, a UAT E2E dispatch example in CI/CD Usage, and fix the stale health-gate reference (`/api/health` → `/health`, moved by ADR-0009).
+- **Operational note** (AGENTS.md + e2e README): dispatch the suite **after the latest Deploy run for master has completed** — a dispatch overlapping an in-flight deploy can hit mid-restart containers and produce false reds.
 - **`docs/adr.md`** — ADR-0010 appended (append-only contract): manual-dispatch e2e workflow, per-area suites + suite targeting, test-data convention, AGENTS.md/PR-template contract.
 
 ## 4. Verification plan
 
-1. **Local parity:** run each spec file locally against UAT — all 32 green (baseline: suite passed 32/32 on 2026-09-03 after ADR-0009 fixes).
-2. **CI full run:** dispatch `suite=all` → green run, HTML report + traces uploaded.
-3. **CI targeted run:** dispatch `suite=auth` → run executes only the 6 auth tests (validates file filtering).
-4. **Slack path:** reuses the already-proven notification config from deploy.yml; no forced-failure test.
+1. **Local parity:** run each spec file locally against UAT — 32 tests, 0 failures (steady state: 30 passed, 2 skipped via the idempotency pre-checks; baseline was 32/32 passed on 2026-09-03 before the pre-checks were added).
+2. **Idempotency:** run `admin-books.spec.ts` twice — the second run reports test 9 **skipped** (pre-check finds the existing book) and no duplicate row is created.
+3. **CI full run:** dispatch `suite=all` → green run, HTML report + traces uploaded.
+4. **CI targeted run:** dispatch `suite=auth` → run executes only the 6 auth tests (validates file filtering).
+5. **Slack path:** reuses the already-proven notification config from deploy.yml; no forced-failure test (failure UX in CI is additionally covered by the `github` reporter).
 
 ## Future extensions (not now)
 
