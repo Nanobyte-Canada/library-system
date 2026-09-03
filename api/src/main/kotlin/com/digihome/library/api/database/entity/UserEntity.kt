@@ -57,14 +57,17 @@ interface UserRepository : JpaRepository<UserEntity, String> {
     fun findByMembershipId(membershipId: String): UserEntity?
     fun findByIsActive(isActive: Boolean): List<UserEntity>
 
+    // CAST(...) IS NULL gives Hibernate an explicit type for the nullable parameters;
+    // without it PostgreSQL binds them as bytea and the query fails at runtime
+    // (Hibernate 6 untyped-param inference — same issue as the books search).
     @Query("SELECT u FROM UserEntity u WHERE " +
-           "(:q IS NULL OR LOWER(u.firstName) LIKE LOWER(CONCAT('%',:q,'%')) " +
+           "(CAST(:q AS string) IS NULL OR LOWER(u.firstName) LIKE LOWER(CONCAT('%',:q,'%')) " +
            "OR LOWER(u.lastName) LIKE LOWER(CONCAT('%',:q,'%')) " +
            "OR LOWER(u.emailId) LIKE LOWER(CONCAT('%',:q,'%')) " +
            "OR LOWER(u.membershipId) LIKE LOWER(CONCAT('%',:q,'%'))) " +
-           "AND (:role IS NULL OR u.role = :role) " +
-           "AND (:branchId IS NULL OR u.branch.id = :branchId) " +
-           "AND (:isActive IS NULL OR u.isActive = :isActive) " +
+           "AND (CAST(:role AS string) IS NULL OR u.role = :role) " +
+           "AND (CAST(:branchId AS string) IS NULL OR u.branch.id = :branchId) " +
+           "AND (CAST(:isActive AS boolean) IS NULL OR u.isActive = :isActive) " +
            "ORDER BY u.createdAt DESC")
     fun searchUsers(
         @Param("q") q: String?,

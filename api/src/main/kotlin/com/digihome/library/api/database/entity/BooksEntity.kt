@@ -56,12 +56,15 @@ interface BooksRepository : JpaRepository<BooksEntity, String> {
     fun findByCategoryIdOrderByBookNameAsc(categoryId: String): List<BooksEntity>
     fun findByLanguageContainingIgnoreCaseOrderByBookNameAsc(language: String): List<BooksEntity>
 
+    // CAST(...) IS NULL gives Hibernate an explicit type for the nullable parameters;
+    // without it PostgreSQL binds them as bytea and the query fails with
+    // "function lower(bytea) does not exist" (Hibernate 6 untyped-param inference).
     @Query("SELECT b FROM BooksEntity b WHERE " +
-           "(:q IS NULL OR LOWER(b.bookName) LIKE LOWER(CONCAT('%',:q,'%')) " +
+           "(CAST(:q AS string) IS NULL OR LOWER(b.bookName) LIKE LOWER(CONCAT('%',:q,'%')) " +
            "OR LOWER(b.author) LIKE LOWER(CONCAT('%',:q,'%')) " +
            "OR LOWER(b.isbn) LIKE LOWER(CONCAT('%',:q,'%'))) " +
-           "AND (:categoryId IS NULL OR b.category.id = :categoryId) " +
-           "AND (:language IS NULL OR LOWER(b.language) LIKE LOWER(CONCAT('%',:language,'%'))) " +
+           "AND (CAST(:categoryId AS string) IS NULL OR b.category.id = :categoryId) " +
+           "AND (CAST(:language AS string) IS NULL OR LOWER(b.language) LIKE LOWER(CONCAT('%',:language,'%'))) " +
            "ORDER BY b.createdAt DESC")
     fun searchBooks(
         @Param("q") q: String?,

@@ -39,7 +39,6 @@ function App() {
 
           {/* Admin/Librarian routes */}
           <Route element={<ProtectedRoute roles={['ADMIN', 'LIBRARIAN']}><Layout /></ProtectedRoute>}>
-            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/admin/books" element={<BookListPage />} />
             <Route path="/admin/books/new" element={<BookFormPage />} />
             <Route path="/admin/books/:id" element={<BookFormPage />} />
@@ -53,8 +52,9 @@ function App() {
             <Route path="/admin/audit-logs" element={<AuditLogPage />} />
           </Route>
 
-          {/* Member routes (also accessible to Admin/Librarian) */}
+          {/* Authenticated routes (all roles — dashboard available to everyone) */}
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/catalog" element={<CatalogPage />} />
             <Route path="/catalog/:id" element={<BookDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
