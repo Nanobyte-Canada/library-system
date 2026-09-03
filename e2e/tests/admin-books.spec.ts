@@ -27,6 +27,7 @@ test('9. Admin can create a new book', async ({ page, request }) => {
   // runs don't accumulate rows that push seed titles off page 1 (books list sorts
   // createdAt DESC, page size 20 — tests 8/21/25 depend on seed titles being visible).
   const res = await request.get('/api/books/search?q=' + encodeURIComponent('Playwright Test Book'));
+  expect(res.ok(), 'books search API should be reachable — a failing pre-check must fail loudly, not silently degrade to create').toBe(true);
   const body = await res.json();
   test.skip((body.data?.length ?? 0) > 0, 'Playwright Test Book already exists — tolerate duplicates');
   await login(page, 'admin');

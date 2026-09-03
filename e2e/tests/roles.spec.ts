@@ -6,16 +6,15 @@ import { login } from './helpers/shared';
 test('29. Member blocked from /admin/books → redirected', async ({ page }) => {
   await login(page, 'john');
   await page.goto('/admin/books');
-  // Should redirect to /dashboard (or /login if not authenticated)
-  await page.waitForTimeout(2000);
-  const url = page.url();
-  expect(url).not.toContain('/admin/books');
+  // Should redirect to /dashboard (or /login if not authenticated) — auto-waits
+  // instead of a fixed sleep, so slow SPA hydration cannot cause a false red.
+  await page.waitForURL((url) => !url.pathname.includes('/admin/books'), { timeout: 5000 });
 });
 
 test('30. Member blocked from /admin/users → redirected', async ({ page }) => {
   await login(page, 'john');
   await page.goto('/admin/users');
-  await page.waitForTimeout(2000);
-  const url = page.url();
-  expect(url).not.toContain('/admin/users');
+  // Should redirect to /dashboard (or /login if not authenticated) — auto-waits
+  // instead of a fixed sleep, so slow SPA hydration cannot cause a false red.
+  await page.waitForURL((url) => !url.pathname.includes('/admin/users'), { timeout: 5000 });
 });

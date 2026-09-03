@@ -15,6 +15,7 @@ test('13. Admin categories list shows seed categories', async ({ page }) => {
 test('14. Admin can create a new category', async ({ page, request }) => {
   // Idempotency pre-check: skip if the fixed-name category already exists.
   const res = await request.get('/api/categories');
+  expect(res.ok(), 'categories API should be reachable — a failing pre-check must fail loudly, not silently degrade to create').toBe(true);
   const categories = (await res.json()).data ?? [];
   test.skip(
     categories.some((c: { name: string }) => c.name === 'Playwright Category'),

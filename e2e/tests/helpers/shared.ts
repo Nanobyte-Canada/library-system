@@ -1,4 +1,4 @@
-import { expect, type Page, type APIRequestContext } from '@playwright/test';
+import type { Page, APIRequestContext } from '@playwright/test';
 
 export const USERS = {
   admin: { username: 'admin', password: 'password123', name: 'Admin User', role: 'ADMIN' },
