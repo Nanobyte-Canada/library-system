@@ -19,7 +19,7 @@ on:
           - roles
 
 concurrency:
-  group: uat-e2e
+  group: library-uat-pipeline
   cancel-in-progress: false
 
 jobs:
@@ -39,6 +39,12 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: e2e/package-lock.json
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('e2e/package-lock.json') }}
 
       - name: Install dependencies
         working-directory: e2e

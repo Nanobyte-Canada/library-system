@@ -61,9 +61,9 @@ area means a new spec file plus an entry in the `suite` choice list in
   `member`, `roles` — see the e2e README for what each covers.
 - Run locally: `cd e2e && npm ci && npx playwright install chromium && npx playwright test`
   (single suite: append `tests/<area>.spec.ts`).
-- Run in CI: Actions → **UAT E2E** → Run workflow → pick a suite. Dispatch **after
-  the latest Deploy run for master has completed** — overlapping an in-flight deploy
-  can hit mid-restart containers and produce false failures.
+- Run in CI: Actions → **UAT E2E** → Run workflow → pick a suite. Deploys and e2e
+  runs share a concurrency group and auto-serialize (ADR-0011) — dispatch anytime;
+  a run queues behind an in-flight deploy.
 - Test data: fixed "Playwright"-prefixed names, **tolerates duplicates** — creation
   tests with fixed names (books, categories) pre-check the API and skip when the
   entity already exists. Never delete shared seed data. Tests run sequentially

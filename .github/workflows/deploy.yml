@@ -24,6 +24,10 @@ env:
   DEPLOY_PATH: /opt/library
   VAULT_ADDR: https://vault.nanobyte.ca
 
+concurrency:
+  group: library-uat-pipeline
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy to ${{ github.event.inputs.environment || 'uat' }}

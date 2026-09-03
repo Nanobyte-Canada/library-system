@@ -143,3 +143,15 @@ The deploy workflow assembles the `.env` file in-memory on the runner, scp's it 
 - **Contract:** any PR changing user-visible behavior must add/update tests in the matching area spec in the same PR (documented in AGENTS.md, enforced via PR-template checklist). New areas get a new spec file plus an entry in the workflow's `suite` choice list.
 
 **Consequences:** Feature regressions are caught at the UAT level on demand; the suite's quality depends on the PR contract being followed. Adding an area means two small edits (spec file + workflow choice list). Node 22 and Playwright 1.62.1 are pinned; browser install adds ~2 min to each run.
+
+## ADR-0011: Pipeline serialization and e2e browser caching
+**Status:** Accepted | **Date:** 2026-09-03
+
+**Context:** ADR-0010's rule "dispatch the e2e suite after the latest Deploy run has completed" is procedural — `deploy.yml` had no concurrency control, so a deploy could still start mid-e2e-run and restart containers under the suite (false reds). Separately, every e2e run downloaded the Playwright Chromium browser (~2 minutes) even though the browser depends only on the pinned Playwright version.
+
+**Decision:**
+- `deploy.yml` (UAT deploys) and `uat-e2e.yml` share the concurrency group **`library-uat-pipeline`** with `cancel-in-progress: false`: deploys and e2e runs auto-serialize — an e2e dispatch queues until an in-flight deploy completes, and a triggered deploy queues behind an in-flight e2e run. The procedural dispatch-after-deploy rule is replaced by automatic serialization; AGENTS.md / README guidance updated accordingly.
+- Prod deploys (`deploy-prod.yml`) stay outside the group — they do not touch UAT containers.
+- `uat-e2e.yml` caches `~/.cache/ms-playwright` keyed on runner OS + `e2e/package-lock.json` hash; `npx playwright install --with-deps chromium` remains (browsers restore from cache; system deps still install).
+
+**Consequences:** No more mid-restart false reds from overlapping deploys; e2e runs save ~2 minutes on cache hits. A prod deploy may queue behind a UAT e2e run (acceptable — rare and manual). The browser cache invalidates automatically when the pinned Playwright version changes. Any further workflow change extends this log.

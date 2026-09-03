@@ -27,10 +27,9 @@ npx playwright test tests/auth.spec.ts   # one suite
 ## Run in CI
 
 GitHub Actions → **UAT E2E** → Run workflow → pick a suite (or `all`).
-Dispatch **after the latest Deploy run for master has completed** — a dispatch
-overlapping an in-flight deploy can hit mid-restart containers and produce false
-failures. Failure artifacts (HTML report + traces) are uploaded to the run; Slack
-is notified on failure.
+Deploys and e2e runs share a concurrency group and auto-serialize (ADR-0011) —
+a dispatch queues behind an in-flight deploy. Failure artifacts (HTML report +
+traces) are uploaded to the run; Slack is notified on failure.
 
 ## Conventions (see AGENTS.md)
 

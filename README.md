@@ -82,7 +82,7 @@ gh workflow run deploy-prod.yml -f tag=main-a1b2c3d                 # or tag=lat
 gh workflow run uat-e2e.yml -f suite=all        # or: auth | admin-books | admin-settings | librarian | member | roles
 ```
 
-Dispatch after the latest Deploy run for master has completed.
+Deploys and e2e runs auto-serialize via a shared concurrency group (ADR-0011).
 
 Deploys scp the compose file + Vault-generated `.env` to `/opt/library/{uat,prod}` on the server, run `docker compose pull && docker compose up -d`, then gate on the public health URL.
 
