@@ -17,7 +17,8 @@ test('21. Librarian can view books list', async ({ page }) => {
   await expect(page).toHaveURL(/admin\/books/);
   // Wait for the book table or cards to render (async data load)
   await expect(page.locator('.book-table, .book-cards').first()).toBeVisible({ timeout: 10000 });
-  await expect(page.locator('body')).toContainText(/1984|mockingbird|hobbit/i);
+  // Seed data has 45+ pages sorted by createdAt DESC; page 1 shows newer additions
+  await expect(page.locator('body')).toContainText(/Jaina|Religion|Karman|Vegetarian|Playwright/i);
 });
 
 // ─── 22. LIBRARIAN CATALOG SEARCH ──────────────────────────────────

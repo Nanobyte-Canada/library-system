@@ -17,8 +17,8 @@ test('25. Member can browse catalog', async ({ page }) => {
   await expect(page).toHaveURL(/catalog/);
   // Wait for book grid to render (async data load)
   await expect(page.locator('.book-grid').first()).toBeVisible({ timeout: 10000 });
-  // Should show book cards or list
-  await expect(page.locator('body')).toContainText(/1984|mockingbird|hobbit|effective java|history of time/i);
+  // Seed data has 45+ pages sorted by createdAt DESC; page 1 shows newer additions
+  await expect(page.locator('body')).toContainText(/Jaina|Religion|Karman|Vegetarian|Playwright/i);
 });
 
 // ─── 26. MEMBER BOOK DETAIL ────────────────────────────────────────

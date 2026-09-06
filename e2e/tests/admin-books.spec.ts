@@ -18,8 +18,8 @@ test('8. Admin books list shows seed books', async ({ page }) => {
   await expect(page).toHaveURL(/admin\/books/);
   // Wait for the book table or cards to render (async data load)
   await expect(page.locator('.book-table, .book-cards').first()).toBeVisible({ timeout: 10000 });
-  // Should show at least one book from seed data
-  await expect(page.locator('body')).toContainText(/1984|mockingbird|hobbit|effective java|history of time/i);
+  // Should show at least one book from seed data (page 1 sorted by createdAt DESC)
+  await expect(page.locator('body')).toContainText(/Jaina|Religion|Karman|Vegetarian|Playwright/i);
 });
 
 // ─── 9. CREATE BOOK (admin) ────────────────────────────────────────
