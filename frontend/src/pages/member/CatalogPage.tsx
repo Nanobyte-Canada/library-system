@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, BookOpen } from 'lucide-react';
+import { Search, BookOpen } from 'lucide-react';
 import { bookService } from '../../services/bookService';
 import { categoryService } from '../../services/categoryService';
 import type { Book, Category, BookSearchParams } from '../../types';
+import { BookCard } from '../../components/catalog/BookCard';
+import { CategoryPill } from '../../components/catalog/CategoryPill';
 import './CatalogPage.css';
 
 export function CatalogPage() {
@@ -88,7 +90,7 @@ export function CatalogPage() {
   return (
     <div className="catalog-page">
       <div className="catalog-header">
-        <h1 className="page-title">Catalog</h1>
+        <h1 className="display">Catalog</h1>
         <p className="catalog-subtitle">{pagination.total} books available</p>
       </div>
 
@@ -101,29 +103,32 @@ export function CatalogPage() {
             value={searchParams.q || ''}
             onChange={e => setSearchParams(prev => ({ ...prev, q: e.target.value }))}
           />
-          <button type="submit" className="btn-primary">Search</button>
+          <button type="submit" className="btn btn-primary btn-sm">Search</button>
         </form>
 
         <div className="filter-row">
-          <div className="filter-group">
-            <Filter size={16} />
-            <select
-              value={searchParams.categoryId || ''}
-              onChange={e => handleCategoryChange(e.target.value)}
-            >
-              <option value="">All Categories</option>
-              {categories.map(cat => (
-                <option key={cat.id} value={cat.id}>{cat.name}</option>
-              ))}
-            </select>
-          </div>
-
           <button
             className={`filter-toggle ${searchParams.available === true ? 'active' : ''}`}
             onClick={handleAvailabilityToggle}
           >
             Available Now
           </button>
+        </div>
+
+        <div className="category-pills">
+          <CategoryPill
+            name="All"
+            active={!searchParams.categoryId}
+            onClick={() => handleCategoryChange('')}
+          />
+          {categories.map(cat => (
+            <CategoryPill
+              key={cat.id}
+              name={cat.name}
+              active={searchParams.categoryId === cat.id}
+              onClick={() => handleCategoryChange(cat.id)}
+            />
+          ))}
         </div>
       </div>
 
@@ -139,52 +144,28 @@ export function CatalogPage() {
         <>
           <div className="book-grid">
             {books.map(book => (
-              <div
+              <BookCard
                 key={book.id}
-                className="book-card"
+                book={book}
                 onClick={() => navigate(`/catalog/${book.id}`)}
-              >
-                <div className="book-cover">
-                  {book.coverImageUrl ? (
-                    <img src={book.coverImageUrl} alt={book.bookName} />
-                  ) : (
-                    <div className="cover-placeholder">
-                      <BookOpen size={32} />
-                    </div>
-                  )}
-                </div>
-                <div className="book-info">
-                  <h3 className="book-title">{book.bookName}</h3>
-                  <p className="book-author">{book.author}</p>
-                  {book.categoryName && (
-                    <span className="book-category">{book.categoryName}</span>
-                  )}
-                  <div className="book-availability">
-                    <span className={book.availableCopies > 0 ? 'available' : 'unavailable'}>
-                      {book.availableCopies > 0
-                        ? `${book.availableCopies} available`
-                        : 'Not available'}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              />
             ))}
           </div>
 
           {pagination.totalPages > 1 && (
             <div className="pagination">
               <button
-                className="btn-secondary"
+                className="btn btn-outline btn-sm"
                 disabled={pagination.page === 1}
                 onClick={() => setSearchParams(prev => ({ ...prev, page: (prev.page ?? 1) - 1 }))}
               >
                 Previous
               </button>
-              <span>
+              <span className="caption">
                 Page {pagination.page} of {pagination.totalPages}
               </span>
               <button
-                className="btn-secondary"
+                className="btn btn-outline btn-sm"
                 disabled={pagination.page === pagination.totalPages}
                 onClick={() => setSearchParams(prev => ({ ...prev, page: (prev.page ?? 1) + 1 }))}
               >

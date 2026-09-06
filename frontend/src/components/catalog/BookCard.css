@@ -1,0 +1,60 @@
+.catalog-book-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.catalog-book-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.catalog-book-cover {
+  aspect-ratio: 3/4;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.catalog-book-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.catalog-cover-placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.4;
+}
+.catalog-book-info {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+.catalog-book-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-1);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+}
+.catalog-book-author {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+.catalog-book-category {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-size: 0.65rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+.catalog-book-availability .badge {
+  font-size: 0.7rem;
+}
