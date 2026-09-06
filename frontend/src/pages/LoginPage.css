@@ -4,33 +4,50 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--sidebar-bg) 0%, var(--color-primary) 50%, var(--color-primary-dark) 100%);
+  background: var(--color-bg);
   padding: var(--space-4);
 }
 
 .login-card {
   background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  padding: var(--space-8);
+  padding: var(--space-10) var(--space-8);
   width: 100%;
   max-width: 420px;
 }
 
-.login-card h1 {
+.login-header {
   text-align: center;
-  font-family: 'Newsreader', Georgia, serif;
-  font-weight: 600;
-  font-size: 1.75rem;
-  color: var(--color-text);
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-8);
 }
 
-.login-card .subtitle {
-  text-align: center;
-  font-size: 0.875rem;
+.login-logo-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--color-accent);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  margin: 0 auto var(--space-3);
+}
+
+.login-header h1 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.login-header p {
+  font-size: 0.9rem;
   color: var(--color-text-muted);
-  margin-bottom: var(--space-8);
+  margin-top: 0.25rem;
 }
 
 .login-error {
@@ -43,7 +60,7 @@
 }
 
 .login-card .form-group {
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
 }
 
 .login-card .form-group label {
@@ -56,8 +73,10 @@
 
 .login-card .btn-primary {
   width: 100%;
-  min-height: 44px;
-  font-size: 1rem;
+  min-height: 48px;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  letter-spacing: 0.025em;
   margin-top: var(--space-2);
 }
 
@@ -90,7 +109,7 @@
     padding: var(--space-6);
   }
 
-  .login-card h1 {
+  .login-header h1 {
     font-size: 1.5rem;
   }
 }

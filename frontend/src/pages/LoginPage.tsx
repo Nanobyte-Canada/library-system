@@ -31,8 +31,11 @@ export function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-card card">
-        <h1>📚 Library System</h1>
-        <p className="subtitle">Sign in to your account</p>
+        <div className="login-header">
+          <div className="login-logo-icon">📚</div>
+          <h1>Library</h1>
+          <p>Sign in to your account</p>
+        </div>
 
         {error && <div className="login-error">{error}</div>}
 

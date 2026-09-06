@@ -1,22 +1,33 @@
-import { BookOpen } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import type { Book } from '../../types';
 import './BookCard.css';
 
+const GRADIENT_CLASSES = [
+  'green-gradient',
+  'red-gradient',
+  'amber-gradient',
+  'blue-gradient',
+  'brown-gradient',
+  'teal-gradient',
+  'purple-gradient',
+  'slate-gradient',
+];
+
 interface BookCardProps {
   book: Book;
+  index?: number;
   onClick?: () => void;
 }
 
-export function BookCard({ book, onClick }: BookCardProps) {
+export function BookCard({ book, index = 0, onClick }: BookCardProps) {
   return (
     <div className="catalog-book-card" onClick={onClick}>
       <div className="catalog-book-cover">
         {book.coverImageUrl ? (
           <img src={book.coverImageUrl} alt={book.bookName} />
         ) : (
-          <div className="catalog-cover-placeholder">
-            <BookOpen size={32} />
+          <div className={cn('book-cover-placeholder', GRADIENT_CLASSES[index % GRADIENT_CLASSES.length])}>
+            {book.bookName}
           </div>
         )}
       </div>

@@ -143,10 +143,11 @@ export function CatalogPage() {
       ) : (
         <>
           <div className="book-grid">
-            {books.map(book => (
+            {books.map((book, index) => (
               <BookCard
                 key={book.id}
                 book={book}
+                index={index}
                 onClick={() => navigate(`/catalog/${book.id}`)}
               />
             ))}

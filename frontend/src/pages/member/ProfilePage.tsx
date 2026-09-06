@@ -122,77 +122,81 @@ export function ProfilePage() {
 
       <div className="profile-grid">
         <div className="profile-info-card">
-          <div className="profile-avatar">{initials}</div>
-          <div className="profile-name">{profile.firstName} {profile.lastName}</div>
-          <div className="profile-role">{profile.role}</div>
-
-          {!editing ? (
-            <>
-              <div className="profile-details">
-                <div className="profile-detail-item">
-                  <Mail />
-                  <span className="profile-detail-label">Email</span>
-                  <span className="profile-detail-value">{profile.emailId}</span>
+          <div className="profile-header">
+            <div className="profile-avatar">{initials}</div>
+            <div>
+              <div className="profile-name">{profile.firstName} {profile.lastName}</div>
+              <span className="profile-email">{profile.emailId}</span>
+              <span className="profile-role">{profile.role}</span>
+            </div>
+          </div>
+          <div className="profile-body">
+            {!editing ? (
+              <>
+                <div className="profile-details">
+                  <div className="profile-detail-item">
+                    <Mail />
+                    <span className="profile-detail-label">Email</span>
+                    <span className="profile-detail-value">{profile.emailId}</span>
+                  </div>
+                  <div className="profile-detail-item">
+                    <Phone />
+                    <span className="profile-detail-label">Phone</span>
+                    <span className="profile-detail-value">{profile.phoneNumber || 'Not provided'}</span>
+                  </div>
+                  <div className="profile-detail-item">
+                    <CreditCard />
+                    <span className="profile-detail-label">Member ID</span>
+                    <span className="profile-detail-value">{profile.membershipId || 'Not assigned'}</span>
+                  </div>
+                  <div className="profile-detail-item">
+                    <Building2 />
+                    <span className="profile-detail-label">Branch</span>
+                    <span className="profile-detail-value">{profile.branchName || 'Not assigned'}</span>
+                  </div>
                 </div>
-                <div className="profile-detail-item">
-                  <Phone />
-                  <span className="profile-detail-label">Phone</span>
-                  <span className="profile-detail-value">{profile.phoneNumber || 'Not provided'}</span>
-                </div>
-                <div className="profile-detail-item">
-                  <CreditCard />
-                  <span className="profile-detail-label">Member ID</span>
-                  <span className="profile-detail-value">{profile.membershipId || 'Not assigned'}</span>
-                </div>
-                <div className="profile-detail-item">
-                  <Building2 />
-                  <span className="profile-detail-label">Branch</span>
-                  <span className="profile-detail-value">{profile.branchName || 'Not assigned'}</span>
-                </div>
-              </div>
-              <div style={{ marginTop: 'var(--space-4)' }}>
                 <button className="btn btn-outline" onClick={() => setEditing(true)}>
                   Edit Profile
                 </button>
-              </div>
-            </>
-          ) : (
-            <form onSubmit={handleProfileUpdate} className="profile-form">
-              <div className="form-group">
-                <label>First Name</label>
-                <input
-                  type="text"
-                  value={formData.firstName || ''}
-                  onChange={e => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                />
-              </div>
-              <div className="form-group">
-                <label>Last Name</label>
-                <input
-                  type="text"
-                  value={formData.lastName || ''}
-                  onChange={e => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                />
-              </div>
-              <div className="form-group">
-                <label>Phone</label>
-                <input
-                  type="tel"
-                  value={formData.phoneNumber || ''}
-                  onChange={e => setFormData(prev => ({ ...prev, phoneNumber: e.target.value }))}
-                />
-              </div>
-              <div className="form-actions">
-                <button type="button" className="btn btn-outline" onClick={() => setEditing(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  <Save />
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          )}
+              </>
+            ) : (
+              <form onSubmit={handleProfileUpdate} className="profile-form">
+                <div className="form-group">
+                  <label>First Name</label>
+                  <input
+                    type="text"
+                    value={formData.firstName || ''}
+                    onChange={e => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Last Name</label>
+                  <input
+                    type="text"
+                    value={formData.lastName || ''}
+                    onChange={e => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Phone</label>
+                  <input
+                    type="tel"
+                    value={formData.phoneNumber || ''}
+                    onChange={e => setFormData(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                  />
+                </div>
+                <div className="form-actions">
+                  <button type="button" className="btn btn-outline" onClick={() => setEditing(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    <Save />
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
         </div>
 
         <div className="profile-edit-card">

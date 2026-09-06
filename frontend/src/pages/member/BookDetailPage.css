@@ -10,7 +10,7 @@
 }
 .book-detail {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 200px 1fr;
   gap: var(--space-8);
 }
 .book-cover-section {
@@ -23,8 +23,8 @@
   box-shadow: var(--shadow-lg);
 }
 .cover-placeholder-large {
-  width: 100%;
-  height: 400px;
+  width: 180px;
+  height: 260px;
   background: var(--color-bg);
   border-radius: var(--radius-md);
   display: flex;
@@ -52,8 +52,8 @@
 .book-category-badge {
   display: inline-block;
   padding: var(--space-1) var(--space-3);
-  background: var(--color-accent);
-  color: var(--color-text-inverse);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
   border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 500;
