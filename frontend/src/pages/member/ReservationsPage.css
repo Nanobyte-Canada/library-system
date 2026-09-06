@@ -1,20 +1,145 @@
-.reservations-page { padding: 24px; max-width: 900px; margin: 0 auto; }
-.reservations-page h1 { margin: 0 0 24px 0; font-size: 24px; color: #1f2937; display: flex; align-items: center; gap: 12px; }
-.loading { text-align: center; padding: 48px; color: #6b7280; }
-.empty-state { text-align: center; padding: 48px; color: #6b7280; }
-.empty-state svg { margin-bottom: 16px; opacity: 0.5; }
-.reservation-list { display: flex; flex-direction: column; gap: 12px; }
-.reservation-card { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; }
-.reservation-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.reservation-info h3 { margin: 0 0 8px 0; font-size: 16px; color: #1f2937; }
-.reservation-info .branch, .reservation-info .queue, .reservation-info .date, .reservation-info .expires { margin: 4px 0; font-size: 13px; color: #6b7280; display: flex; align-items: center; gap: 6px; }
-.reservation-actions { display: flex; align-items: center; gap: 12px; }
-.status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
-.status-badge.pending { background: #fef3c7; color: #92400e; }
-.status-badge.ready { background: #d1fae5; color: #065f46; }
-.status-badge.fulfilled { background: #dbeafe; color: #1e40af; }
-.status-badge.cancelled { background: #f3f4f6; color: #6b7280; }
-.status-badge.expired { background: #fee2e2; color: #991b1b; }
-.btn-cancel { display: flex; align-items: center; gap: 4px; padding: 6px 12px; border: 1px solid #ef4444; background: white; color: #ef4444; border-radius: 6px; cursor: pointer; font-size: 13px; }
-.btn-cancel:hover:not(:disabled) { background: #fef2f2; }
-.btn-cancel:disabled { opacity: 0.5; cursor: not-allowed; }
+.reservations-page {
+  max-width: 1000px;
+}
+.reservations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+.reservations-header h1 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--color-text);
+  margin: 0;
+}
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+}
+.tab {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  transition: all 0.15s ease;
+}
+.tab:hover {
+  background: var(--color-bg);
+}
+.tab.active {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary);
+}
+.tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+.reservation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-4);
+}
+.reservation-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.reservation-book-title {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+.reservation-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.reservation-meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+.reservation-meta-item svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.reservation-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+.reservation-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.reservation-status.pending {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+.reservation-status.ready {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+.reservation-status.expired {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+.reservation-status.cancelled {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+.reservation-status.fulfilled {
+  background: var(--color-info-light);
+  color: var(--color-info);
+}
+.btn-cancel {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-danger);
+  background: transparent;
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-cancel:hover {
+  background: var(--color-danger);
+  color: var(--color-text-inverse);
+}
+.btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (max-width: 639px) {
+  .reservations-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+  .tabs {
+    justify-content: center;
+  }
+  .reservation-grid {
+    grid-template-columns: 1fr;
+  }
+}
