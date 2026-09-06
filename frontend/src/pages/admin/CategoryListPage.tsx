@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, X } from 'lucide-react';
+import { Plus, Edit } from 'lucide-react';
 import { categoryService } from '../../services/categoryService';
 import type { Category, CategoryCreateRequest } from '../../types';
 import './CategoryListPage.css';
@@ -69,58 +69,64 @@ export function CategoryListPage() {
   const childCategories = categories.filter(c => c.parentId);
 
   return (
-    <div className="category-list-page">
-      <div className="page-header">
-        <h1 className="page-title">Categories</h1>
-        <button className="btn-primary" onClick={handleCreate}>
+    <div className="admin-categories-page">
+      <div className="admin-page-header">
+        <h1>Categories</h1>
+        <button className="btn btn-primary" onClick={handleCreate}>
           <Plus size={16} />
           Add Category
         </button>
       </div>
 
       {loading ? (
-        <div className="loading">Loading categories...</div>
+        <div className="empty-state">
+          <div className="spinner" />
+          <p>Loading categories...</p>
+        </div>
+      ) : rootCategories.length === 0 ? (
+        <div className="empty-state">
+          <p>No categories yet. Create one to get started.</p>
+        </div>
       ) : (
         <div className="category-grid">
-          {rootCategories.map(category => (
-            <div key={category.id} className="category-card">
-              <div className="category-header">
-                <h3>{category.name}</h3>
-                <button className="btn-icon" onClick={() => handleEdit(category)}>
-                  <Edit size={16} />
-                </button>
+          {rootCategories.map(category => {
+            const children = childCategories.filter(c => c.parentId === category.id);
+            return (
+              <div key={category.id} className="category-card">
+                <div className="category-card-name">{category.name}</div>
+                {children.length > 0 && (
+                  <div className="category-card-children">
+                    {children.map(child => (
+                      <div key={child.id} className="category-card-child">
+                        <span>{child.name}</span>
+                        <button className="btn btn-ghost btn-sm" onClick={() => handleEdit(child)}>
+                          <Edit size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="category-card-meta">
+                  {children.length} subcategor{children.length === 1 ? 'y' : 'ies'}
+                </div>
+                <div className="category-card-actions">
+                  <button className="btn btn-outline btn-sm" onClick={() => handleEdit(category)}>
+                    <Edit size={14} />
+                    Edit
+                  </button>
+                </div>
               </div>
-              <div className="category-children">
-                {childCategories
-                  .filter(c => c.parentId === category.id)
-                  .map(child => (
-                    <div key={child.id} className="category-child">
-                      <span>{child.name}</span>
-                      <button className="btn-icon" onClick={() => handleEdit(child)}>
-                        <Edit size={14} />
-                      </button>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          ))}
-          {rootCategories.length === 0 && (
-            <div className="empty-state">No categories yet. Create one to get started.</div>
-          )}
+            );
+          })}
         </div>
       )}
 
       {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{editingCategory ? 'Edit Category' : 'New Category'}</h2>
-              <button className="btn-icon" onClick={() => setShowModal(false)}>
-                <X size={20} />
-              </button>
-            </div>
+        <div className="category-form-modal" onClick={() => setShowModal(false)}>
+          <div className="category-form-content" onClick={e => e.stopPropagation()}>
+            <h2>{editingCategory ? 'Edit Category' : 'New Category'}</h2>
             <form onSubmit={handleSubmit}>
-              {error && <div className="form-error">{error}</div>}
+              {error && <div className="category-form-error">{error}</div>}
               <div className="form-group">
                 <label htmlFor="name">Name</label>
                 <input
@@ -150,11 +156,11 @@ export function CategoryListPage() {
                     ))}
                 </select>
               </div>
-              <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>
+              <div className="category-form-actions">
+                <button type="button" className="btn btn-outline" onClick={() => setShowModal(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
+                <button type="submit" className="btn btn-primary">
                   {editingCategory ? 'Update' : 'Create'}
                 </button>
               </div>
