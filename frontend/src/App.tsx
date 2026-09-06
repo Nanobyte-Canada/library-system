@@ -19,7 +19,7 @@ import { ReservationsPage } from './pages/member/ReservationsPage';
 import { BranchListPage } from './pages/admin/BranchListPage';
 import { BranchFormPage } from './pages/admin/BranchFormPage';
 import { AuditLogPage } from './pages/admin/AuditLogPage';
-import '@/App.css';
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
