@@ -118,135 +118,124 @@ export function UserFormPage() {
   };
 
   return (
-    <div className="user-form-page">
-      <div className="page-header">
-        <button className="btn-secondary" onClick={() => navigate('/admin/users')}>
+    <div className="admin-user-form-page">
+      <div className="admin-page-header">
+        <h1>{isEdit ? 'Edit User' : 'Add New User'}</h1>
+        <button className="btn btn-outline" onClick={() => navigate('/admin/users')}>
           <ArrowLeft size={16} />
           Back to Users
         </button>
-        <h1 className="page-title">{isEdit ? 'Edit User' : 'Add New User'}</h1>
       </div>
 
-      {error && <div className="form-error">{error}</div>}
-      {success && <div className="form-success">{success}</div>}
+      {error && <div className="alert-error">{error}</div>}
+      {success && <div className="alert-success">{success}</div>}
 
-      <form onSubmit={handleSubmit} className="user-form">
-        <div className="form-section">
-          <h2>Personal Information</h2>
+      <form onSubmit={handleSubmit} className="form-card">
+        <h2 className="form-section-title">Personal Information</h2>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="firstName">First Name *</label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="lastName">Last Name *</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-              />
-            </div>
+        <div className="form-grid">
+          <div className="form-group">
+            <label htmlFor="firstName">First Name <span className="required">*</span></label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+            />
           </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="emailId">Email *</label>
-              <input
-                type="email"
-                id="emailId"
-                name="emailId"
-                value={formData.emailId}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="phoneNumber">Phone</label>
-              <input
-                type="tel"
-                id="phoneNumber"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="lastName">Last Name <span className="required">*</span></label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+            />
           </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="membershipId">Membership ID</label>
-              <input
-                type="text"
-                id="membershipId"
-                name="membershipId"
-                value={formData.membershipId}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="membershipType">Membership Type</label>
-              <select
-                id="membershipType"
-                name="membershipType"
-                value={formData.membershipType}
-                onChange={handleChange}
-              >
-                <option value="STUDENT">Student</option>
-                <option value="FACULTY">Faculty</option>
-                <option value="PUBLIC">Public</option>
-              </select>
-            </div>
+          <div className="form-group">
+            <label htmlFor="emailId">Email <span className="required">*</span></label>
+            <input
+              type="email"
+              id="emailId"
+              name="emailId"
+              value={formData.emailId}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="phoneNumber">Phone</label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="membershipId">Membership ID</label>
+            <input
+              type="text"
+              id="membershipId"
+              name="membershipId"
+              value={formData.membershipId}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="membershipType">Membership Type</label>
+            <select
+              id="membershipType"
+              name="membershipType"
+              value={formData.membershipType}
+              onChange={handleChange}
+            >
+              <option value="STUDENT">Student</option>
+              <option value="FACULTY">Faculty</option>
+              <option value="PUBLIC">Public</option>
+            </select>
           </div>
         </div>
 
-        <div className="form-section">
-          <h2>Account Details</h2>
+        <h2 className="form-section-title" style={{ marginTop: 'var(--space-6)' }}>Account Details</h2>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="role">Role *</label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                required
-              >
-                <option value="MEMBER">Member</option>
-                <option value="LIBRARIAN">Librarian</option>
-                <option value="ADMIN">Admin</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="branchId">Branch</label>
-              <select
-                id="branchId"
-                name="branchId"
-                value={formData.branchId || ''}
-                onChange={handleChange}
-              >
-                <option value="">No branch</option>
-                {branches.map(branch => (
-                  <option key={branch.id} value={branch.id}>{branch.name}</option>
-                ))}
-              </select>
-            </div>
+        <div className="form-grid">
+          <div className="form-group">
+            <label htmlFor="role">Role <span className="required">*</span></label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              required
+            >
+              <option value="MEMBER">Member</option>
+              <option value="LIBRARIAN">Librarian</option>
+              <option value="ADMIN">Admin</option>
+            </select>
           </div>
-
+          <div className="form-group">
+            <label htmlFor="branchId">Branch</label>
+            <select
+              id="branchId"
+              name="branchId"
+              value={formData.branchId || ''}
+              onChange={handleChange}
+            >
+              <option value="">No branch</option>
+              {branches.map(branch => (
+                <option key={branch.id} value={branch.id}>{branch.name}</option>
+              ))}
+            </select>
+          </div>
           {!isEdit && (
             <div className="form-group">
-              <label htmlFor="password">Password *</label>
+              <label htmlFor="password">Password <span className="required">*</span></label>
               <input
                 type="password"
                 id="password"
@@ -262,12 +251,12 @@ export function UserFormPage() {
         <div className="form-actions">
           <button
             type="button"
-            className="btn-secondary"
+            className="btn btn-outline"
             onClick={() => navigate('/admin/users')}
           >
             Cancel
           </button>
-          <button type="submit" className="btn-primary" disabled={loading}>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
             <Save size={16} />
             {loading ? 'Saving...' : isEdit ? 'Update User' : 'Create User'}
           </button>
