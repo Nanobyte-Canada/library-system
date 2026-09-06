@@ -138,37 +138,33 @@ export function BookFormPage() {
   };
 
   return (
-    <div className="book-form-page">
-      <div className="page-header">
-        <button className="btn-secondary" onClick={() => navigate('/admin/books')}>
+    <div className="admin-book-form-page">
+      <div className="admin-page-header">
+        <button className="btn btn-secondary" onClick={() => navigate('/admin/books')}>
           <ArrowLeft size={16} />
           Back to Books
         </button>
-        <h1 className="page-title">{isEdit ? 'Edit Book' : 'Add New Book'}</h1>
+        <h1>{isEdit ? 'Edit Book' : 'Add New Book'}</h1>
       </div>
 
       {error && <div className="form-error">{error}</div>}
       {success && <div className="form-success">{success}</div>}
 
-      <form onSubmit={handleSubmit} className="book-form">
-        <div className="form-section">
-          <h2>Book Information</h2>
-
-          <div className="isbn-row">
-            <div className="form-group flex-1">
-              <label htmlFor="isbn">ISBN</label>
-              <input
-                type="text"
-                id="isbn"
-                name="isbn"
-                value={formData.isbn}
-                onChange={handleChange}
-                placeholder="Enter ISBN"
-              />
-            </div>
+      <form onSubmit={handleSubmit} className="form-card">
+        <h2 className="form-section-title">ISBN Lookup</h2>
+        <div className="isbn-lookup-section">
+          <div className="isbn-lookup-row">
+            <input
+              type="text"
+              id="isbn"
+              name="isbn"
+              value={formData.isbn}
+              onChange={handleChange}
+              placeholder="Enter ISBN"
+            />
             <button
               type="button"
-              className="btn-secondary isbn-lookup-btn"
+              className="btn btn-secondary"
               onClick={handleIsbnLookup}
               disabled={isbnLoading || !formData.isbn}
             >
@@ -176,9 +172,12 @@ export function BookFormPage() {
               {isbnLoading ? 'Looking up...' : 'Lookup ISBN'}
             </button>
           </div>
+        </div>
 
+        <h2 className="form-section-title">Book Details</h2>
+        <div className="form-grid">
           <div className="form-group">
-            <label htmlFor="bookName">Title *</label>
+            <label htmlFor="bookName">Title <span className="required">*</span></label>
             <input
               type="text"
               id="bookName"
@@ -190,58 +189,56 @@ export function BookFormPage() {
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="author">Author *</label>
-              <input
-                type="text"
-                id="author"
-                name="author"
-                value={formData.author}
-                onChange={handleChange}
-                required
-                placeholder="Author name"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="publication">Publication</label>
-              <input
-                type="text"
-                id="publication"
-                name="publication"
-                value={formData.publication}
-                onChange={handleChange}
-                placeholder="Publisher name"
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="author">Author <span className="required">*</span></label>
+            <input
+              type="text"
+              id="author"
+              name="author"
+              value={formData.author}
+              onChange={handleChange}
+              required
+              placeholder="Author name"
+            />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="language">Language</label>
-              <input
-                type="text"
-                id="language"
-                name="language"
-                value={formData.language}
-                onChange={handleChange}
-                placeholder="e.g., English"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="categoryId">Category</label>
-              <select
-                id="categoryId"
-                name="categoryId"
-                value={formData.categoryId || ''}
-                onChange={handleChange}
-              >
-                <option value="">Select category</option>
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
+          <div className="form-group">
+            <label htmlFor="publication">Publication</label>
+            <input
+              type="text"
+              id="publication"
+              name="publication"
+              value={formData.publication}
+              onChange={handleChange}
+              placeholder="Publisher name"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="language">Language</label>
+            <input
+              type="text"
+              id="language"
+              name="language"
+              value={formData.language}
+              onChange={handleChange}
+              placeholder="e.g., English"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="categoryId">Category</label>
+            <select
+              id="categoryId"
+              name="categoryId"
+              value={formData.categoryId || ''}
+              onChange={handleChange}
+            >
+              <option value="">Select category</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">
@@ -275,7 +272,7 @@ export function BookFormPage() {
             )}
           </div>
 
-          <div className="form-group">
+          <div className="form-group full-width">
             <label htmlFor="description">Description</label>
             <textarea
               id="description"
@@ -291,12 +288,12 @@ export function BookFormPage() {
         <div className="form-actions">
           <button
             type="button"
-            className="btn-secondary"
+            className="btn btn-secondary"
             onClick={() => navigate('/admin/books')}
           >
             Cancel
           </button>
-          <button type="submit" className="btn-primary" disabled={loading}>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
             <Save size={16} />
             {loading ? 'Saving...' : isEdit ? 'Update Book' : 'Create Book'}
           </button>
