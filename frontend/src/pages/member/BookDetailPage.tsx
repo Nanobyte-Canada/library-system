@@ -83,7 +83,7 @@ export function BookDetailPage() {
     return (
       <div className="error-state">
         <p>{error || 'Book not found'}</p>
-        <button className="btn-secondary" onClick={() => navigate('/catalog')}>
+        <button className="btn btn-outline" onClick={() => navigate('/catalog')}>
           Back to Catalog
         </button>
       </div>
@@ -109,7 +109,7 @@ export function BookDetailPage() {
 
   return (
     <div className="book-detail-page">
-      <button className="btn-secondary back-btn" onClick={() => navigate('/catalog')}>
+      <button className="btn btn-outline back-btn" onClick={() => navigate('/catalog')}>
         <ArrowLeft size={16} />
         Back to Catalog
       </button>
