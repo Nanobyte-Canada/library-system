@@ -155,3 +155,19 @@ The deploy workflow assembles the `.env` file in-memory on the runner, scp's it 
 - `uat-e2e.yml` caches `~/.cache/ms-playwright` keyed on runner OS + `e2e/package-lock.json` hash; `npx playwright install --with-deps chromium` remains (browsers restore from cache; system deps still install).
 
 **Consequences:** No more mid-restart false reds from overlapping deploys; e2e runs save ~2 minutes on cache hits. A prod deploy may queue behind a UAT e2e run (acceptable — rare and manual). The browser cache invalidates automatically when the pinned Playwright version changes. Any further workflow change extends this log.
+
+---
+
+## ADR-0012: Auto-trigger full E2E suite after UAT deploy
+
+**Status:** Accepted | **Date:** 2026-09-06
+
+**Context:** ADR-0011 serialized deploys and e2e runs via the `library-uat-pipeline` concurrency group, but e2e suites were still dispatched manually via `workflow_dispatch`. This meant regressions from UI changes (e.g., the Library UI Redesign) could reach UAT without automated test coverage unless someone remembered to trigger the suite.
+
+**Decision:**
+- `deploy.yml` now includes an `e2e` job that runs after a successful UAT deploy, calling `uat-e2e.yml` as a reusable workflow (`workflow_call`) with `suite: all`.
+- The e2e job only runs for UAT deploys (`github.event.inputs.environment || 'uat' == 'uat'`), not prod deploys.
+- `uat-e2e.yml` gains a `workflow_call` trigger alongside the existing `workflow_dispatch`, so it remains callable both automatically from deploys and manually from the Actions UI.
+- The concurrency group `library-uat-pipeline` continues to serialize e2e with any subsequent deploys.
+
+**Consequences:** Every UAT deploy automatically gets full e2e regression testing. Manual dispatch is preserved for ad-hoc suite runs. E2e failures after deploy surface in the same workflow run as the deploy (linked via `needs: deploy`), and Slack notifications fire independently. Prod deploys are unaffected.

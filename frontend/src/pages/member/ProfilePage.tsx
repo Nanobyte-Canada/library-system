@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Lock, Save } from 'lucide-react';
+import { Lock, Save, Mail, Phone, CreditCard, Building2 } from 'lucide-react';
 import { userService } from '../../services/userService';
 import { useAuthStore } from '../../stores/authStore';
 import type { UserResponse, UserUpdateRequest, PasswordChangeRequest } from '../../types';
@@ -109,26 +109,54 @@ export function ProfilePage() {
     return <div className="error-state">Failed to load profile</div>;
   }
 
+  const initials = `${(profile.firstName?.[0] || '').toUpperCase()}${(profile.lastName?.[0] || '').toUpperCase()}`;
+
   return (
     <div className="profile-page">
-      <h1 className="page-title">My Profile</h1>
+      <div className="profile-header">
+        <h1>My Profile</h1>
+      </div>
 
-      {error && <div className="form-error">{error}</div>}
-      {success && <div className="form-success">{success}</div>}
+      {error && <div className="error-message">{error}</div>}
+      {success && <div className="success-message">{success}</div>}
 
       <div className="profile-grid">
-        <div className="profile-card">
-          <div className="profile-header">
-            <User size={24} />
-            <h2>Personal Information</h2>
-            {!editing && (
-              <button className="btn-secondary" onClick={() => setEditing(true)}>
-                Edit
-              </button>
-            )}
-          </div>
+        <div className="profile-info-card">
+          <div className="profile-avatar">{initials}</div>
+          <div className="profile-name">{profile.firstName} {profile.lastName}</div>
+          <div className="profile-role">{profile.role}</div>
 
-          {editing ? (
+          {!editing ? (
+            <>
+              <div className="profile-details">
+                <div className="profile-detail-item">
+                  <Mail />
+                  <span className="profile-detail-label">Email</span>
+                  <span className="profile-detail-value">{profile.emailId}</span>
+                </div>
+                <div className="profile-detail-item">
+                  <Phone />
+                  <span className="profile-detail-label">Phone</span>
+                  <span className="profile-detail-value">{profile.phoneNumber || 'Not provided'}</span>
+                </div>
+                <div className="profile-detail-item">
+                  <CreditCard />
+                  <span className="profile-detail-label">Member ID</span>
+                  <span className="profile-detail-value">{profile.membershipId || 'Not assigned'}</span>
+                </div>
+                <div className="profile-detail-item">
+                  <Building2 />
+                  <span className="profile-detail-label">Branch</span>
+                  <span className="profile-detail-value">{profile.branchName || 'Not assigned'}</span>
+                </div>
+              </div>
+              <div style={{ marginTop: 'var(--space-4)' }}>
+                <button className="btn btn-outline" onClick={() => setEditing(true)}>
+                  Edit Profile
+                </button>
+              </div>
+            </>
+          ) : (
             <form onSubmit={handleProfileUpdate} className="profile-form">
               <div className="form-group">
                 <label>First Name</label>
@@ -155,55 +183,20 @@ export function ProfilePage() {
                 />
               </div>
               <div className="form-actions">
-                <button type="button" className="btn-secondary" onClick={() => setEditing(false)}>
+                <button type="button" className="btn btn-outline" onClick={() => setEditing(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
-                  <Save size={16} />
+                <button type="submit" className="btn btn-primary">
+                  <Save />
                   Save Changes
                 </button>
               </div>
             </form>
-          ) : (
-            <div className="profile-info">
-              <div className="info-row">
-                <span className="info-label">Name:</span>
-                <span>{profile.firstName} {profile.lastName}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Email:</span>
-                <span>{profile.emailId}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Phone:</span>
-                <span>{profile.phoneNumber || 'Not provided'}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Membership ID:</span>
-                <span>{profile.membershipId || 'Not assigned'}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Role:</span>
-                <span className={`role-badge role-${profile.role.toLowerCase()}`}>{profile.role}</span>
-              </div>
-              <div className="info-row">
-                <span className="info-label">Branch:</span>
-                <span>{profile.branchName || 'Not assigned'}</span>
-              </div>
-            </div>
           )}
         </div>
 
-        <div className="profile-card">
-          <div className="profile-header">
-            <Lock size={24} />
-            <h2>Password</h2>
-            {!showPasswordForm && (
-              <button className="btn-secondary" onClick={() => setShowPasswordForm(true)}>
-                Change Password
-              </button>
-            )}
-          </div>
+        <div className="profile-edit-card">
+          <h2>Security</h2>
 
           {showPasswordForm ? (
             <form onSubmit={handlePasswordChange} className="profile-form">
@@ -224,17 +217,25 @@ export function ProfilePage() {
                 />
               </div>
               <div className="form-actions">
-                <button type="button" className="btn-secondary" onClick={() => setShowPasswordForm(false)}>
+                <button type="button" className="btn btn-outline" onClick={() => setShowPasswordForm(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
-                  <Lock size={16} />
+                <button type="submit" className="btn btn-primary">
+                  <Lock />
                   Change Password
                 </button>
               </div>
             </form>
           ) : (
-            <p className="password-hint">Click "Change Password" to update your password.</p>
+            <>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem', marginBottom: 'var(--space-4)' }}>
+                Keep your account secure by using a strong password.
+              </p>
+              <button className="btn btn-outline" onClick={() => setShowPasswordForm(true)}>
+                <Lock />
+                Change Password
+              </button>
+            </>
           )}
         </div>
       </div>

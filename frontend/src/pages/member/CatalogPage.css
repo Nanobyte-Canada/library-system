@@ -1,177 +1,116 @@
 .catalog-page {
-  padding: 24px;
+  /* no extra padding — Layout.content handles it */
 }
-
 .catalog-header {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-4);
 }
-
 .catalog-subtitle {
-  color: var(--text-secondary);
-  margin-top: 4px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-top: var(--space-1);
 }
-
 .catalog-filters {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-6);
 }
-
 .search-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  margin-bottom: 12px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-3);
+  color: var(--color-text-muted);
 }
-
 .search-bar input {
   flex: 1;
   border: none;
   background: none;
-  color: var(--text-primary);
-  font-size: 16px;
+  color: var(--color-text);
+  font-size: 0.875rem;
   outline: none;
 }
-
+.search-bar input::placeholder {
+  color: var(--color-text-muted);
+}
 .filter-row {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
   align-items: center;
+  margin-bottom: var(--space-3);
 }
-
 .filter-group {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
-
 .filter-group select {
   border: none;
   background: none;
-  color: var(--text-primary);
+  color: var(--color-text);
   outline: none;
   cursor: pointer;
+  font-size: 0.85rem;
 }
-
 .filter-toggle {
-  padding: 8px 16px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  color: var(--text-secondary);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
+  font-size: 0.8rem;
+  transition: all 0.15s ease;
 }
-
+.filter-toggle:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
 .filter-toggle.active {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary);
 }
-
+.filter-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+.category-pills {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  scrollbar-width: thin;
+}
 .book-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 24px;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
 }
-
-.book-card {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius);
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.book-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
-.book-cover {
-  height: 200px;
-  background: var(--bg-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.book-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.cover-placeholder {
-  color: var(--text-secondary);
-}
-
-.book-info {
-  padding: 12px;
-}
-
-.book-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.book-author {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-}
-
-.book-category {
-  display: inline-block;
-  padding: 2px 8px;
-  background: var(--bg-secondary);
-  border-radius: 4px;
-  font-size: 11px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
-}
-
-.book-availability {
-  font-size: 12px;
-}
-
-.book-availability .available {
-  color: var(--success);
-}
-
-.book-availability .unavailable {
-  color: var(--danger);
-}
-
-.empty-state {
-  text-align: center;
-  padding: 48px;
-  color: var(--text-secondary);
-}
-
-.empty-state h3 {
-  margin-top: 16px;
-  color: var(--text-primary);
-}
-
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 16px;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+}
+@media (max-width: 1023px) {
+  .book-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 639px) {
+  .book-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+  .filter-row {
+    flex-wrap: wrap;
+  }
 }

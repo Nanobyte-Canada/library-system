@@ -1,163 +1,155 @@
 .my-books-page {
-  padding: 24px;
   max-width: 900px;
-  margin: 0 auto;
 }
-
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-6);
 }
-
 .page-header h1 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--color-text);
   margin: 0;
-  font-size: 24px;
-  color: #1f2937;
 }
-
 .tabs {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
 }
-
 .tab {
-  padding: 8px 16px;
-  border: 1px solid #d1d5db;
-  background: white;
-  border-radius: 6px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  transition: all 0.15s ease;
 }
-
 .tab:hover {
-  background: #f3f4f6;
+  background: var(--color-bg);
 }
-
 .tab.active {
-  background: #2563eb;
-  color: white;
-  border-color: #2563eb;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-primary);
 }
-
-.loading {
-  text-align: center;
-  padding: 48px;
-  color: #6b7280;
+.tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-light);
 }
-
-.empty-state {
-  text-align: center;
-  padding: 48px;
-  color: #6b7280;
-}
-
-.empty-state svg {
-  margin-bottom: 16px;
-  opacity: 0.5;
-}
-
 .checkout-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
 }
-
 .checkout-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  transition: box-shadow 0.2s;
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  transition: box-shadow 0.15s;
 }
-
 .checkout-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
 }
-
 .checkout-info h3 {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  color: #1f2937;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 var(--space-2) 0;
 }
-
 .checkout-info .barcode,
 .checkout-info .branch,
 .checkout-info .dates {
-  margin: 4px 0;
-  font-size: 13px;
-  color: #6b7280;
+  margin: var(--space-1) 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1);
 }
-
 .checkout-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
+  flex-shrink: 0;
 }
-
 .due-badge {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 12px;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
   font-weight: 500;
 }
-
 .due-badge.on-time {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--color-success-light);
+  color: var(--color-success);
 }
-
 .due-badge.due-soon {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--color-warning-light);
+  color: var(--color-warning);
 }
-
 .due-badge.overdue {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--color-danger-light);
+  color: var(--color-danger);
 }
-
 .renewed-badge {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  background: #dbeafe;
-  color: #1e40af;
-  border-radius: 12px;
-  font-size: 12px;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-info-light);
+  color: var(--color-info);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
   font-weight: 500;
 }
-
 .btn-secondary {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid #d1d5db;
-  background: white;
-  border-radius: 6px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 13px;
-  transition: all 0.2s;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  transition: all 0.15s ease;
+  font-family: inherit;
 }
-
 .btn-secondary:hover:not(:disabled) {
-  background: #f3f4f6;
+  background: var(--color-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
-
 .btn-secondary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+@media (max-width: 639px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+  .tabs {
+    justify-content: center;
+  }
+  .checkout-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+  .checkout-actions {
+    justify-content: flex-start;
+  }
 }

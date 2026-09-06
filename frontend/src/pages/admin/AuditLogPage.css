@@ -1,13 +1,149 @@
-.audit-log-page { padding: 24px; }
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-.page-header h1 { margin: 0; font-size: 24px; color: #1f2937; display: flex; align-items: center; gap: 12px; }
-.filter { display: flex; align-items: center; gap: 8px; }
-.filter select { padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
-.loading { text-align: center; padding: 48px; color: #6b7280; }
-.table-container { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e5e7eb; }
-th { background: #f9fafb; font-weight: 600; color: #374151; font-size: 13px; text-transform: uppercase; }
-td { font-size: 14px; color: #1f2937; }
-td.details { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.action-badge { padding: 2px 8px; background: #e0e7ff; color: #3730a3; border-radius: 4px; font-size: 12px; font-weight: 500; }
+.admin-audit-page {
+  max-width: 1200px;
+}
+.admin-page-header {
+  margin-bottom: var(--space-6);
+}
+.admin-page-header h1 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--color-text);
+  margin: 0 0 var(--space-1) 0;
+}
+.admin-page-header p {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+.audit-filters {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+.audit-filters input,
+.audit-filters select {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.85rem;
+}
+.audit-filters input {
+  flex: 1;
+  min-width: 200px;
+}
+.audit-filters input::placeholder {
+  color: var(--color-text-muted);
+}
+.audit-filters input:focus,
+.audit-filters select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+/* Desktop table */
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.audit-table thead {
+  background: var(--color-bg);
+}
+.audit-table th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border-light);
+}
+.audit-table td {
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.85rem;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border-light);
+  vertical-align: middle;
+}
+.audit-table tr:last-child td {
+  border-bottom: none;
+}
+.audit-table tr:hover td {
+  background: var(--color-bg);
+}
+/* Action badges */
+.action-badge {
+  display: inline-block;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+.action-badge.create {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+.action-badge.update {
+  background: var(--color-info-light);
+  color: var(--color-info);
+}
+.action-badge.delete {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+.action-badge.login {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+/* Mobile card layout */
+.audit-cards {
+  display: none;
+}
+.audit-card-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+.audit-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+.audit-card-user {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+.audit-card-time {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.audit-card-detail {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+}
+@media (max-width: 768px) {
+  .audit-table {
+    display: none;
+  }
+  .audit-cards {
+    display: block;
+  }
+}

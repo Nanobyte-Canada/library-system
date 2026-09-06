@@ -17,6 +17,16 @@ on:
           - librarian
           - member
           - roles
+  workflow_call:
+    inputs:
+      suite:
+        description: "Test suite to run"
+        required: false
+        type: string
+        default: all
+    secrets:
+      SLACK_WEBHOOK_URL:
+        required: false
 
 concurrency:
   group: library-uat-pipeline

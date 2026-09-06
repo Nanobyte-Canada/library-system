@@ -27,7 +27,7 @@ test('26. Member can view book detail', async ({ page }) => {
   await page.goto('/catalog');
   // Click first book card (the catalog renders cards as divs with client-side
   // navigation — not anchors — so match the card element itself)
-  const bookCard = page.locator('.book-card').first();
+  const bookCard = page.locator('.catalog-book-card').first();
   if (!(await bookCard.isVisible({ timeout: 5000 }).catch(() => false))) {
     test.skip(true, 'no book cards rendered — catalog is broken; degradation visible in results');
   }

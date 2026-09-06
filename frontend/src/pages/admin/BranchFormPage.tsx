@@ -34,16 +34,16 @@ export function BranchFormPage() {
   });
 
   return (
-    <div className="branch-form-page">
-      <div className="page-header">
+    <div className="admin-branch-form-page">
+      <div className="admin-page-header">
         <h1>{isEdit ? 'Edit Branch' : 'New Branch'}</h1>
-        <button className="btn-secondary" onClick={() => navigate('/admin/branches')}>
+        <button className="btn btn-outline" onClick={() => navigate('/admin/branches')}>
           <ArrowLeft size={16} /> Back
         </button>
       </div>
       <div className="form-card">
         <div className="form-group">
-          <label>Name</label>
+          <label>Name <span className="required">*</span></label>
           <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
         </div>
         <div className="form-group">
@@ -58,9 +58,14 @@ export function BranchFormPage() {
           <label>Email</label>
           <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
         </div>
-        <button className="btn-primary" onClick={() => mutation.mutate()} disabled={mutation.isPending || !form.name}>
-          <Save size={16} /> {mutation.isPending ? 'Saving...' : 'Save'}
-        </button>
+        <div className="form-actions">
+          <button className="btn btn-outline" onClick={() => navigate('/admin/branches')}>
+            Cancel
+          </button>
+          <button className="btn btn-primary" onClick={() => mutation.mutate()} disabled={mutation.isPending || !form.name}>
+            <Save size={16} /> {mutation.isPending ? 'Saving...' : isEdit ? 'Update Branch' : 'Create Branch'}
+          </button>
+        </div>
       </div>
     </div>
   );

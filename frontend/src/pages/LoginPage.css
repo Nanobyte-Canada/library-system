@@ -1,53 +1,96 @@
+/* ===== LOGIN PAGE ===== */
 .login-page {
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  background: var(--bg-secondary);
+  background: linear-gradient(135deg, var(--sidebar-bg) 0%, var(--color-primary) 50%, var(--color-primary-dark) 100%);
+  padding: var(--space-4);
 }
 
 .login-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-8);
   width: 100%;
-  max-width: 400px;
-  padding: 40px;
+  max-width: 420px;
 }
 
 .login-card h1 {
   text-align: center;
-  margin-bottom: 8px;
-  font-size: 24px;
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.75rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-1);
 }
 
 .login-card .subtitle {
   text-align: center;
-  color: var(--text-secondary);
-  margin-bottom: 32px;
-  font-size: 14px;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-8);
 }
 
-.form-group {
-  margin-bottom: 20px;
+.login-error {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  margin-bottom: var(--space-4);
 }
 
-.form-group label {
+.login-card .form-group {
+  margin-bottom: var(--space-4);
+}
+
+.login-card .form-group label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
+  margin-bottom: var(--space-1);
+  font-size: 0.875rem;
   font-weight: 500;
+  color: var(--color-text);
 }
 
 .login-card .btn-primary {
   width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  margin-top: 8px;
+  min-height: 44px;
+  font-size: 1rem;
+  margin-top: var(--space-2);
 }
 
-.login-error {
-  background: #fee2e2;
-  color: #991b1b;
-  padding: 10px 14px;
-  border-radius: var(--radius);
-  font-size: 13px;
-  margin-bottom: 16px;
+/* Password visibility toggle */
+.password-wrapper {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  padding: var(--space-1);
+}
+
+.password-toggle:hover {
+  color: var(--color-text);
+}
+
+/* Responsive */
+@media (max-width: 639px) {
+  .login-card {
+    padding: var(--space-6);
+  }
+
+  .login-card h1 {
+    font-size: 1.5rem;
+  }
 }

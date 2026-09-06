@@ -1,165 +1,216 @@
 .book-detail-page {
-  padding: 24px;
   max-width: 1000px;
 }
-
 .back-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  font-size: 0.85rem;
 }
-
 .book-detail {
   display: grid;
   grid-template-columns: 300px 1fr;
-  gap: 32px;
+  gap: var(--space-8);
 }
-
 .book-cover-section {
   position: sticky;
-  top: 24px;
+  top: var(--space-6);
 }
-
 .book-cover-img {
   width: 100%;
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
 }
-
 .cover-placeholder-large {
   width: 100%;
   height: 400px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
+  color: var(--color-text-muted);
+  opacity: 0.4;
 }
-
 .book-info-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4);
 }
-
 .book-info-section .book-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
 }
-
 .book-info-section .book-author {
-  font-size: 18px;
-  color: var(--text-secondary);
+  font-size: 1rem;
+  color: var(--color-text-muted);
 }
-
 .book-category-badge {
   display: inline-block;
-  padding: 4px 12px;
-  background: var(--accent);
-  color: white;
-  border-radius: 16px;
-  font-size: 12px;
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
   font-weight: 500;
   width: fit-content;
 }
-
 .book-meta {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius);
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
 }
-
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: var(--text-primary);
+  gap: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-text);
 }
-
 .meta-label {
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--color-text-muted);
+  min-width: 80px;
 }
-
 .book-description h3,
 .availability-section h3 {
-  font-size: 16px;
+  font-family: 'Newsreader', Georgia, serif;
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 8px;
+  font-size: 1rem;
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
-
 .book-description p {
-  color: var(--text-secondary);
-  line-height: 1.6;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  font-size: 0.9rem;
 }
-
 .availability-summary {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
+  font-size: 0.9rem;
 }
-
 .availability-summary .available {
-  color: var(--success);
-  font-weight: 500;
+  color: var(--color-success);
+  font-weight: 600;
 }
-
 .availability-summary .unavailable {
-  color: var(--danger);
-  font-weight: 500;
+  color: var(--color-danger);
+  font-weight: 600;
 }
-
 .branch-availability {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
-
 .branch-row {
   display: flex;
   justify-content: space-between;
-  padding: 8px 12px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius);
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
 }
-
 .branch-name {
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--color-text);
+  font-size: 0.85rem;
 }
-
 .branch-count {
-  color: var(--text-secondary);
-  font-size: 14px;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
 }
-
+.reserve-section {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+}
+.reserve-note {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-3);
+}
+.reserve-form {
+  display: flex;
+  gap: var(--space-3);
+}
+.reserve-form select {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.85rem;
+}
+.btn-reserve {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-reserve:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+.btn-reserve:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.reserve-success {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-success-light);
+  color: var(--color-success);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+}
+.reserve-error {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+}
 .error-state {
   text-align: center;
-  padding: 48px;
-  color: var(--text-secondary);
+  padding: var(--space-12);
+  color: var(--color-text-muted);
 }
-
-.error-state .btn-secondary {
-  margin-top: 16px;
+.error-state .btn-outline {
+  margin-top: var(--space-4);
 }
-
 @media (max-width: 768px) {
   .book-detail {
     grid-template-columns: 1fr;
   }
-
   .book-cover-section {
     position: static;
-    max-width: 300px;
+    max-width: 280px;
     margin: 0 auto;
+  }
+  .book-info-section .book-title {
+    font-size: 1.4rem;
+  }
+  .reserve-form {
+    flex-direction: column;
   }
 }
