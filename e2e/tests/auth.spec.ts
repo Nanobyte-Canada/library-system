@@ -46,6 +46,6 @@ test('6. Logout returns to login page', async ({ page }) => {
   await login(page, 'admin');
   await expect(page).toHaveURL(/dashboard/);
   // Find and click logout
-  await page.getByRole('button', { name: /logout|sign out/i }).click();
+  await page.getByRole('button', { name: /log\s*out|sign\s*out/i }).click();
   await expect(page).toHaveURL(/login/);
 });

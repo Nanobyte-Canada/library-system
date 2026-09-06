@@ -16,6 +16,8 @@ test('8. Admin books list shows seed books', async ({ page }) => {
   await login(page, 'admin');
   await page.goto('/admin/books');
   await expect(page).toHaveURL(/admin\/books/);
+  // Wait for the book table or cards to render (async data load)
+  await expect(page.locator('.book-table, .book-cards').first()).toBeVisible({ timeout: 10000 });
   // Should show at least one book from seed data
   await expect(page.locator('body')).toContainText(/1984|mockingbird|hobbit|effective java|history of time/i);
 });
@@ -48,7 +50,7 @@ test('9. Admin can create a new book', async ({ page, request }) => {
   }
   // Duplicate tolerance: creation may succeed, be rejected ("already exists"),
   // or be a no-op — the page must remain functional (layout rendered, no crash).
-  await expect(page.getByText('📚 Library System')).toBeVisible();
+  await expect(page.locator('.app-layout')).toBeVisible();
   await page.screenshot({ path: 'test-results/09-create-book-result.png' });
 });
 

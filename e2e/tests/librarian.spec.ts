@@ -15,6 +15,8 @@ test('21. Librarian can view books list', async ({ page }) => {
   await login(page, 'jane');
   await page.goto('/admin/books');
   await expect(page).toHaveURL(/admin\/books/);
+  // Wait for the book table or cards to render (async data load)
+  await expect(page.locator('.book-table, .book-cards').first()).toBeVisible({ timeout: 10000 });
   await expect(page.locator('body')).toContainText(/1984|mockingbird|hobbit/i);
 });
 

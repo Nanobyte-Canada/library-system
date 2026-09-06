@@ -40,7 +40,7 @@ test('14. Admin can create a new category', async ({ page, request }) => {
   }
   // Duplicate tolerance: creation may succeed, be rejected ("already exists"),
   // or be a no-op — the page must remain functional (layout rendered, no crash).
-  await expect(page.getByText('📚 Library System')).toBeVisible();
+  await expect(page.locator('.app-layout')).toBeVisible();
   await page.screenshot({ path: 'test-results/14-create-category.png' });
 });
 
@@ -74,7 +74,7 @@ test('16. Admin can create a new user', async ({ page }) => {
     await emailInput.fill('playwright@test.com');
   }
   // Page must remain functional (layout rendered, no crash).
-  await expect(page.getByText('📚 Library System')).toBeVisible();
+  await expect(page.locator('.app-layout')).toBeVisible();
   await page.screenshot({ path: 'test-results/16-create-user-filled.png' });
 });
 
@@ -98,7 +98,7 @@ test('18. Admin can create a new branch', async ({ page }) => {
     await nameInput.fill('Playwright Branch');
   }
   // Page must remain functional (layout rendered, no crash).
-  await expect(page.getByText('📚 Library System')).toBeVisible();
+  await expect(page.locator('.app-layout')).toBeVisible();
   await page.screenshot({ path: 'test-results/18-create-branch.png' });
 });
 

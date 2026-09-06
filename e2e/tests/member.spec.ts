@@ -15,8 +15,9 @@ test('25. Member can browse catalog', async ({ page }) => {
   await login(page, 'john');
   await page.goto('/catalog');
   await expect(page).toHaveURL(/catalog/);
+  // Wait for book grid to render (async data load)
+  await expect(page.locator('.book-grid').first()).toBeVisible({ timeout: 10000 });
   // Should show book cards or list
-  await page.waitForTimeout(2000);
   await expect(page.locator('body')).toContainText(/1984|mockingbird|hobbit|effective java|history of time/i);
 });
 
