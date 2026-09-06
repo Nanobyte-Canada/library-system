@@ -1,24 +1,197 @@
-.book-list-page {
-  padding: 24px;
+.admin-books-page {
+  max-width: 1200px;
 }
 
-.page-header {
+.admin-page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-6);
 }
 
-.page-header .btn-primary {
+.admin-page-header h1 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.search-filter-bar {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.search-filter-bar input {
+  flex: 1;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.85rem;
+}
+
+.search-filter-bar input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.search-filter-bar input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+/* Desktop table */
+.book-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.book-table thead {
+  background: var(--color-bg);
+}
+
+.book-table th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.book-table td {
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.85rem;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border-light);
+  vertical-align: middle;
+}
+
+.book-table tr:last-child td {
+  border-bottom: none;
+}
+
+.book-table tr:hover td {
+  background: var(--color-bg);
+}
+
+.book-table-cover {
+  width: 40px;
+  height: 52px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-bg);
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.book-table-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.book-table-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Mobile card layout */
+.book-cards {
+  display: none;
+}
+
+.book-card-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.book-card-header {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.book-card-cover {
+  width: 48px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.book-card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.book-card-info h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.book-card-info p {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.book-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.book-card-actions {
+  display: flex;
+  gap: var(--space-2);
 }
 
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 16px;
-  margin-top: 24px;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+}
+
+@media (max-width: 768px) {
+  .book-table {
+    display: none;
+  }
+
+  .book-cards {
+    display: block;
+  }
+
+  .admin-page-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .search-filter-bar {
+    flex-direction: column;
+  }
 }
