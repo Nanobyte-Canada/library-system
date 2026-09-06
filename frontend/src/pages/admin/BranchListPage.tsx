@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { branchService, Branch } from '@/services/branchService';
 import { useNavigate } from 'react-router-dom';
-import { Building, Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, MapPin, Phone, Mail } from 'lucide-react';
 import './BranchListPage.css';
 
 export function BranchListPage() {
@@ -19,42 +19,48 @@ export function BranchListPage() {
   });
 
   return (
-    <div className="branch-list-page">
-      <div className="page-header">
-        <h1><Building size={24} /> Branches</h1>
-        <button className="btn-primary" onClick={() => navigate('/admin/branches/new')}>
+    <div className="admin-branches-page">
+      <div className="admin-page-header">
+        <h1>Branches</h1>
+        <button className="btn btn-primary" onClick={() => navigate('/admin/branches/new')}>
           <Plus size={16} /> Add Branch
         </button>
       </div>
       {isLoading ? (
-        <div className="loading">Loading...</div>
+        <div style={{ textAlign: 'center', padding: 'var(--space-12)', color: 'var(--color-text-muted)' }}>Loading...</div>
       ) : (
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Address</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {branches?.data?.map((branch: Branch) => (
-                <tr key={branch.id}>
-                  <td>{branch.name}</td>
-                  <td>{branch.address}</td>
-                  <td>{branch.phone}</td>
-                  <td>{branch.email}</td>
-                  <td className="actions">
-                    <button onClick={() => navigate(`/admin/branches/${branch.id}`)}><Edit size={16} /></button>
-                    <button onClick={() => { if (confirm('Delete this branch?')) deleteMutation.mutate(branch.id); }}><Trash2 size={16} /></button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="branch-grid">
+          {branches?.data?.map((branch: Branch) => (
+            <div className="branch-card" key={branch.id}>
+              <div className="branch-card-name">{branch.name}</div>
+              {branch.address && (
+                <div className="branch-card-detail">
+                  <MapPin size={14} /> {branch.address}
+                </div>
+              )}
+              {branch.phone && (
+                <div className="branch-card-detail">
+                  <Phone size={14} /> {branch.phone}
+                </div>
+              )}
+              {branch.email && (
+                <div className="branch-card-detail">
+                  <Mail size={14} /> {branch.email}
+                </div>
+              )}
+              <div className="branch-card-actions">
+                <button className="btn btn-outline btn-sm" onClick={() => navigate(`/admin/branches/${branch.id}`)}>
+                  <Edit size={14} /> Edit
+                </button>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => { if (confirm('Delete this branch?')) deleteMutation.mutate(branch.id); }}
+                >
+                  <Trash2 size={14} /> Delete
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
