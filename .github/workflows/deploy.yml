@@ -228,7 +228,6 @@ jobs:
     needs: deploy
     if: ${{ needs.deploy.result == 'success' && (github.event.inputs.environment || 'uat') == 'uat' }}
     uses: ./.github/workflows/uat-e2e.yml
+    secrets: inherit
     with:
       suite: all
-    secrets:
-      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
