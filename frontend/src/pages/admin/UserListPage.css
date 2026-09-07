@@ -1,5 +1,5 @@
 .admin-users-page {
-  max-width: 1200px;
+  /* fills available width — Layout.content handles padding */
 }
 
 .admin-page-header {

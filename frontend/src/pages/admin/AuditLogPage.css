@@ -1,5 +1,5 @@
 .admin-audit-page {
-  max-width: 1200px;
+  /* fills available width — Layout.content handles padding */
 }
 .admin-page-header {
   margin-bottom: var(--space-6);
