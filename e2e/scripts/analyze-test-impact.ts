@@ -3,6 +3,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { Node, Project, SyntaxKind } from 'ts-morph';
 import { REPO_ROOT } from './lib/paths';
+import { isStyleOnlyChange } from './lib/style-classifier';
 
 // JsxEmit is not directly exported from ts-morph; use the numeric literal (Preserve = 1)
 const JSX_PRESERVE = 1;
@@ -109,8 +110,30 @@ for (const file of changedFiles) {
   }
 }
 
-const classifiable = changedFiles.filter((file) => !isTestFile(file));
-const onlyStyles = classifiable.length > 0 && classifiable.every((file) => /\.(css|scss)$/.test(file));
+const changedLineNumbers = new Map<string, number[]>();
+for (const line of git(`diff -U0 --unified=0 ${mergeBase} HEAD`).split('\n')) {
+  const match = /^\+\+\+ b\/(.+)$/.exec(line);
+  if (match) {
+    changedLineNumbers.set(match[1], []);
+    continue;
+  }
+  const hunk = /^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/.exec(line);
+  if (hunk) {
+    const start = Number(hunk[1]);
+    const count = Number(hunk[2] ?? 1);
+    const file = [...changedLineNumbers.keys()].pop();
+    if (file) {
+      for (let offset = 0; offset < Math.max(count, 1); offset += 1) {
+        changedLineNumbers.get(file)?.push(start + offset);
+      }
+    }
+  }
+}
+
+const classifiable = changedFiles.filter((file) => !isTestFile(file) && !file.startsWith('.github/') && file !== 'docs/adr.md');
+const onlyStyles =
+  classifiable.length > 0 &&
+  classifiable.every((file) => isStyleOnlyChange(file, changedLineNumbers.get(file) ?? []));
 
 const lines: string[] = ['# UI test impact report', '', `Merge base: \`${mergeBase}\``, ''];
 const failures: string[] = [];
