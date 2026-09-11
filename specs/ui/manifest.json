@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 2,
+  "generatedFrom": "specs/ui/**/*.md",
+  "features": [
+    {
+      "id": "AUTH-LOGIN",
+      "plan": "specs/ui/authentication/login.md",
+      "status": "draft",
+      "priority": "critical",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-01"
+      ],
+      "requirementRefs": [
+        "RQ-AUTH-001",
+        "RQ-AUTH-002",
+        "RQ-AUTH-003",
+        "RQ-AUTH-007"
+      ],
+      "routes": [
+        "/login"
+      ],
+      "roles": [
+        "anonymous"
+      ],
+      "flags": [],
+      "components": [
+        "LoginPage"
+      ],
+      "sourceOverrides": [
+        "frontend/src/pages/LoginPage.tsx",
+        "frontend/src/services/authService.ts"
+      ],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "AUTH-LOGIN-001",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-002",
+          "priority": "critical",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-003",
+          "priority": "high",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-004",
+          "priority": "high",
+          "type": "boundary",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-005",
+          "priority": "high",
+          "type": "navigation",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-006",
+          "priority": "high",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-007",
+          "priority": "high",
+          "type": "boundary",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-008",
+          "priority": "high",
+          "type": "accessibility",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-009",
+          "priority": "high",
+          "type": "accessibility",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-010",
+          "priority": "high",
+          "type": "accessibility",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-011",
+          "priority": "high",
+          "type": "boundary",
+          "layer": "component",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-012",
+          "priority": "high",
+          "type": "negative",
+          "layer": "component",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-013",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "component",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "AUTH-SESSION",
+      "plan": "specs/ui/authentication/session.md",
+      "status": "draft",
+      "priority": "critical",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-01",
+        "CJ-07"
+      ],
+      "requirementRefs": [
+        "RQ-AUTH-004",
+        "RQ-AUTH-005",
+        "RQ-AUTH-006",
+        "RQ-AUTHZ-001"
+      ],
+      "routes": [
+        "/dashboard",
+        "/admin/books",
+        "/checkout-desk",
+        "/login"
+      ],
+      "roles": [
+        "anonymous",
+        "MEMBER",
+        "LIBRARIAN",
+        "ADMIN"
+      ],
+      "flags": [],
+      "components": [
+        "ProtectedRoute",
+        "Layout"
+      ],
+      "sourceOverrides": [
+        "frontend/src/components/ProtectedRoute.tsx",
+        "frontend/src/stores/authStore.ts",
+        "frontend/src/services/api.ts"
+      ],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "AUTH-SESSION-001",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-002",
+          "priority": "critical",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-003",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-004",
+          "priority": "high",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-005",
+          "priority": "high",
+          "type": "navigation",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-006",
+          "priority": "high",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-007",
+          "priority": "high",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-008",
+          "priority": "critical",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-009",
+          "priority": "normal",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "PLATFORM-ROUTES",
+      "plan": "specs/ui/platform/route-availability.md",
+      "status": "draft",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-01"
+      ],
+      "requirementRefs": [
+        "RQ-UI-001"
+      ],
+      "routes": [
+        "/login",
+        "/"
+      ],
+      "roles": [
+        "anonymous"
+      ],
+      "flags": [],
+      "components": [
+        "LoginPage",
+        "Badge"
+      ],
+      "sourceOverrides": [
+        "frontend/src/main.tsx",
+        "frontend/src/App.tsx"
+      ],
+      "tags": [
+        "smoke"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "PLATFORM-ROUTES-001",
+          "priority": "normal",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "PLATFORM-ROUTES-002",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "PLATFORM-ROUTES-003",
+          "priority": "high",
+          "type": "navigation",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "PLATFORM-ROUTES-004",
+          "priority": "high",
+          "type": "navigation",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "PLATFORM-ROUTES-005",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "component",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "PLATFORM-ROUTES-006",
+          "priority": "normal",
+          "type": "happy-path",
+          "layer": "component",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    }
+  ]
+}
