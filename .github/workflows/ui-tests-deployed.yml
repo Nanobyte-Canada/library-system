@@ -14,6 +14,18 @@ on:
         options:
           - all
           - smoke
+      matrix:
+        description: "Browser matrix"
+        required: true
+        type: choice
+        default: default
+        options:
+          - default
+          - full
+      shard:
+        description: "Shard as N/M (empty for none)"
+        required: false
+        default: ""
 
 concurrency:
   group: library-uat-deploy
@@ -67,12 +79,15 @@ jobs:
       - name: Run browser suites
         working-directory: e2e
         run: |
+          MATRIX="${{ github.event_name == 'workflow_dispatch' && inputs.matrix || 'default' }}"
+          SHARD="${{ github.event_name == 'workflow_dispatch' && inputs.shard || '' }}"
+          SHARD_FLAG=""
+          if [ -n "$SHARD" ]; then SHARD_FLAG="--shard=${SHARD}"; fi
+          if [ "$MATRIX" = "full" ]; then export FULL_MATRIX=true; fi
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.suite }}" = "smoke" ]; then
-            npx playwright test --project=chromium --grep @smoke
-          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            npx playwright test --grep-invert @prod
+            npx playwright test --grep @smoke $SHARD_FLAG
           else
-            npx playwright test --project=chromium --grep-invert @prod
+            npx playwright test --grep-invert @prod $SHARD_FLAG
           fi
 
       - name: Run component tests

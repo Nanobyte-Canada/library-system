@@ -13,6 +13,16 @@ if (CI) {
   reporters.push(['github']);
 }
 
+const fullMatrix = process.env.FULL_MATRIX === 'true';
+
+const desktopProjects = fullMatrix
+  ? [
+      { name: 'chromium', grepInvert: /@mobile/, use: { ...devices['Desktop Chrome'] } },
+      { name: 'firefox', grepInvert: /@mobile/, use: { ...devices['Desktop Firefox'] } },
+      { name: 'webkit', grepInvert: /@mobile/, use: { ...devices['Desktop Safari'] } },
+    ]
+  : [{ name: 'chromium', grepInvert: /@mobile/, use: { ...devices['Desktop Chrome'] } }];
+
 export default defineConfig({
   testDir: './tests',
   timeout: 60_000,
@@ -33,7 +43,7 @@ export default defineConfig({
   },
   outputDir: './test-results',
   projects: [
-    { name: 'chromium', grepInvert: /@mobile/, use: { ...devices['Desktop Chrome'] } },
+    ...desktopProjects,
     { name: 'chromium-mobile', grep: /@mobile/, use: { ...devices['Pixel 7'] } },
   ],
 });
