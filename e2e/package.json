@@ -17,7 +17,9 @@
     "specs:routes": "npx tsx scripts/discover-routes.ts",
     "specs:route-coverage": "npx tsx scripts/check-route-coverage.ts",
     "specs:lint": "tsx scripts/lint-test-changes.ts",
-    "specs:impact": "npx tsx scripts/analyze-test-impact.ts"
+    "specs:impact": "npx tsx scripts/analyze-test-impact.ts",
+    "specs:coverage": "npx tsx scripts/build-coverage-report.ts",
+    "specs:history": "tsx scripts/publish-history.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
