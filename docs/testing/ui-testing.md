@@ -45,3 +45,9 @@ is the CI run.
 
 `ui-tests-deployed.yml` uploads the HTML report, JUnit, and JSON results, plus traces, screenshots, and
 videos for failures (14-day retention). History is published to the `test-reports` branch (Phase 3+).
+
+## Optional empirical coverage
+
+Enabling per-test browser coverage requires a test-safe instrumented frontend build and a v8 collector.
+When enabled, the weekly reliability workflow uploads `e2e/coverage/browser-coverage.json` and the impact
+analyzer reads `specs/ui/empirical-impact-map.json` as an advisory signal.
