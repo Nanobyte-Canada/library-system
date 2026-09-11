@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { Node, Project, SyntaxKind } from 'ts-morph';
 import { REPO_ROOT } from './lib/paths';
@@ -78,34 +78,34 @@ for (const attribute of source.getDescendantsOfKind(SyntaxKind.JsxAttribute)) {
   }
 }
 
-const featureRoots = new Map<string, Set<string>>();
-for (const feature of (JSON.parse(readFileSync(resolve(REPO_ROOT, 'specs/ui/manifest.json'), 'utf8')) as { features: ManifestFeature[] }).features) {
-  const roots = new Set<string>();
-  for (const route of feature.routes) {
-    const modulePath = routeToModule.get(route);
-    if (modulePath) roots.add(dirname(modulePath));
-  }
-  for (const component of feature.components) {
-    const modulePath = componentToModule.get(component);
-    if (modulePath) roots.add(dirname(modulePath));
-  }
-  featureRoots.set(feature.id, roots);
-}
+const graphFile = resolve(REPO_ROOT, 'specs/ui/impact-graph.json');
+const graph = existsSync(graphFile)
+  ? (JSON.parse(readFileSync(graphFile, 'utf8')) as { features: Array<{ id: string; files: string[] }> })
+  : null;
 
 const features = (JSON.parse(readFileSync(resolve(REPO_ROOT, 'specs/ui/manifest.json'), 'utf8')) as { features: ManifestFeature[] }).features;
 const impacted = new Map<string, { feature: ManifestFeature; signal: string; files: string[] }>();
 
 for (const file of changedFiles) {
   if (isTestFile(file)) continue;
+  let matchedByGlob = false;
   for (const feature of features) {
-    const roots = featureRoots.get(feature.id) ?? new Set<string>();
-    const inRoot = [...roots].some((root) => file.startsWith(`${root}/`));
-    const namedComponent = feature.components.some((component) => file.endsWith(`${component}.tsx`) || file.endsWith(`${component}.ts`));
-    if (inRoot || namedComponent) {
-      const entry = impacted.get(feature.id) ?? { feature, signal: 'module-root', files: [] };
-      entry.files.push(file);
-      impacted.set(feature.id, entry);
-    }
+    const overrides = feature.sourceOverrides ?? [];
+    const overrideMatch = overrides.some((pattern) => new RegExp(`^${pattern.replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*')}$`).test(file));
+    if (!overrideMatch) continue;
+    matchedByGlob = true;
+    const entry = impacted.get(feature.id) ?? { feature, signal: 'source-override', files: [] };
+    entry.files.push(file);
+    impacted.set(feature.id, entry);
+  }
+  if (matchedByGlob || !graph) continue;
+  for (const graphFeature of graph.features) {
+    if (!graphFeature.files.includes(file)) continue;
+    const feature = features.find((entry) => entry.id === graphFeature.id);
+    if (!feature) continue;
+    const entry = impacted.get(feature.id) ?? { feature, signal: 'import-graph', files: [] };
+    entry.files.push(file);
+    impacted.set(feature.id, entry);
   }
 }
 
