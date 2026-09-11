@@ -1,8 +1,11 @@
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { JsxEmit, Node, Project, SyntaxKind } from 'ts-morph';
+import { Node, Project, SyntaxKind } from 'ts-morph';
 import { REPO_ROOT } from './lib/paths';
+
+// JsxEmit is not directly exported from ts-morph; use the numeric literal (Preserve = 1)
+const JSX_PRESERVE = 1;
 
 interface ManifestFeature {
   id: string;
@@ -42,7 +45,7 @@ if (!planChanged && !testChanged) {
 }
 
 const appFile = resolve(REPO_ROOT, 'frontend/src/App.tsx');
-const project = new Project({ compilerOptions: { jsx: JsxEmit.Preserve, allowJs: true } });
+const project = new Project({ compilerOptions: { jsx: JSX_PRESERVE, allowJs: true } });
 const source = project.addSourceFileAtPath(appFile);
 
 const componentToModule = new Map<string, string>();
@@ -60,7 +63,13 @@ for (const attribute of source.getDescendantsOfKind(SyntaxKind.JsxAttribute)) {
   if (attribute.getNameNode().getText() !== 'path') continue;
   const parent = attribute.getParent();
   if (!parent) continue;
-  const elementAttribute = parent.getAttributes().find((entry) => Node.isJsxAttribute(entry) && entry.getNameNode().getText() === 'element');
+  // parent is JsxAttributes; grandparent is JsxSelfClosingElement/JsxOpeningElement
+  const element = parent.getParent() as import('ts-morph').JsxSelfClosingElement | import('ts-morph').JsxOpeningElement | undefined;
+  if (!element) continue;
+  const elementAttribute = element.getAttributes().find((entry) => {
+    if (!Node.isJsxAttribute(entry)) return false;
+    return entry.getNameNode().getText() === 'element';
+  });
   const elementMatch = elementAttribute && Node.isJsxAttribute(elementAttribute) ? /<([A-Za-z0-9_]+)/.exec(elementAttribute.getText()) : null;
   const path = attribute.getInitializer()?.getText().replace(/^['"]|['"]$/g, '');
   if (path && elementMatch) {

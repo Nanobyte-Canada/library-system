@@ -14,6 +14,8 @@
     "specs:validate": "tsx scripts/validate-specs.ts",
     "specs:requirements": "tsx scripts/build-requirements-index.ts",
     "specs:manifest": "npx tsx scripts/build-manifest.ts",
+    "specs:routes": "npx tsx scripts/discover-routes.ts",
+    "specs:route-coverage": "npx tsx scripts/check-route-coverage.ts",
     "specs:lint": "tsx scripts/lint-test-changes.ts",
     "specs:impact": "npx tsx scripts/analyze-test-impact.ts"
   },
