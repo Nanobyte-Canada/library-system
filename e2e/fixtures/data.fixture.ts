@@ -120,6 +120,123 @@ export async function ensureBranch(request: APIRequestContext, admin: AuthContex
   return { id: branch.id, name: branch.name };
 }
 
+export async function authedPut(request: APIRequestContext, path: string, auth: AuthContext, data?: unknown) {
+  return request.put(`/api${path}`, { headers: { Authorization: `Bearer ${auth.token}` }, data });
+}
+
+export interface CategoryRef {
+  id: string;
+  name: string;
+}
+
+export interface BookRef {
+  id: string;
+  title: string;
+}
+
+export interface CopyRef {
+  id: string;
+  barcode: string;
+}
+
+export async function createRunUser(
+  request: APIRequestContext,
+  admin: AuthContext,
+  suffix: string,
+  role = 'MEMBER',
+  branch?: BranchRef,
+): Promise<AuthContext> {
+  const email = identity(suffix);
+  const phoneSeed = [...`${email}-phone`].reduce((acc, char) => (acc * 31 + char.charCodeAt(0)) % 10_000_000, 7);
+  const response = await authedPost(request, '/users', admin, {
+    membershipId: `PW${String([...`${email}-mid`].reduce((acc, char) => (acc * 31 + char.charCodeAt(0)) % 10_000_000, 7)).padStart(6, '0')}`,
+    firstName: 'PW',
+    lastName: suffix,
+    phoneNumber: `555-${String(phoneSeed).padStart(7, '0')}`,
+    emailId: email,
+    role,
+    membershipType: 'PUBLIC',
+    branchId: branch?.id ?? null,
+    password: 'password123',
+  });
+  if (!response.ok()) throw new Error(`User creation failed for ${suffix}: ${response.status()}`);
+  return apiLogin(request, email, 'password123');
+}
+
+/** Column-safe run-scoped ISBN: `books.isbn` is VARCHAR(13); `identity()` strings are far longer. */
+export function runScopedIsbn(seed: string): string {
+  let hash = 0;
+  for (const char of identity(seed)) hash = (hash * 31 + char.charCodeAt(0)) % 1_000_000;
+  return `PW${String(hash).padStart(6, '0')}`;
+}
+
+export async function ensureCategory(request: APIRequestContext, auth: AuthContext, name: string): Promise<CategoryRef> {
+  const listed = await authedGet(request, '/categories', auth);
+  if (!listed.ok()) throw new Error(`GET /categories failed: ${listed.status()}`);
+  const before = (await listed.json()) as { data: CategoryRef[] };
+  const existing = before.data.find((category) => category.name === name);
+  if (existing) return existing;
+
+  const created = await authedPost(request, '/categories', auth, { name, parentId: null });
+  if (!created.ok()) throw new Error(`Category creation failed for ${name}: ${created.status()}`);
+
+  const after = (await (await authedGet(request, '/categories', auth)).json()) as { data: CategoryRef[] };
+  const category = after.data.find((entry) => entry.name === name);
+  if (!category) throw new Error(`Category ${name} is missing after creation`);
+  return category;
+}
+
+export async function ensureBook(
+  request: APIRequestContext,
+  auth: AuthContext,
+  input: { title: string; author: string; isbn?: string; categoryId?: string | null },
+): Promise<BookRef> {
+  const search = async () => {
+    const response = await authedGet(request, `/books/search?q=${encodeURIComponent(input.title)}&size=50`, auth);
+    if (!response.ok()) throw new Error(`GET /books/search failed: ${response.status()}`);
+    return ((await response.json()) as { data: Array<{ id: string; bookName: string }> }).data;
+  };
+
+  const existing = (await search()).find((book) => book.bookName === input.title);
+  if (existing) return { id: existing.id, title: existing.bookName };
+
+  const created = await authedPost(request, '/books', auth, {
+    isbn: input.isbn ?? '',
+    bookName: input.title,
+    author: input.author,
+    publication: 'Playwright Press',
+    language: 'English',
+    location: 'PW Test Shelf',
+    description: `Created by UI test run ${identity('book')}`,
+    coverImageUrl: '',
+    categoryId: input.categoryId ?? null,
+  });
+  if (!created.ok()) throw new Error(`Book creation failed for ${input.title}: ${created.status()}`);
+
+  const book = (await search()).find((entry) => entry.bookName === input.title);
+  if (!book) throw new Error(`Book ${input.title} is missing after creation`);
+  return { id: book.id, title: book.bookName };
+}
+
+export async function addBookCopies(
+  request: APIRequestContext,
+  auth: AuthContext,
+  book: BookRef,
+  branch: BranchRef,
+  quantity = 1,
+): Promise<CopyRef[]> {
+  const created = await authedPost(request, `/books/${book.id}/copies`, auth, {
+    branchId: branch.id,
+    quantity,
+    barcodes: [],
+  });
+  if (!created.ok()) throw new Error(`Adding copies to ${book.id} failed: ${created.status()}`);
+
+  const listed = await authedGet(request, `/books/${book.id}/copies`, auth);
+  if (!listed.ok()) throw new Error(`GET /books/${book.id}/copies failed: ${listed.status()}`);
+  return ((await listed.json()) as { data: CopyRef[] }).data;
+}
+
 export async function ensureStaffUser(
   request: APIRequestContext,
   admin: AuthContext,
@@ -148,13 +265,16 @@ export async function ensureStaffUser(
 export { expect } from '@playwright/test';
 
 export const test = appTest.extend<
-  object,
+  Record<string, never>,
   {
     api: APIRequestContext;
     admin: AuthContext;
     runBranch: BranchRef;
     member: AuthContext;
     librarian: AuthContext;
+    catalogCategory: CategoryRef;
+    catalogBook: BookRef;
+    catalogCopies: CopyRef[];
   }
 >({
   api: [
@@ -187,6 +307,31 @@ export const test = appTest.extend<
   librarian: [
     async ({ api, admin }, use) => {
       await use(await ensureStaffUser(api, admin, 'librarian', 'LIBRARIAN'));
+    },
+    { scope: 'worker' },
+  ],
+  catalogCategory: [
+    async ({ api, admin }, use) => {
+      await use(await ensureCategory(api, admin, `PW ${identity('category')}`));
+    },
+    { scope: 'worker' },
+  ],
+  catalogBook: [
+    async ({ api, admin, catalogCategory }, use) => {
+      await use(
+        await ensureBook(api, admin, {
+          title: `PW ${identity('book')}`,
+          author: 'Playwright Author',
+          isbn: runScopedIsbn('book-isbn'),
+          categoryId: catalogCategory.id,
+        }),
+      );
+    },
+    { scope: 'worker' },
+  ],
+  catalogCopies: [
+    async ({ api, admin, catalogBook, runBranch }, use) => {
+      await use(await addBookCopies(api, admin, catalogBook, runBranch, 2));
     },
     { scope: 'worker' },
   ],
