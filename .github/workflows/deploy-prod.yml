@@ -8,6 +8,16 @@ on:
         description: "Image tag to deploy (e.g., main-a1b2c3d or latest)"
         required: true
         type: string
+      skip_ui_gate:
+        description: "Skip the UAT regression promotion gate (owner override)"
+        required: false
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      skip_ui_gate_reason:
+        description: "Mandatory reason when skip_ui_gate is true (recorded in the run summary)"
+        required: false
+        type: string
 
 env:
   DEPLOY_PATH: /opt/library
@@ -28,6 +38,55 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Validate the promotion-gate override
+        if: ${{ inputs.skip_ui_gate == 'true' }}
+        run: |
+          if [ -z "${{ inputs.skip_ui_gate_reason }}" ]; then
+            echo "::error::skip_ui_gate=true requires skip_ui_gate_reason."
+            exit 1
+          fi
+          {
+            echo "### Production promotion gate bypassed"
+            echo ""
+            echo "Reason: ${{ inputs.skip_ui_gate_reason }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Resolve the deployed commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          if [ "$TAG" = "latest" ]; then
+            COMMIT_SHA=$(gh api repos/${{ github.repository }}/commits/main --jq '.sha')
+          else
+            SHORT_SHA="${TAG#main-}"
+            COMMIT_SHA=$(gh api "repos/${{ github.repository }}/git/refs/tags/${TAG}" --jq '.object.sha' 2>/dev/null || \
+              gh api "repos/${{ github.repository }}/commits?sha=${SHORT_SHA}&per_page=1" --jq '.[0].sha')
+          fi
+          echo "COMMIT_SHA=${COMMIT_SHA}" >> "$GITHUB_ENV"
+          echo "Resolved deploy tag \`${TAG}\` to commit SHA \`${COMMIT_SHA}\`"
+
+      - name: Check UAT regression gate
+        if: ${{ inputs.skip_ui_gate != 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Checking for a successful UAT e2e run on commit ${COMMIT_SHA}..."
+          SUCCESS=$(gh api \
+            "repos/${{ github.repository }}/actions/runs?head_sha=${COMMIT_SHA}&status=success&per_page=30" \
+            --jq '.workflow_runs[] | select(.name | test("UI Tests — Deployed \\(UAT\\)")) | .id' | head -1)
+          if [ -z "$SUCCESS" ]; then
+            echo "::error::No successful UAT e2e run found for commit ${COMMIT_SHA}. Deploy blocked. Set skip_ui_gate=true with a reason to override."
+            exit 1
+          fi
+          echo "Found successful UAT run: ${SUCCESS}"
+          {
+            echo "### Production promotion gate passed"
+            echo ""
+            echo "- Commit: \`${COMMIT_SHA}\`"
+            echo "- UAT run: ${SUCCESS}"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Fetch secrets from Vault
         run: |

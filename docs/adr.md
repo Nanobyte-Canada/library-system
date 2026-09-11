@@ -219,3 +219,46 @@ visual coverage, and no protection against silent test weakening. The UI testing
 - The deployed workflow honors its `suite` input (`smoke`, or `all` = smoke + regression) from Phase 1, so Phase 2 parity can dispatch `suite=all`; automatic post-deploy runs stay on the smoke tier until Phase 3. Its concurrency group is `library-uat-deploy` (the deploy job's group), so UAT deploys and UI test runs auto-serialize; the legacy `library-uat-pipeline` group stays with `uat-e2e.yml` until Phase 6.
 
 **Consequences:** Production images carry `app-environment=production`; browser tests refuse to run against them. The UAT deployment consumes a dedicated `library-frontend-uat` image so the marker always identifies the deployed environment. New workflow and compose-file changes must be reviewed under the AGENTS.md documentation contract; this ADR covers this phase's changes. `uat-e2e.yml` keeps running in parallel until its suites are migrated.
+
+## ADR-0015: Full PR checks, route coverage, impact analysis, and test-change lint
+
+**Status:** Accepted | **Date:** 2026-09-11
+
+**Context:** Phase 1 introduced a PR workflow that validated plans. Phase 3 adds manifest generation, route discovery and coverage checking, deterministic impact analysis, test-change lint, and generated-artifact drift detection.
+
+**Decision:**
+- `UI PR Checks` runs five jobs: spec validation (with drift check), route coverage, impact analysis, test-change lint, and spec artifact upload.
+- Route coverage requires every app route to either have an automated browser scenario in the manifest or appear in `specs/ui/route-exclusions.json` with a reason and owner.
+- Impact analysis maps changed files to manifest features via route-to-module and component-to-module lookups from `App.tsx`; critical features impacted without a plan or test change fail the gate (bypassable by an approver with `ui-test-impact: none` label and a reason comment).
+- Lint detects assertion weakening, added skips, fixed sleeps, removed assertions, and baseline changes; findings fail unless the `test-weakening-approved` label is applied by an approver with a reason comment.
+- Generated artifacts (manifest, routes, requirements index) are drift-checked: the workflow regenerates them and fails if the committed versions differ.
+
+**Consequences:** Every PR touching frontend source, tests, or specs runs the full deterministic tooling suite. The bypass and approval gates require an explicit approver action with a recorded reason, keeping the bar high for test quality regressions.
+
+## ADR-0016: Deployed workflow with coverage, history, and component tests
+
+**Status:** Accepted | **Date:** 2026-09-11
+
+**Context:** Phase 1's deployed workflow ran only the smoke suite. Phase 3 extends it to run the full regression, execute Vitest component tests, build a coverage report, and publish run history to the `test-reports` branch.
+
+**Decision:**
+- The deployed workflow runs `@smoke|@regression` suites (chromium-only for automatic post-deploy; manual dispatch can select smoke or all) and `npm test` for Vitest component tests.
+- Coverage report combines Playwright `results.json` and Vitest `results.json` with the manifest, producing `docs/testing/coverage.json` and `coverage.md`.
+- History publishing clones or initializes the `test-reports` branch, writes a timestamped run entry, copies the latest coverage report, and pushes a dashboard summary.
+- The Slack notification includes the first 8 failing scenario titles extracted from `results.json`.
+- Git LFS is installed for visual baseline support (Phase 4).
+
+**Consequences:** The full regression and component tests run automatically after every UAT deploy. The `test-reports` branch accumulates a rolling dashboard without polluting the main branch.
+
+## ADR-0017: Production smoke tests and promotion gate
+
+**Status:** Accepted | **Date:** 2026-09-11
+
+**Context:** Production deploys should verify basic availability and the environment marker without logging in or mutating data. A pre-flight gate ensures the UAT run for the same SHA succeeded before promoting to production.
+
+**Decision:**
+- `UI Tests — Production Smoke` (`ui-tests-prod-smoke.yml`) runs after a successful `Deploy to Production` workflow (or manual dispatch) in the pinned Playwright container. Tests are read-only: health check, public API check, login page render, environment marker = `production`, and absence of test-support endpoints.
+- Production tests carry the `@prod` tag and live in `e2e/tests/prod-smoke/`. The `chromium-mobile` project excludes `@prod` tests.
+- The production deploy workflow includes a pre-flight step that queries `UI Tests — Deployed (UAT)` for a successful run on the exact SHA. If no matching run exists, the deploy is blocked unless the operator sets `skip_ui_gate=true` with a mandatory `skip_ui_gate_reason` comment recorded in the step summary.
+
+**Consequences:** Production deploys have a lightweight read-only smoke check. The gate ensures UAT validation happened for the same commit without requiring the full UAT regression to complete in the same workflow run.
