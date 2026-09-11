@@ -8,7 +8,7 @@ const failures: string[] = [];
 
 const VALID_STATUS = new Set(['draft', 'approved', 'retired']);
 const VALID_PRIORITY = new Set(['critical', 'high', 'normal']);
-const VALID_TYPE = new Set(['happy-path', 'negative', 'boundary', 'navigation', 'accessibility', 'visual', 'authorization']);
+const VALID_TYPE = new Set(['happy-path', 'negative', 'boundary', 'navigation', 'accessibility', 'visual', 'authorization', 'not-applicable']);
 const VALID_LAYER = new Set(['component', 'browser', 'manual']);
 const VALID_TARGET = new Set(['deployed']);
 const VALID_AUTOMATION = new Set(['automated', 'manual', 'not-applicable']);
