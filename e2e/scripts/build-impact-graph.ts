@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
-import { JsxEmit, Node, Project, SyntaxKind } from 'ts-morph';
+import { Node, Project, SyntaxKind, JsxOpeningElement, JsxSelfClosingElement } from 'ts-morph';
+import ts from 'typescript';
 import { REPO_ROOT } from './lib/paths';
 
 interface ManifestFeature {
@@ -10,7 +11,7 @@ interface ManifestFeature {
 }
 
 const project = new Project({
-  compilerOptions: { jsx: JsxEmit.Preserve, allowJs: true },
+  compilerOptions: { jsx: ts.JsxEmit.Preserve, allowJs: true },
   tsConfigFilePath: resolve(REPO_ROOT, 'frontend/tsconfig.app.json'),
 });
 
@@ -30,7 +31,9 @@ for (const attribute of appSource.getDescendantsOfKind(SyntaxKind.JsxAttribute))
   if (attribute.getNameNode().getText() !== 'path') continue;
   const parent = attribute.getParent();
   if (!parent) continue;
-  const elementAttribute = parent.getAttributes().find((entry) => Node.isJsxAttribute(entry) && entry.getNameNode().getText() === 'element');
+  const elementAttribute = (Node.isJsxOpeningElement(parent) || Node.isJsxSelfClosingElement(parent))
+    ? parent.getAttributes().find((entry) => Node.isJsxAttribute(entry) && entry.getNameNode().getText() === 'element')
+    : undefined;
   const elementMatch = elementAttribute && Node.isJsxAttribute(elementAttribute) ? /<([A-Za-z0-9_]+)/.exec(elementAttribute.getText()) : null;
   const path = attribute.getInitializer()?.getText().replace(/^['"]|['"]$/g, '');
   if (path && elementMatch) {

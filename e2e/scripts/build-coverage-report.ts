@@ -46,7 +46,7 @@ function readPlaywrightResults(): ScenarioResult[] {
   };
   const results: ScenarioResult[] = [];
   const visit = (suite: { specs?: unknown[]; suites?: unknown[] }) => {
-    for (const spec of (suite.specs ?? []) as Array<{ title: string; tests?: Array<{ status: string; tags?: string[]; results?: Array<{ status: string; retry: number }> }> }>) {
+    for (const spec of (suite.specs ?? []) as Array<{ title: string; tags?: string[]; tests?: Array<{ status: string; tags?: string[]; results?: Array<{ status: string; retry: number }> }> }>) {
       for (const test of spec.tests ?? []) {
         const id = extractId(spec.title, spec.tags ?? test.tags);
         if (!id) continue;

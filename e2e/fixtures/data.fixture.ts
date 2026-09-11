@@ -265,7 +265,7 @@ export async function ensureStaffUser(
 export { expect } from '@playwright/test';
 
 export const test = appTest.extend<
-  Record<string, never>,
+  object,
   {
     api: APIRequestContext;
     admin: AuthContext;

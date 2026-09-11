@@ -1,8 +1,9 @@
 import { resolve } from 'node:path';
-import { JsxEmit, Project, SyntaxKind } from 'ts-morph';
+import { Project, SyntaxKind } from 'ts-morph';
+import ts from 'typescript';
 import { REPO_ROOT } from './paths';
 
-const project = new Project({ compilerOptions: { jsx: JsxEmit.Preserve, allowJs: true } });
+const project = new Project({ compilerOptions: { jsx: ts.JsxEmit.Preserve, allowJs: true } });
 
 function styleLineRanges(file: string): Array<[number, number]> {
   const absolute = resolve(REPO_ROOT, file);

@@ -54,7 +54,7 @@ test('a member cancels their own pending reservation', { tag: scenarioTag('RSV-0
   const reservationId = (await reserved.json()) as { data: { id: string } };
 
   // Cancel the reservation
-  const cancelled = await api.request.delete(`/api/reservations/${reservationId.data.id}`, {
+  const cancelled = await api.delete(`/api/reservations/${reservationId.data.id}`, {
     headers: { Authorization: `Bearer ${member.token}` },
   });
   expect(cancelled.ok()).toBeTruthy();
