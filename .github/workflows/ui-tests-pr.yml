@@ -164,11 +164,11 @@ jobs:
           MARKER="<!-- ui-impact-report -->"
           { echo "$MARKER"; cat specs/ui/impact-report.md; } > /tmp/impact-comment.md
           OLD_ID=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
-            --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty")
+            --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty" 2>/dev/null) || OLD_ID=""
           if [ -n "$OLD_ID" ]; then
-            gh api -X PATCH "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments/$OLD_ID" -F body=@/tmp/impact-comment.md
+            gh api -X PATCH "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments/$OLD_ID" -F body=@/tmp/impact-comment.md || true
           else
-            gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/impact-comment.md
+            gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/impact-comment.md || true
           fi
       - name: Upload impact report
         if: always()
@@ -258,11 +258,11 @@ jobs:
           MARKER="<!-- ui-lint-report -->"
           { echo "$MARKER"; cat specs/ui/lint-report.md; } > /tmp/lint-comment.md
           OLD_ID=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
-            --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty")
+            --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty" 2>/dev/null) || OLD_ID=""
           if [ -n "$OLD_ID" ]; then
-            gh api -X PATCH "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments/$OLD_ID" -F body=@/tmp/lint-comment.md
+            gh api -X PATCH "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments/$OLD_ID" -F body=@/tmp/lint-comment.md || true
           else
-            gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/lint-comment.md
+            gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/lint-comment.md || true
           fi
       - name: Upload lint report
         if: always()
