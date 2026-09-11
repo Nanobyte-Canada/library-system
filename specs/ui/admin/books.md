@@ -103,8 +103,8 @@ And the plan records the missing UI control for the owner
 
 | Scenario ID | Layer | Automated test file/title or tag | Status |
 |---|---|---|---|
-| ADMIN-BOOKS-001 | browser | `@ADMIN-BOOKS-001` in e2e/tests/regression/admin-books.spec.ts | automated |
-| ADMIN-BOOKS-002 | browser | `@ADMIN-BOOKS-002` in e2e/tests/regression/admin-books.spec.ts | automated |
-| ADMIN-BOOKS-003 | browser | `@ADMIN-BOOKS-003` in e2e/tests/regression/admin-books.spec.ts | automated |
-| ADMIN-BOOKS-004 | browser | `@ADMIN-BOOKS-004` in e2e/tests/regression/admin-books.spec.ts | automated |
+| ADMIN-BOOKS-001 | browser | `@ADMIN-BOOKS-001` in e2e/tests/regression/admin-catalog.spec.ts | automated |
+| ADMIN-BOOKS-002 | browser | `@ADMIN-BOOKS-002` in e2e/tests/regression/admin-catalog.spec.ts | automated |
+| ADMIN-BOOKS-003 | browser | `@ADMIN-BOOKS-003` in e2e/tests/regression/admin-catalog.spec.ts | automated |
+| ADMIN-BOOKS-004 | browser | `@ADMIN-BOOKS-004` in e2e/tests/regression/admin-catalog.spec.ts | automated |
 | ADMIN-BOOKS-005 | manual | not applicable — no UI control | not-applicable |

@@ -91,7 +91,7 @@ asserts the broken behaviour
 
 | Scenario ID | Layer | Automated test file/title or tag | Status |
 |---|---|---|---|
-| ADMIN-META-001 | browser | `@ADMIN-META-001` in e2e/tests/regression/admin-categories.spec.ts | automated |
-| ADMIN-META-002 | browser | `@ADMIN-META-002` in e2e/tests/regression/admin-categories.spec.ts | automated |
-| ADMIN-META-003 | browser | `@ADMIN-META-003` in e2e/tests/regression/admin-categories.spec.ts | automated |
+| ADMIN-META-001 | browser | `@ADMIN-META-001` in e2e/tests/regression/admin-catalog.spec.ts | automated |
+| ADMIN-META-002 | browser | `@ADMIN-META-002` in e2e/tests/regression/admin-catalog.spec.ts | automated |
+| ADMIN-META-003 | browser | `@ADMIN-META-003` in e2e/tests/regression/admin-catalog.spec.ts | automated |
 | ADMIN-META-004 | manual | not applicable — no update endpoint or control | not-applicable |
