@@ -281,3 +281,19 @@ jobs run on ubuntu-latest (git-lfs preinstalled) with the browser installed via
 3. Visual baselines live under `e2e/tests/visual/**` tracked in Git LFS (`.gitattributes`).
 
 **Consequences:** Baseline updates are human-reviewed commits; the weekly job measures without gating.
+
+## ADR-0019: Impact analyzer v2 and gate metrics
+
+**Status:** Accepted | **Date:** 2026-09-11
+
+**Context:** Phase 5 upgrades the impact analyzer to the TypeScript import graph, adds gate metrics to
+the dashboard, and records bypass/false-positive history on the `test-reports` branch.
+
+**Decision:**
+1. `ui-tests-pr.yml` builds `specs/ui/impact-graph.json` (ts-morph) and runs the v2 analyzer.
+2. Bypass and false-positive metrics are published to `test-reports/gates/`; the impact job fails when a
+   `warn` finding for the same feature is older than 30 days (first-warned dates in the gate history —
+   spec §5.6's warn window).
+3. The `impact` job needs `contents: write` for the test-reports push.
+
+**Consequences:** Gate metrics are visible from Phase 5; thresholds are agreed after 30 days of data.

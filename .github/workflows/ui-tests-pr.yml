@@ -117,9 +117,11 @@ jobs:
           cache-dependency-path: e2e/package-lock.json
       - working-directory: e2e
         run: npm ci
-      - name: Generate manifest
+      - name: Generate manifest and impact graph
         working-directory: e2e
-        run: npm run specs:manifest
+        run: |
+          npm run specs:manifest
+          npm run specs:impact-graph
       - name: Evaluate bypass label
         id: bypass
         env:
@@ -176,6 +178,28 @@ jobs:
           path: specs/ui/impact-report.json
           retention-days: 14
           if-no-files-found: ignore
+      - name: Publish gate record to test-reports
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git ls-remote --exit-code --heads origin test-reports > /dev/null 2>&1; then
+            git clone --depth 1 --branch test-reports \
+              "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" /tmp/test-reports
+          else
+            mkdir -p /tmp/test-reports && git -C /tmp/test-reports init -b test-reports
+            git -C /tmp/test-reports remote add origin \
+              "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          fi
+          mkdir -p /tmp/test-reports/gates
+          cp specs/ui/impact-gate.json \
+            "/tmp/test-reports/gates/pr-${{ github.event.pull_request.number }}-${{ github.run_id }}.json"
+          cd /tmp/test-reports
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gates
+          git commit -m "chore(testing): record impact gate for PR #${{ github.event.pull_request.number }}" || true
+          git push origin HEAD:test-reports || true
 
   lint:
     name: Test-Change Lint

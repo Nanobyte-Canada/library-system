@@ -33,6 +33,15 @@ const runFiles = readdirSync(runsDir).filter((file) => file.endsWith('.json')).s
 const recent = runFiles.map((file) => JSON.parse(readFileSync(resolve(runsDir, file), 'utf8')) as typeof entry);
 const failedRuns = recent.filter((run) => run.counts.failed > 0 || run.failures.length > 0).length;
 
+const gatesDir = resolve(reportsDir, 'gates');
+const gateRecords = existsSync(gatesDir)
+  ? readdirSync(gatesDir)
+      .filter((file) => file.endsWith('.json'))
+      .slice(-50)
+      .map((file) => JSON.parse(readFileSync(resolve(gatesDir, file), 'utf8')) as { bypassed: boolean })
+  : [];
+const bypassed = gateRecords.filter((record) => record.bypassed);
+
 const dashboard = [
   '# UI Test Dashboard',
   '',
@@ -60,10 +69,16 @@ const dashboard = [
   '',
   'See [latest-coverage.md](./latest-coverage.md).',
   '',
+  '## Impact gate',
+  '',
+  `- Latest gate bypassed: ${impact?.bypassed ? 'yes' : 'no'}`,
+  `- Impacted features (latest): ${impact?.impacted?.length ?? 0}`,
+  `- Gate records reviewed (last 50): ${gateRecords.length}`,
+  `- Bypass rate: ${gateRecords.length === 0 ? 'n/a' : `${bypassed.length}/${gateRecords.length}`}`,
+  '',
   '## Notes',
   '',
-  '- Reliability and flaky trends are produced by `ui-reliability.yml` (Phase 4).',
-  '- Impact-gate bypass and false-positive rates are added in Phase 5.',
+  '- Reliability and flaky trends are produced by `ui-reliability.yml`.',
 ].join('\n');
 
 writeFileSync(resolve(reportsDir, 'dashboard.md'), `${dashboard}\n`);

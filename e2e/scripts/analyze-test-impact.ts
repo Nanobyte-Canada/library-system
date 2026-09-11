@@ -155,6 +155,21 @@ if (onlyStyles) lines.push('', 'Classification: style-only (visual-impact dispos
 writeFileSync(resolve(REPO_ROOT, 'specs/ui/impact-report.json'), `${JSON.stringify({ mergeBase, changedFiles, impacted: [...impacted.keys()], onlyStyles, failures }, null, 2)}\n`);
 writeFileSync(resolve(REPO_ROOT, 'specs/ui/impact-report.md'), `${lines.join('\n')}\n`);
 
+writeFileSync(
+  resolve(REPO_ROOT, 'specs/ui/impact-gate.json'),
+  `${JSON.stringify(
+    {
+      generatedAt: new Date().toISOString(),
+      mergeBase,
+      impacted: [...impacted.entries()].map(([id, entry]) => ({ id, signal: entry.signal, files: entry.files })),
+      bypassed: process.env.IMPACT_BYPASS === 'true',
+      failures,
+    },
+    null,
+    2,
+  )}\n`,
+);
+
 if (failures.length > 0 && process.env.IMPACT_BYPASS !== 'true') {
   console.error(`analyze-test-impact: ${failures.length} gate failure(s)`);
   for (const failure of failures) console.error(` - ${failure}`);
