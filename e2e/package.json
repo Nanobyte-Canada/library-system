@@ -19,7 +19,9 @@
     "specs:lint": "tsx scripts/lint-test-changes.ts",
     "specs:impact": "npx tsx scripts/analyze-test-impact.ts",
     "specs:coverage": "npx tsx scripts/build-coverage-report.ts",
-    "specs:history": "tsx scripts/publish-history.ts"
+    "specs:history": "tsx scripts/publish-history.ts",
+    "specs:reliability": "tsx scripts/measure-reliability.ts",
+    "specs:expiries": "tsx scripts/check-expiries.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

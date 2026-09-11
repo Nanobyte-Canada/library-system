@@ -6,7 +6,8 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => document.fonts.ready);
 });
 
-test('login page desktop baseline', { tag: scenarioTag('VIS-001', 'visual'), use: { viewport: { width: 1280, height: 800 } } }, async ({ page }) => {
+test('login page desktop baseline', { tag: scenarioTag('VIS-001', 'visual') }, async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/login');
   await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
   await expect(page).toHaveScreenshot('login-desktop.png', { fullPage: true, maxDiffPixelRatio: 0.01 });
