@@ -441,3 +441,39 @@ QR codes encode JSON with book/user metadata. Generated via external API (api.qr
 - Multi-language UI (English only)
 - Barcode label printing
 - SIP2/LAN integration with physical scanners
+
+## UI requirement markers
+
+These IDs are consumed by the UI testing platform (`specs/ui/`, `docs/testing/requirements-index.json`).
+Do not renumber. Add new markers at the end of the area lists. The session/token delivery markers
+(RQ-AUTH-005/006) live with the infrastructure decisions in
+`docs/superpowers/specs/2026-08-23-library-system-infrastructure-and-capabilities-design.md`.
+
+- <a id="rq-auth-001"></a> RQ-AUTH-001: Login with valid credentials issues a JWT and lands the user on `/dashboard`.
+- <a id="rq-auth-002"></a> RQ-AUTH-002: Login with invalid credentials shows a generic error and stays on `/login`.
+- <a id="rq-auth-003"></a> RQ-AUTH-003: Protected routes redirect unauthenticated visitors to `/login` and wrong-role visitors to `/dashboard`.
+- <a id="rq-auth-004"></a> RQ-AUTH-004: Logout clears the client session (`token`/`user`) and returns to `/login`.
+- <a id="rq-auth-007"></a> RQ-AUTH-007: The login form enforces required Username and Password fields before submission.
+- <a id="rq-cat-001"></a> RQ-CAT-001: A visitor or member can search the public catalog and see matching books.
+- <a id="rq-cat-002"></a> RQ-CAT-002: Book availability (copies and loan state) is exposed consistently on the book detail page and the copies API.
+- <a id="rq-cat-003"></a> RQ-CAT-003: Book detail shows metadata, copies, and the reserve entry point for an authenticated member.
+- <a id="rq-circ-001"></a> RQ-CIRC-001: A member can hold at most 3 active loans; a 4th checkout is rejected.
+- <a id="rq-circ-002"></a> RQ-CIRC-002: A loan is due 21 days after checkout.
+- <a id="rq-circ-003"></a> RQ-CIRC-003: A loan can be renewed once, and renewal is blocked while a PENDING reservation exists.
+- <a id="rq-circ-004"></a> RQ-CIRC-004: Staff can return a loan by copy (`POST /api/return` takes the copy id).
+- <a id="rq-circ-005"></a> RQ-CIRC-005: An authenticated member can self-checkout by scanning a barcode, bound to the authenticated principal; self-return (`/api/return/scan`) accepts any barcode without a principal check — recorded as a product gap and asserted as-is.
+- <a id="rq-circ-006"></a> RQ-CIRC-006: A member can view current loans (`/api/checkout/my`) and checkout history.
+- <a id="rq-rsv-001"></a> RQ-RSV-001: A member can reserve an unavailable book; duplicate reservations are rejected.
+- <a id="rq-rsv-002"></a> RQ-RSV-002: Reservations carry a FIFO queue position, but `markReady` enforces only PENDING status — a front-of-queue gate and automatic allocation are not implemented, and staff can mark any pending reservation ready.
+- <a id="rq-rsv-003"></a> RQ-RSV-003: A pending reservation expires after 7 days and a ready hold after 3 days, per the documented (unswept) policy.
+- <a id="rq-rsv-004"></a> RQ-RSV-004: A member can cancel their own reservation (cancel is owner-only); staff can mark a reservation ready and fulfill it.
+- <a id="rq-book-001"></a> RQ-BOOK-001: ADMIN/LIBRARIAN can create and update books.
+- <a id="rq-book-002"></a> RQ-BOOK-002: ADMIN/LIBRARIAN can add copies to a book.
+- <a id="rq-book-003"></a> RQ-BOOK-003: ADMIN/LIBRARIAN can transfer copies between branches.
+- <a id="rq-book-004"></a> RQ-BOOK-004: A book QR code is available through `/api/books/{id}/qr`.
+- <a id="rq-user-001"></a> RQ-USER-001: An ADMIN can create users with a role and optional branch, and the created account can log in.
+- <a id="rq-user-002"></a> RQ-USER-002: An ADMIN can list, search, and update users, including role and status changes.
+- <a id="rq-user-003"></a> RQ-USER-003: An authenticated user can view and update their own profile and change their own password.
+- <a id="rq-br-001"></a> RQ-BR-001: An ADMIN can create, update, and delete branches; branch deletion cascades copies (tests never delete branches).
+- <a id="rq-br-002"></a> RQ-BR-002: Branch listing and detail are available to authenticated users.
+- <a id="rq-aud-001"></a> RQ-AUD-001: An ADMIN can query the append-only audit trail by entity type and limit.
