@@ -6,7 +6,6 @@ import { LoginPage } from './LoginPage'
 import { authService } from '../services/authService'
 import { useAuthStore } from '../stores/authStore'
 import { scenario } from '../test/scenario'
-import cleanup from '@testing-library/react'
 
 vi.mock('../services/authService', () => ({
   authService: { login: vi.fn(), logout: vi.fn() },
@@ -27,18 +26,15 @@ function renderLogin() {
 
 describe('LoginPage', () => {
   beforeEach(async () => {
-    vi.clearAllMocks()
+    vi.resetAllMocks()
     localStorage.clear()
-    // Reset zustand store to initial state and flush any persist rehydration
-    useAuthStore.setState({ token: null, user: null, isAuthenticated: false }, true)
-    // Wait for any pending rehydration to settle
+    useAuthStore.setState({ token: null, user: null, isAuthenticated: false })
     await act(async () => {
       await new Promise((r) => setTimeout(r, 0))
     })
   })
 
   afterEach(() => {
-    // Manually clean up rendered content
     document.body.innerHTML = ''
   })
 
