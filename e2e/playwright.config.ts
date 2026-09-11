@@ -33,6 +33,7 @@ export default defineConfig({
   },
   outputDir: './test-results',
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'chromium', grepInvert: /@mobile/, use: { ...devices['Desktop Chrome'] } },
+    { name: 'chromium-mobile', grep: /@mobile/, use: { ...devices['Pixel 7'] } },
   ],
 });
