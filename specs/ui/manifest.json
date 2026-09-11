@@ -1189,34 +1189,6 @@
       ]
     },
     {
-      "id": "undefined",
-      "plan": "specs/ui/impact-report.md",
-      "criticalJourneys": [],
-      "requirementRefs": [],
-      "routes": [],
-      "roles": [],
-      "flags": [],
-      "components": [],
-      "sourceOverrides": [],
-      "tags": [],
-      "lastReviewed": "",
-      "scenarios": []
-    },
-    {
-      "id": "undefined",
-      "plan": "specs/ui/lint-report.md",
-      "criticalJourneys": [],
-      "requirementRefs": [],
-      "routes": [],
-      "roles": [],
-      "flags": [],
-      "components": [],
-      "sourceOverrides": [],
-      "tags": [],
-      "lastReviewed": "",
-      "scenarios": []
-    },
-    {
       "id": "PROD-SMOKE",
       "plan": "specs/ui/platform/prod-smoke.md",
       "status": "draft",

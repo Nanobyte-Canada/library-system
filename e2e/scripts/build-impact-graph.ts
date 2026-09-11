@@ -90,7 +90,7 @@ const features = manifest.features.map((feature) => {
 });
 
 writeFileSync(
-  resolve(REPO_ROOT, 'specs/ui/impact-graph.json'),
+  resolve(REPO_ROOT, 'docs/testing/impact-graph.json'),
   `${JSON.stringify({ generatedFrom: 'frontend/src', features }, null, 2)}\n`,
 );
 console.log(`build-impact-graph: ${features.length} feature(s)`);

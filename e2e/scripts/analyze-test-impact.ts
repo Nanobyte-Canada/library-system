@@ -152,11 +152,11 @@ for (const [id, entry] of impacted) {
 if (impacted.size === 0) lines.push('No manifest feature was impacted by this change.');
 if (onlyStyles) lines.push('', 'Classification: style-only (visual-impact disposition required).');
 
-writeFileSync(resolve(REPO_ROOT, 'specs/ui/impact-report.json'), `${JSON.stringify({ mergeBase, changedFiles, impacted: [...impacted.keys()], onlyStyles, failures }, null, 2)}\n`);
-writeFileSync(resolve(REPO_ROOT, 'specs/ui/impact-report.md'), `${lines.join('\n')}\n`);
+writeFileSync(resolve(REPO_ROOT, 'docs/testing/impact-report.json'), `${JSON.stringify({ mergeBase, changedFiles, impacted: [...impacted.keys()], onlyStyles, failures }, null, 2)}\n`);
+writeFileSync(resolve(REPO_ROOT, 'docs/testing/impact-report.md'), `${lines.join('\n')}\n`);
 
 writeFileSync(
-  resolve(REPO_ROOT, 'specs/ui/impact-gate.json'),
+  resolve(REPO_ROOT, 'docs/testing/impact-gate.json'),
   `${JSON.stringify(
     {
       generatedAt: new Date().toISOString(),

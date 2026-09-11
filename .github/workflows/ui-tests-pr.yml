@@ -162,7 +162,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           MARKER="<!-- ui-impact-report -->"
-          { echo "$MARKER"; cat specs/ui/impact-report.md; } > /tmp/impact-comment.md
+          { echo "$MARKER"; cat docs/testing/impact-report.md; } > /tmp/impact-comment.md
           OLD_ID=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
             --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty" 2>/dev/null) || OLD_ID=""
           if [ -n "$OLD_ID" ]; then
@@ -175,7 +175,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ui-impact-report
-          path: specs/ui/impact-report.json
+          path: docs/testing/impact-report.json
           retention-days: 14
           if-no-files-found: ignore
       - name: Publish gate record to test-reports
@@ -192,7 +192,7 @@ jobs:
               "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
           fi
           mkdir -p /tmp/test-reports/gates
-          cp specs/ui/impact-gate.json \
+          cp docs/testing/impact-gate.json \
             "/tmp/test-reports/gates/pr-${{ github.event.pull_request.number }}-${{ github.run_id }}.json"
           cd /tmp/test-reports
           git config user.name "github-actions[bot]"
@@ -256,7 +256,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           MARKER="<!-- ui-lint-report -->"
-          { echo "$MARKER"; cat specs/ui/lint-report.md; } > /tmp/lint-comment.md
+          { echo "$MARKER"; cat docs/testing/lint-report.md; } > /tmp/lint-comment.md
           OLD_ID=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
             --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty" 2>/dev/null) || OLD_ID=""
           if [ -n "$OLD_ID" ]; then
@@ -269,6 +269,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ui-lint-report
-          path: specs/ui/lint-report.json
+          path: docs/testing/lint-report.json
           retention-days: 14
           if-no-files-found: ignore

@@ -84,9 +84,9 @@ for (const entry of changedNames) {
   }
 }
 
-writeFileSync(resolve(REPO_ROOT, 'specs/ui/lint-report.json'), `${JSON.stringify({ findings }, null, 2)}\n`);
+writeFileSync(resolve(REPO_ROOT, 'docs/testing/lint-report.json'), `${JSON.stringify({ findings }, null, 2)}\n`);
 const markdown = ['# Test-change lint report', '', ...(findings.length === 0 ? ['No findings.'] : findings.map((finding) => `- \`${finding.file}\` ${finding.line} — ${finding.rule}`))].join('\n');
-writeFileSync(resolve(REPO_ROOT, 'specs/ui/lint-report.md'), `${markdown}\n`);
+writeFileSync(resolve(REPO_ROOT, 'docs/testing/lint-report.md'), `${markdown}\n`);
 
 if (findings.length > 0 && process.env.LINT_APPROVED !== 'true') {
   console.error(`lint-test-changes: ${findings.length} finding(s)`);
