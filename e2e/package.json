@@ -22,6 +22,7 @@
     "gray-matter": "^4.0.3",
     "tinyglobby": "^0.2.17",
     "ts-morph": "^28.0.0",
-    "tsx": "^4.23.13"
+    "tsx": "^4.23.13",
+    "typescript": "^5.7.0"
   }
 }
