@@ -13,7 +13,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
-    reporters: process.env.CI ? ['default', 'junit'] : ['default'],
-    outputFile: { junit: 'test-results/junit.xml' },
+    reporters: process.env.CI ? ['default', 'junit', 'json'] : ['default'],
+    outputFile: {
+      junit: 'test-results/junit.xml',
+      json: 'test-results/results.json',
+    },
   },
 })
