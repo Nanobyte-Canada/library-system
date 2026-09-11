@@ -204,3 +204,18 @@ visual coverage, and no protection against silent test weakening. The UI testing
 - ADR-0010, ADR-0011, and ADR-0012 are superseded; their per-area suite conventions, the
   `library-uat-pipeline` serialization/browser-cache design, and the `deploy.yml` -> `uat-e2e.yml`
   auto-trigger are replaced by this platform.
+
+## ADR-0014: Frontend environment marker and initial UI test workflows
+
+**Status:** Accepted | **Date:** 2026-09-11
+
+**Context:** The UI testing platform needs (a) a way for tests to prove they target UAT and not production, (b) a PR workflow that validates plans deterministically, and (c) an automatic browser-test trigger on UAT after each successful deploy. The frontend build currently passes no build arguments and the deployed page exposes no environment identity, and `deploy.yml` chains the legacy `uat-e2e.yml` suite through its `e2e` job (ADR-0012). Merging the smoke workflow replaces the manual-dispatch-only model of ADR-0010 and the deploy-chained trigger of ADR-0012, which ADR-0013 supersedes at the platform level.
+
+**Decision:**
+- The frontend build injects `<meta name="app-environment">` from the `VITE_APP_ENVIRONMENT` build argument: `uat` for the UAT image (`library-frontend-uat`, consumed by `deploy/uat/docker-compose.yml`) and `production` for the production image (`library-frontend`). Browser tests abort unless the marker equals `uat` and the hostname is in the committed UAT allowlist.
+- `UI PR Checks` (`ui-tests-pr.yml`) validates plans and the generated requirements index on every PR to `master`. Later phases extend it with route, impact, and lint jobs.
+- `UI Tests — Deployed (UAT)` (`ui-tests-deployed.yml`) runs browser tests automatically after the Deploy workflow that follows a successful Build on master, and on manual dispatch, in the pinned Playwright container. The `e2e` job is removed from `deploy.yml`; the manual `uat-e2e.yml` workflow remains dispatchable until the rewrite reaches parity (Phase 6).
+- `build.yml` gains the Vitest component-test step, the frontend build arguments, and the `library-frontend-uat` image build.
+- The deployed workflow honors its `suite` input (`smoke`, or `all` = smoke + regression) from Phase 1, so Phase 2 parity can dispatch `suite=all`; automatic post-deploy runs stay on the smoke tier until Phase 3. Its concurrency group is `library-uat-deploy` (the deploy job's group), so UAT deploys and UI test runs auto-serialize; the legacy `library-uat-pipeline` group stays with `uat-e2e.yml` until Phase 6.
+
+**Consequences:** Production images carry `app-environment=production`; browser tests refuse to run against them. The UAT deployment consumes a dedicated `library-frontend-uat` image so the marker always identifies the deployed environment. New workflow and compose-file changes must be reviewed under the AGENTS.md documentation contract; this ADR covers this phase's changes. `uat-e2e.yml` keeps running in parallel until its suites are migrated.

@@ -221,12 +221,3 @@ jobs:
             {
               "text": "${{ job.status == 'success' && ':rocket:' || ':x:' }} Library deploy *${{ steps.tag.outputs.tag }}* to *${{ steps.tag.outputs.env }}* ${{ job.status }}\nTriggered by: ${{ github.actor }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
             }
-
-  e2e:
-    name: E2E — Full suite
-    needs: deploy
-    if: ${{ needs.deploy.result == 'success' && (github.event.inputs.environment || 'uat') == 'uat' }}
-    uses: ./.github/workflows/uat-e2e.yml
-    secrets: inherit
-    with:
-      suite: all

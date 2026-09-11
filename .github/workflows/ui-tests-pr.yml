@@ -1,0 +1,53 @@
+name: UI PR Checks
+
+on:
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ui-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  spec-validation:
+    name: Spec Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Install dependencies
+        working-directory: e2e
+        run: npm ci
+
+      - name: Type-check platform scripts
+        working-directory: e2e
+        run: npm run typecheck
+
+      - name: Build requirements index
+        working-directory: e2e
+        run: npm run specs:requirements
+
+      - name: Validate plans
+        working-directory: e2e
+        run: npm run specs:validate
+
+      - name: Upload generated indexes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-spec-artifacts
+          path: |
+            docs/testing/requirements-index.json
+            docs/testing/requirements-index.md
+          retention-days: 14
+          if-no-files-found: ignore
