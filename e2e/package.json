@@ -12,7 +12,10 @@
     "report": "playwright show-report",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "specs:validate": "tsx scripts/validate-specs.ts",
-    "specs:requirements": "tsx scripts/build-requirements-index.ts"
+    "specs:requirements": "tsx scripts/build-requirements-index.ts",
+    "specs:manifest": "npx tsx scripts/build-manifest.ts",
+    "specs:lint": "tsx scripts/lint-test-changes.ts",
+    "specs:impact": "npx tsx scripts/analyze-test-impact.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
