@@ -1,0 +1,93 @@
+name: UI Visual Baseline Update
+
+on:
+  pull_request:
+    types: [labeled]
+
+concurrency:
+  group: visual-baseline-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+env:
+  APPROVERS: saurabhbilakhia
+
+jobs:
+  update-baselines:
+    name: Update visual baselines
+    if: >
+      github.event.label.name == 'visual-baseline-update' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Verify approver and branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ACTOR="${{ github.event.sender.login }}"
+          if ! echo "$APPROVERS" | grep -qw "$ACTOR"; then
+            echo "::error::Actor $ACTOR is not an approved baseline approver"
+            exit 1
+          fi
+          if [ "${{ github.event.pull_request.head.ref }}" = "master" ]; then
+            echo "::error::Refusing to update baselines on the master branch"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          lfs: true
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+
+      - working-directory: e2e
+        run: npm ci
+
+      - name: Install the Playwright browser
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Update impacted visual snapshots
+        working-directory: e2e
+        env:
+          BASE_URL: https://uatlibrary.nanobyte.ca
+        run: npx playwright test --grep @visual --update-snapshots
+
+      - name: Upload before/after diffs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baseline-diffs
+          path: e2e/test-results
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Commit baselines to the pull request
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- 'e2e/tests/visual/**'
+          if git diff --cached --quiet; then
+            echo "No baseline changes"
+          else
+            CHANGED=$(git diff --cached --name-only | tr '\n' ' ')
+            git commit -m "chore(visual): update baselines [$CHANGED]"
+            git push
+          fi
+
+      - name: Remove the label
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr edit "${{ github.event.pull_request.number }}" --remove-label visual-baseline-update || true

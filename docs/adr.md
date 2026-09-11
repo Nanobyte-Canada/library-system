@@ -262,3 +262,22 @@ visual coverage, and no protection against silent test weakening. The UI testing
 - The production deploy workflow includes a pre-flight step that queries `UI Tests — Deployed (UAT)` for a successful run on the exact SHA. If no matching run exists, the deploy is blocked unless the operator sets `skip_ui_gate=true` with a mandatory `skip_ui_gate_reason` comment recorded in the step summary.
 
 **Consequences:** Production deploys have a lightweight read-only smoke check. The gate ensures UAT validation happened for the same commit without requiring the full UAT regression to complete in the same workflow run.
+
+## ADR-0018: Visual baselines with Git LFS and the weekly reliability job
+
+**Status:** Accepted | **Date:** 2026-09-11
+
+**Context:** Phase 4 adds visual regression baselines tracked in Git LFS and scheduled
+reliability/expiry checks. The pinned Playwright container has no git-lfs, so LFS checkout and commit
+jobs run on ubuntu-latest (git-lfs preinstalled) with the browser installed via
+`npx playwright install`.
+
+**Decision:**
+1. `ui-visual-baseline-update.yml` runs the visual suite against UAT and commits updated LFS baselines
+   to the PR branch; it is label-gated to an approved actor, refuses `master`, skips forks, serializes
+   per PR, and uploads before/after diffs as artifacts.
+2. `ui-reliability.yml` reruns the smoke suite weekly, measures flaky trends, and fails on expired
+   quarantine/baseline entries or plans past their review window.
+3. Visual baselines live under `e2e/tests/visual/**` tracked in Git LFS (`.gitattributes`).
+
+**Consequences:** Baseline updates are human-reviewed commits; the weekly job measures without gating.
