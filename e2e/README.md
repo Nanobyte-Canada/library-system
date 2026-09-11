@@ -1,38 +1,46 @@
-# UAT E2E Tests
+# UI Browser Tests
 
-Playwright suite validating the deployed library UAT environment
-(`https://uatlibrary.nanobyte.ca`, override with `BASE_URL`).
+Playwright suites for the deployed library UAT environment
+(`https://uatlibrary.nanobyte.ca`).
 
-## Run locally
+**Execution is CI-only.** Do not run these tests on a developer machine; the authoritative runs are the
+`UI Tests — Deployed (UAT)` workflow (automatic after a successful UAT deploy, or manual dispatch) and
+`UI PR Checks` for plan validation. See `docs/testing/ui-testing.md`.
 
-```bash
-cd e2e
-npm ci
-npx playwright install chromium
-npx playwright test              # all suites
-npx playwright test tests/auth.spec.ts   # one suite
+## Layout
+
+```text
+e2e/
+  playwright.config.ts   # UAT base URL, chromium project, HTML/JUnit/JSON reporters
+  fixtures/              # app (worker-scoped environment safety), data/auth (later phases)
+  support/               # run context, negative waits, network monitor, scenario tags
+  pages/                 # page objects (later phases)
+  tests/
+    smoke/               # @smoke route availability
+    regression/          # @regression feature suites (later phases)
+  scripts/               # deterministic plan/manifest/impact/lint tooling (CI only)
 ```
+
+## Conventions
+
+- Declare scenario IDs with tags: `test('...', { tag: ['@AUTH-LOGIN-001', '@regression'] }, ...)`.
+- Import `test`/`expect` from `fixtures/app.fixture` so the UAT environment check runs.
+- Namespace any created data with `runId()` from `support/run-context.ts`.
+- Assert user-visible outcomes with role/label/text locators; use `data-testid` only when no semantic
+  locator exists.
+- Never delete shared data; UAT resets are manual.
 
 ## Suites
 
-| File | Area |
-|------|------|
-| tests/auth.spec.ts | health, login (all roles), logout |
-| tests/admin-books.spec.ts | admin dashboard, books CRUD, copies, QR |
-| tests/admin-settings.spec.ts | categories, users, branches, audit logs |
-| tests/librarian.spec.ts | librarian dashboard/books/search/checkout desk |
-| tests/member.spec.ts | member dashboard, catalog, profile, my books, reservations, scanner |
-| tests/roles.spec.ts | role guards (member blocked from admin) |
+| Tag | Contents |
+|---|---|
+| `@smoke` | Health, public routes, environment marker |
+| `@regression` | Feature flows (Phase 2+) |
+| `@a11y` | axe scans (Phase 4+) |
+| `@visual` | screenshot comparisons (Phase 4+) |
 
-## Run in CI
+## Debugging a failure
 
-GitHub Actions → **UAT E2E** → Run workflow → pick a suite (or `all`).
-Deploys and e2e runs share a concurrency group and auto-serialize (ADR-0011) —
-a dispatch queues behind an in-flight deploy. Failure artifacts (HTML report +
-traces) are uploaded to the run; Slack is notified on failure.
-
-## Conventions (see AGENTS.md)
-
-- Any PR changing user-visible behavior must add/update tests in the matching spec file, same PR.
-- Creation tests with fixed "Playwright"-prefixed names (books, categories) pre-check the API and skip if the entity already exists — no data accumulation.
-- Test data **tolerates duplicates** — do not delete shared seed data.
+1. Open the failed run's artifacts (`gh run download <run-id>` or the Actions UI).
+2. Read `test-results/results.json`, the trace, and the screenshot.
+3. Use the `ui-test-failure-analyst` skill (Phase 5) when classification is non-obvious.

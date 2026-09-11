@@ -1,0 +1,81 @@
+name: UI Reliability
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: ui-reliability
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  reliability:
+    name: Smoke reliability and expiry checks
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 60
+    env:
+      BASE_URL: https://uatlibrary.nanobyte.ca
+    steps:
+      - name: Install git-lfs
+        run: apt-get update && apt-get install -y git-lfs
+
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - working-directory: e2e
+        run: npm ci
+
+      - name: Run the smoke suite five times
+        working-directory: e2e
+        run: |
+          mkdir -p reliability
+          for n in 1 2 3 4 5; do
+            npx playwright test --grep @smoke --reporter json > "reliability/results-${n}.json" || true
+          done
+
+      - name: Measure reliability
+        working-directory: e2e
+        run: npm run specs:reliability
+
+      - name: Check expiries
+        working-directory: e2e
+        run: npm run specs:expiries
+
+      - name: Publish reliability to test-reports
+        if: always()
+        run: |
+          git clone --depth 1 --branch test-reports \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" test-reports 2>/dev/null || mkdir -p test-reports
+          cp e2e/reliability/reliability.json test-reports/reliability.json
+          cd test-reports
+          git init -b test-reports 2>/dev/null || true
+          git remote get-url origin >/dev/null 2>&1 || git remote add origin \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reliability.json
+          git diff --cached --quiet || git commit -m "chore(testing): publish reliability ${{ github.run_id }}"
+          git push origin HEAD:test-reports || true
+
+      - name: Notify Slack
+        if: failure()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":warning: UI reliability or expiry check failed — <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+            }

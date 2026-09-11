@@ -1,0 +1,171 @@
+name: UI Tests — Deployed (UAT)
+
+on:
+  workflow_run:
+    workflows: ["Deploy"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Suite to run"
+        required: true
+        type: choice
+        default: all
+        options:
+          - all
+          - smoke
+      matrix:
+        description: "Browser matrix"
+        required: true
+        type: choice
+        default: default
+        options:
+          - default
+          - full
+      shard:
+        description: "Shard as N/M (empty for none)"
+        required: false
+        default: ""
+
+concurrency:
+  group: library-uat-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  deployed-tests:
+    name: UAT browser tests
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'workflow_run' &&
+       github.event.workflow_run.head_branch == 'master')
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 45
+    env:
+      BASE_URL: https://uatlibrary.nanobyte.ca
+    steps:
+      - name: Install git-lfs
+        run: apt-get update && apt-get install -y git-lfs
+
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            e2e/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install e2e dependencies
+        working-directory: e2e
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Type-check platform scripts
+        working-directory: e2e
+        run: npm run typecheck
+
+      - name: Run browser suites
+        working-directory: e2e
+        run: |
+          MATRIX="${{ github.event_name == 'workflow_dispatch' && inputs.matrix || 'default' }}"
+          SHARD="${{ github.event_name == 'workflow_dispatch' && inputs.shard || '' }}"
+          SHARD_FLAG=""
+          if [ -n "$SHARD" ]; then SHARD_FLAG="--shard=${SHARD}"; fi
+          if [ "$MATRIX" = "full" ]; then export FULL_MATRIX=true; fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.suite }}" = "smoke" ]; then
+            npx playwright test --grep @smoke $SHARD_FLAG
+          else
+            npx playwright test --grep-invert @prod $SHARD_FLAG
+          fi
+
+      - name: Run component tests
+        if: always()
+        working-directory: frontend
+        run: npm test
+
+      - name: Build coverage report
+        if: always()
+        working-directory: e2e
+        run: |
+          npm run specs:manifest
+          npm run specs:coverage
+
+      - name: Prepare test-reports branch
+        if: always()
+        run: |
+          if git ls-remote --exit-code --heads origin test-reports > /dev/null 2>&1; then
+            git clone --depth 1 --branch test-reports \
+              "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" test-reports
+          else
+            mkdir -p test-reports
+            git -C test-reports init -b test-reports
+            git -C test-reports remote add origin \
+              "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          fi
+
+      - name: Publish history
+        if: always()
+        working-directory: e2e
+        env:
+          REPORTS_DIR: ${{ github.workspace }}/test-reports
+          TESTED_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: npm run specs:history
+
+      - name: Push history
+        if: always()
+        working-directory: test-reports
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(testing): publish run ${{ github.run_id }}"
+          git push origin test-reports
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-deployed-${{ github.run_id }}
+          path: |
+            e2e/report
+            e2e/test-results
+            frontend/test-results
+            docs/testing/coverage.md
+            docs/testing/coverage.json
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Collect failing scenarios
+        if: failure()
+        run: |
+          FAILED=$(jq -r '[.. | objects | select(.ok == false and .title != null) | "- " + .title] | unique | .[0:8][]' e2e/test-results/results.json 2>/dev/null || true)
+          {
+            echo "FAILED<<FAIL_EOF"
+            echo "$FAILED"
+            echo "FAIL_EOF"
+          } >> "$GITHUB_ENV"
+
+      - name: Notify Slack
+        if: failure()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":x: UAT UI tests failed — <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run> | dashboard: <https://github.com/${{ github.repository }}/blob/test-reports/dashboard.md|dashboard>\nFailing scenarios:\n${{ env.FAILED }}"
+            }

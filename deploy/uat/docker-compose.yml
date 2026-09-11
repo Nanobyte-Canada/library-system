@@ -40,7 +40,7 @@ services:
       - infra-uat-network
 
   frontend:
-    image: ghcr.io/nanobyte-canada/library-frontend:${IMAGE_TAG}
+    image: ghcr.io/nanobyte-canada/library-frontend-uat:${IMAGE_TAG}
     container_name: uat-library-frontend
     ports:
       - "20100:80"

@@ -1,0 +1,274 @@
+name: UI PR Checks
+
+on:
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: ui-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  APPROVERS: saurabhbilakhia
+
+jobs:
+  spec-validation:
+    name: Spec Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Install dependencies
+        working-directory: e2e
+        run: npm ci
+
+      - name: Type-check platform scripts
+        working-directory: e2e
+        run: npm run typecheck
+
+      - name: Generate spec artifacts
+        working-directory: e2e
+        run: |
+          npm run specs:requirements
+          npm run specs:manifest
+          npm run specs:routes
+
+      - name: Fail on generated-artifact drift
+        run: |
+          git diff --exit-code -- \
+            docs/testing/requirements-index.json \
+            docs/testing/requirements-index.md \
+            specs/ui/manifest.json \
+            specs/ui/routes.json || {
+            echo "::error::Generated spec artifacts are stale. Regenerate them (npm run specs:requirements, specs:manifest, specs:routes — deterministic tooling, not tests), commit, and push."
+            exit 1
+          }
+
+      - name: Validate plans
+        working-directory: e2e
+        run: npm run specs:validate
+
+      - name: Upload spec artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-spec-artifacts
+          path: |
+            docs/testing/requirements-index.json
+            specs/ui/manifest.json
+            specs/ui/routes.json
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Mark fork PRs partial
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr edit "${{ github.event.pull_request.number }}" --add-label "ui-tests${{ ':' }}partial" || true
+
+  route-coverage:
+    name: Route Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - working-directory: e2e
+        run: npm ci
+      - name: Generate routes and manifest
+        working-directory: e2e
+        run: |
+          npm run specs:manifest
+          npm run specs:routes
+      - name: Check route coverage
+        working-directory: e2e
+        run: npm run specs:route-coverage
+
+  impact:
+    name: Impact Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - working-directory: e2e
+        run: npm ci
+      - name: Generate manifest and impact graph
+        working-directory: e2e
+        run: |
+          npm run specs:manifest
+          npm run specs:impact-graph
+      - name: Evaluate bypass label
+        id: bypass
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR="${{ github.event.pull_request.number }}"
+          LABELS=$(gh pr view "$PR" --json labels --jq '.labels[].name')
+          if echo "$LABELS" | grep -qx 'ui-test-impact: none'; then
+            ACTOR=$(gh api "repos/${{ github.repository }}/issues/$PR/events" \
+              --jq '[.[] | select(.event=="labeled" and .label.name=="ui-test-impact: none")] | last | .actor.login')
+            if ! echo "$APPROVERS" | grep -qw "$ACTOR"; then
+              echo "::error::Bypass label applied by non-approver $ACTOR"
+              exit 1
+            fi
+            REASON=$(gh pr view "$PR" --json comments --jq '[.comments[].body | select(startswith("ui-test-impact-reason:"))][0] // ""')
+            if [ -z "$REASON" ]; then
+              echo "::error::ui-test-impact: none requires a PR comment starting 'ui-test-impact-reason:'"
+              exit 1
+            fi
+            {
+              echo "### ui-test-impact bypass"
+              echo ""
+              echo "$REASON"
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "bypass=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "bypass=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Analyze impact
+        working-directory: e2e
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          IMPACT_BYPASS: ${{ steps.bypass.outputs.bypass }}
+        run: npm run specs:impact
+      - name: Post impact comment (update in place)
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MARKER="<!-- ui-impact-report -->"
+          { echo "$MARKER"; cat docs/testing/impact-report.md; } > /tmp/impact-comment.md
+          OLD_ID=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty" 2>/dev/null) || OLD_ID=""
+          if [ -n "$OLD_ID" ]; then
+            gh api -X PATCH "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments/$OLD_ID" -F body=@/tmp/impact-comment.md || true
+          else
+            gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/impact-comment.md || true
+          fi
+      - name: Upload impact report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-impact-report
+          path: docs/testing/impact-report.json
+          retention-days: 14
+          if-no-files-found: ignore
+      - name: Publish gate record to test-reports
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git ls-remote --exit-code --heads origin test-reports > /dev/null 2>&1; then
+            git clone --depth 1 --branch test-reports \
+              "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" /tmp/test-reports
+          else
+            mkdir -p /tmp/test-reports && git -C /tmp/test-reports init -b test-reports
+            git -C /tmp/test-reports remote add origin \
+              "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          fi
+          mkdir -p /tmp/test-reports/gates
+          cp docs/testing/impact-gate.json \
+            "/tmp/test-reports/gates/pr-${{ github.event.pull_request.number }}-${{ github.run_id }}.json"
+          cd /tmp/test-reports
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add gates
+          git commit -m "chore(testing): record impact gate for PR #${{ github.event.pull_request.number }}" || true
+          git push origin HEAD:test-reports || true
+
+  lint:
+    name: Test-Change Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - working-directory: e2e
+        run: npm ci
+      - name: Evaluate approval label
+        id: approved
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR="${{ github.event.pull_request.number }}"
+          LABELS=$(gh pr view "$PR" --json labels --jq '.labels[].name')
+          if echo "$LABELS" | grep -qx 'test-weakening-approved'; then
+            ACTOR=$(gh api "repos/${{ github.repository }}/issues/$PR/events" \
+              --jq '[.[] | select(.event=="labeled" and .label.name=="test-weakening-approved")] | last | .actor.login')
+            if ! echo "$APPROVERS" | grep -qw "$ACTOR"; then
+              echo "::error::Approval label applied by non-approver $ACTOR"
+              exit 1
+            fi
+            WREASON=$(gh pr view "$PR" --json comments --jq '[.comments[].body | select(startswith("test-weakening-reason:"))][0] // ""')
+            if [ -z "$WREASON" ]; then
+              echo "::error::test-weakening-approved requires a PR comment starting 'test-weakening-reason:'"
+              exit 1
+            fi
+            {
+              echo "### test-weakening approval"
+              echo ""
+              echo "$WREASON"
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "approved=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "approved=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Lint test changes
+        working-directory: e2e
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          LINT_APPROVED: ${{ steps.approved.outputs.approved }}
+        run: npm run specs:lint
+      - name: Post lint comment (update in place)
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MARKER="<!-- ui-lint-report -->"
+          { echo "$MARKER"; cat docs/testing/lint-report.md; } > /tmp/lint-comment.md
+          OLD_ID=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty" 2>/dev/null) || OLD_ID=""
+          if [ -n "$OLD_ID" ]; then
+            gh api -X PATCH "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments/$OLD_ID" -F body=@/tmp/lint-comment.md || true
+          else
+            gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/lint-comment.md || true
+          fi
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-lint-report
+          path: docs/testing/lint-report.json
+          retention-days: 14
+          if-no-files-found: ignore

@@ -45,7 +45,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -57,9 +57,22 @@ jobs:
         run: npm run lint
         working-directory: frontend
 
+      - name: Unit and component tests
+        run: npm test
+        working-directory: frontend
+
       - name: Type check and build
         run: npm run build
         working-directory: frontend
+
+      - name: Upload component test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-results
+          path: frontend/test-results
+          retention-days: 14
+          if-no-files-found: ignore
 
   build-images:
     name: Build & Push Docker Images
@@ -105,11 +118,28 @@ jobs:
           file: frontend/Dockerfile
           target: production
           push: true
+          build-args: |
+            VITE_APP_ENVIRONMENT=production
           tags: |
             ${{ env.IMAGE_PREFIX }}/library-frontend:${{ steps.tag.outputs.tag }}
             ${{ env.IMAGE_PREFIX }}/library-frontend:latest
           cache-from: type=gha,scope=library-frontend
           cache-to: type=gha,mode=max,scope=library-frontend
+
+      - name: Build and push library-frontend-uat
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: frontend/Dockerfile
+          target: production
+          push: true
+          build-args: |
+            VITE_APP_ENVIRONMENT=uat
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/library-frontend-uat:${{ steps.tag.outputs.tag }}
+            ${{ env.IMAGE_PREFIX }}/library-frontend-uat:latest
+          cache-from: type=gha,scope=library-frontend-uat
+          cache-to: type=gha,mode=max,scope=library-frontend-uat
 
       - name: Post build summary
         run: |
@@ -121,8 +151,11 @@ jobs:
           echo "|-------|-----|" >> "$GITHUB_STEP_SUMMARY"
           echo "| library-api | ${{ steps.tag.outputs.tag }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| library-frontend | ${{ steps.tag.outputs.tag }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| library-frontend-uat | ${{ steps.tag.outputs.tag }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Deploy with: \`gh workflow run deploy.yml -f environment=uat -f tag=${{ steps.tag.outputs.tag }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> UAT frontend uses \`library-frontend-uat\` image with \`VITE_APP_ENVIRONMENT=uat\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Notify Slack
         if: always()

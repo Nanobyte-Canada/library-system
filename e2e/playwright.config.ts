@@ -1,4 +1,27 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
+
+const CI = !!process.env.CI;
+
+const reporters: ReporterDescription[] = [
+  ['list'],
+  ['html', { outputFolder: 'report', open: 'never' }],
+  ['junit', { outputFile: 'test-results/junit.xml' }],
+  ['json', { outputFile: 'test-results/results.json' }],
+];
+
+if (CI) {
+  reporters.push(['github']);
+}
+
+const fullMatrix = process.env.FULL_MATRIX === 'true';
+
+const desktopProjects = fullMatrix
+  ? [
+      { name: 'chromium', grepInvert: /@mobile/, use: { ...devices['Desktop Chrome'] } },
+      { name: 'firefox', grepInvert: /@mobile/, use: { ...devices['Desktop Firefox'] } },
+      { name: 'webkit', grepInvert: /@mobile/, use: { ...devices['Desktop Safari'] } },
+    ]
+  : [{ name: 'chromium', grepInvert: /@mobile/, use: { ...devices['Desktop Chrome'] } }];
 
 export default defineConfig({
   testDir: './tests',
@@ -6,18 +29,21 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   fullyParallel: false,
   workers: 1,
-  retries: 0,
-  forbidOnly: !!process.env.CI,
-  reporter: [
-    ['list'],
-    ...(process.env.CI ? [['github']] : []),
-    ['html', { outputFolder: 'report', open: 'never' }],
-  ],
+  retries: CI ? 1 : 0,
+  forbidOnly: CI,
+  reporter: reporters,
   use: {
     baseURL: process.env.BASE_URL ?? 'https://uatlibrary.nanobyte.ca',
-    screenshot: 'on',
+    screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
+    video: 'retain-on-failure',
     ignoreHTTPSErrors: true,
+    actionTimeout: 15_000,
+    navigationTimeout: 30_000,
   },
   outputDir: './test-results',
+  projects: [
+    ...desktopProjects,
+    { name: 'chromium-mobile', grep: /@mobile/, use: { ...devices['Pixel 7'] } },
+  ],
 });

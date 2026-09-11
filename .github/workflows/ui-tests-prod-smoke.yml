@@ -1,0 +1,57 @@
+name: UI Tests — Production Smoke
+
+on:
+  workflow_run:
+    workflows: ["Deploy to Production"]
+    types: [completed]
+  workflow_dispatch:
+
+concurrency:
+  group: ui-tests-prod-smoke
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  prod-smoke:
+    name: Production read-only smoke
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - working-directory: e2e
+        run: npm ci
+      - name: Run production smoke
+        working-directory: e2e
+        run: npx playwright test tests/prod-smoke --grep @prod
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-prod-smoke-${{ github.run_id }}
+          path: |
+            e2e/report
+            e2e/test-results
+          retention-days: 14
+          if-no-files-found: ignore
+      - name: Notify Slack
+        if: failure()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":x: Production smoke failed — <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+            }

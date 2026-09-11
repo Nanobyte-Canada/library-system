@@ -2,12 +2,38 @@
   "name": "library-e2e",
   "version": "1.0.0",
   "private": true,
-  "description": "Playwright e2e suite for the deployed library UAT environment",
+  "description": "UI test platform: Playwright browser suites and deterministic tooling for the library-system UAT environment",
   "scripts": {
     "test": "playwright test",
-    "test:headed": "playwright test --headed"
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression",
+    "test:a11y": "playwright test --grep @a11y",
+    "test:visual": "playwright test --grep @visual",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "specs:validate": "tsx scripts/validate-specs.ts",
+    "specs:requirements": "tsx scripts/build-requirements-index.ts",
+    "specs:manifest": "npx tsx scripts/build-manifest.ts",
+    "specs:routes": "npx tsx scripts/discover-routes.ts",
+    "specs:route-coverage": "npx tsx scripts/check-route-coverage.ts",
+    "specs:lint": "tsx scripts/lint-test-changes.ts",
+    "specs:impact-graph": "tsx scripts/build-impact-graph.ts",
+    "specs:empirical-map": "tsx scripts/ingest-browser-coverage.ts",
+    "specs:impact": "npx tsx scripts/analyze-test-impact.ts",
+    "specs:coverage": "npx tsx scripts/build-coverage-report.ts",
+    "specs:history": "tsx scripts/publish-history.ts",
+    "specs:reliability": "tsx scripts/measure-reliability.ts",
+    "specs:expiries": "tsx scripts/check-expiries.ts"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1"
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "1.62.1",
+    "@types/node": "^22.20.2",
+    "ajv": "^8.20.0",
+    "gray-matter": "^4.0.3",
+    "tinyglobby": "^0.2.17",
+    "ts-morph": "^28.0.0",
+    "tsx": "^4.23.13",
+    "typescript": "^5.7.0"
   }
 }

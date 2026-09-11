@@ -1,0 +1,1466 @@
+{
+  "schemaVersion": 2,
+  "generatedFrom": "specs/ui/**/*.md",
+  "features": [
+    {
+      "id": "A11Y",
+      "plan": "specs/ui/accessibility/scan-baseline.md",
+      "status": "draft",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-01",
+        "CJ-02"
+      ],
+      "requirementRefs": [
+        "RQ-UI-001"
+      ],
+      "routes": [
+        "/login",
+        "/dashboard",
+        "/catalog"
+      ],
+      "roles": [
+        "anonymous",
+        "MEMBER"
+      ],
+      "flags": [],
+      "components": [
+        "LoginPage",
+        "DashboardPage",
+        "CatalogPage"
+      ],
+      "sourceOverrides": [],
+      "tags": [
+        "accessibility"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "A11Y-001",
+          "priority": "high",
+          "type": "accessibility",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "A11Y-002",
+          "priority": "high",
+          "type": "accessibility",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "A11Y-003",
+          "priority": "high",
+          "type": "accessibility",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "ADMIN-AUDIT",
+      "plan": "specs/ui/admin/audit.md",
+      "status": "draft",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-06"
+      ],
+      "requirementRefs": [
+        "RQ-AUD-001"
+      ],
+      "routes": [
+        "/admin/audit-logs"
+      ],
+      "roles": [
+        "ADMIN"
+      ],
+      "flags": [],
+      "components": [
+        "AuditLogPage"
+      ],
+      "sourceOverrides": [],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "ADMIN-AUDIT-001",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-AUDIT-002",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "ADMIN-BOOKS",
+      "plan": "specs/ui/admin/books.md",
+      "status": "approved",
+      "priority": "critical",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-06"
+      ],
+      "requirementRefs": [
+        "RQ-BOOK-001",
+        "RQ-BOOK-002",
+        "RQ-BOOK-003",
+        "RQ-BOOK-004"
+      ],
+      "routes": [
+        "/admin/books",
+        "/admin/books/new",
+        "/admin/books/:id",
+        "/catalog/:id"
+      ],
+      "roles": [
+        "ADMIN",
+        "LIBRARIAN"
+      ],
+      "flags": [],
+      "components": [
+        "BookListPage",
+        "BookFormPage",
+        "BookDetailPage"
+      ],
+      "sourceOverrides": [
+        "frontend/src/pages/admin/BookListPage.tsx",
+        "frontend/src/pages/admin/BookFormPage.tsx"
+      ],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "ADMIN-BOOKS-001",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-BOOKS-002",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-BOOKS-003",
+          "priority": "normal",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-BOOKS-004",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-BOOKS-005",
+          "priority": "normal",
+          "type": "not-applicable",
+          "layer": "manual",
+          "target": "deployed",
+          "automation": "not-applicable",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "ADMIN-BRANCHES",
+      "plan": "specs/ui/admin/branches.md",
+      "status": "draft",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-06"
+      ],
+      "requirementRefs": [
+        "RQ-BR-001",
+        "RQ-BR-002"
+      ],
+      "routes": [
+        "/admin/branches",
+        "/admin/branches/new",
+        "/admin/branches/:id"
+      ],
+      "roles": [
+        "ADMIN"
+      ],
+      "flags": [],
+      "components": [
+        "BranchListPage",
+        "BranchFormPage"
+      ],
+      "sourceOverrides": [],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "ADMIN-BRANCHES-001",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-BRANCHES-002",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-BRANCHES-003",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "ADMIN-META",
+      "plan": "specs/ui/admin/catalog-metadata.md",
+      "status": "approved",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-06"
+      ],
+      "requirementRefs": [
+        "RQ-BOOK-001"
+      ],
+      "routes": [
+        "/admin/categories"
+      ],
+      "roles": [
+        "ADMIN",
+        "LIBRARIAN"
+      ],
+      "flags": [],
+      "components": [
+        "CategoryListPage"
+      ],
+      "sourceOverrides": [
+        "frontend/src/pages/admin/CategoryListPage.tsx"
+      ],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "ADMIN-META-001",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-META-002",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-META-003",
+          "priority": "normal",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-META-004",
+          "priority": "normal",
+          "type": "not-applicable",
+          "layer": "manual",
+          "target": "deployed",
+          "automation": "not-applicable",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "ADMIN-USERS",
+      "plan": "specs/ui/admin/users.md",
+      "status": "approved",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-06",
+        "CJ-01"
+      ],
+      "requirementRefs": [
+        "RQ-USER-001",
+        "RQ-USER-002",
+        "RQ-USER-003"
+      ],
+      "routes": [
+        "/admin/users",
+        "/admin/users/new",
+        "/admin/users/:id",
+        "/profile"
+      ],
+      "roles": [
+        "ADMIN",
+        "MEMBER"
+      ],
+      "flags": [],
+      "components": [
+        "UserListPage",
+        "UserFormPage",
+        "ProfilePage"
+      ],
+      "sourceOverrides": [
+        "frontend/src/pages/admin/UserListPage.tsx",
+        "frontend/src/pages/admin/UserFormPage.tsx",
+        "frontend/src/pages/member/ProfilePage.tsx"
+      ],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "ADMIN-USERS-001",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-USERS-002",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-USERS-003",
+          "priority": "normal",
+          "type": "boundary",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-USERS-004",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-USERS-005",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-USERS-006",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "ADMIN-USERS-007",
+          "priority": "normal",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "AUTH-LOGIN",
+      "plan": "specs/ui/authentication/login.md",
+      "status": "approved",
+      "priority": "critical",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-01"
+      ],
+      "requirementRefs": [
+        "RQ-AUTH-001",
+        "RQ-AUTH-002",
+        "RQ-AUTH-003",
+        "RQ-AUTH-007"
+      ],
+      "routes": [
+        "/login"
+      ],
+      "roles": [
+        "anonymous"
+      ],
+      "flags": [],
+      "components": [
+        "LoginPage"
+      ],
+      "sourceOverrides": [
+        "frontend/src/pages/LoginPage.tsx",
+        "frontend/src/services/authService.ts"
+      ],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "AUTH-LOGIN-001",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-002",
+          "priority": "critical",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-003",
+          "priority": "high",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-004",
+          "priority": "high",
+          "type": "boundary",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-005",
+          "priority": "high",
+          "type": "navigation",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-006",
+          "priority": "high",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-007",
+          "priority": "high",
+          "type": "boundary",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-008",
+          "priority": "high",
+          "type": "accessibility",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-009",
+          "priority": "high",
+          "type": "accessibility",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-010",
+          "priority": "high",
+          "type": "accessibility",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-011",
+          "priority": "high",
+          "type": "boundary",
+          "layer": "component",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-012",
+          "priority": "high",
+          "type": "negative",
+          "layer": "component",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-LOGIN-013",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "component",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "AUTH-SESSION",
+      "plan": "specs/ui/authentication/session.md",
+      "status": "approved",
+      "priority": "critical",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-01",
+        "CJ-07"
+      ],
+      "requirementRefs": [
+        "RQ-AUTH-004",
+        "RQ-AUTH-005",
+        "RQ-AUTH-006",
+        "RQ-AUTHZ-001"
+      ],
+      "routes": [
+        "/dashboard",
+        "/admin/books",
+        "/checkout-desk",
+        "/login"
+      ],
+      "roles": [
+        "anonymous",
+        "MEMBER",
+        "LIBRARIAN",
+        "ADMIN"
+      ],
+      "flags": [],
+      "components": [
+        "ProtectedRoute",
+        "Layout"
+      ],
+      "sourceOverrides": [
+        "frontend/src/components/ProtectedRoute.tsx",
+        "frontend/src/stores/authStore.ts",
+        "frontend/src/services/api.ts"
+      ],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "AUTH-SESSION-001",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-002",
+          "priority": "critical",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-003",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-004",
+          "priority": "high",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-005",
+          "priority": "high",
+          "type": "navigation",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-006",
+          "priority": "high",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-007",
+          "priority": "high",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-008",
+          "priority": "critical",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTH-SESSION-009",
+          "priority": "normal",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "AUTHZ",
+      "plan": "specs/ui/authorization/role-route-matrix.md",
+      "status": "approved",
+      "priority": "critical",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-07"
+      ],
+      "requirementRefs": [
+        "RQ-AUTHZ-001",
+        "RQ-AUTHZ-002",
+        "RQ-UI-001",
+        "RQ-UI-002"
+      ],
+      "routes": [
+        "/login",
+        "/dashboard",
+        "/catalog",
+        "/catalog/:id",
+        "/profile",
+        "/reservations",
+        "/checkouts",
+        "/scan",
+        "/checkout-desk",
+        "/admin/books",
+        "/admin/books/new",
+        "/admin/books/:id",
+        "/admin/categories",
+        "/admin/users",
+        "/admin/users/new",
+        "/admin/users/:id",
+        "/admin/branches",
+        "/admin/branches/new",
+        "/admin/branches/:id",
+        "/admin/audit-logs"
+      ],
+      "roles": [
+        "anonymous",
+        "MEMBER",
+        "LIBRARIAN",
+        "ADMIN"
+      ],
+      "flags": [],
+      "components": [
+        "ProtectedRoute",
+        "Layout",
+        "App"
+      ],
+      "sourceOverrides": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/ProtectedRoute.tsx",
+        "frontend/src/components/Layout.tsx"
+      ],
+      "tags": [
+        "regression",
+        "authorization"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "AUTHZ-001",
+          "priority": "critical",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTHZ-002",
+          "priority": "critical",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTHZ-003",
+          "priority": "critical",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTHZ-004",
+          "priority": "critical",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTHZ-005",
+          "priority": "high",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTHZ-006",
+          "priority": "high",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "AUTHZ-007",
+          "priority": "high",
+          "type": "authorization",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "CATALOG-DETAIL",
+      "plan": "specs/ui/catalog/book-detail.md",
+      "status": "draft",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-02"
+      ],
+      "requirementRefs": [
+        "RQ-CAT-002",
+        "RQ-CAT-003"
+      ],
+      "routes": [
+        "/catalog/:id"
+      ],
+      "roles": [
+        "MEMBER",
+        "LIBRARIAN",
+        "ADMIN"
+      ],
+      "flags": [],
+      "components": [
+        "BookDetailPage"
+      ],
+      "sourceOverrides": [],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "CATALOG-DETAIL-001",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CATALOG-DETAIL-002",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CATALOG-DETAIL-003",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "CATALOG-SEARCH",
+      "plan": "specs/ui/catalog/search.md",
+      "status": "draft",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-02"
+      ],
+      "requirementRefs": [
+        "RQ-CAT-001",
+        "RQ-CAT-002"
+      ],
+      "routes": [
+        "/catalog"
+      ],
+      "roles": [
+        "MEMBER",
+        "LIBRARIAN",
+        "ADMIN"
+      ],
+      "flags": [],
+      "components": [
+        "CatalogPage"
+      ],
+      "sourceOverrides": [],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "CATALOG-SEARCH-001",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CATALOG-SEARCH-002",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CATALOG-SEARCH-003",
+          "priority": "high",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "CIRC-DESK",
+      "plan": "specs/ui/circulation/desk.md",
+      "status": "approved",
+      "priority": "critical",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-04"
+      ],
+      "requirementRefs": [
+        "RQ-CIRC-001",
+        "RQ-CIRC-002",
+        "RQ-CIRC-003",
+        "RQ-CIRC-004"
+      ],
+      "routes": [
+        "/checkout-desk"
+      ],
+      "roles": [
+        "ADMIN",
+        "LIBRARIAN",
+        "MEMBER"
+      ],
+      "flags": [],
+      "components": [
+        "CheckoutDeskPage",
+        "MyBooksPage"
+      ],
+      "sourceOverrides": [
+        "frontend/src/pages/librarian/CheckoutDeskPage.tsx",
+        "frontend/src/pages/member/MyBooksPage.tsx"
+      ],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "CIRC-DESK-001",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CIRC-DESK-002",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CIRC-DESK-003",
+          "priority": "normal",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CIRC-DESK-004",
+          "priority": "high",
+          "type": "boundary",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CIRC-DESK-005",
+          "priority": "high",
+          "type": "boundary",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CIRC-DESK-006",
+          "priority": "high",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "CIRC-MYBOOKS",
+      "plan": "specs/ui/circulation/my-books.md",
+      "status": "draft",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-03"
+      ],
+      "requirementRefs": [
+        "RQ-CIRC-001",
+        "RQ-CIRC-002",
+        "RQ-CIRC-003",
+        "RQ-CIRC-006"
+      ],
+      "routes": [
+        "/checkouts"
+      ],
+      "roles": [
+        "MEMBER"
+      ],
+      "flags": [],
+      "components": [
+        "MyBooksPage"
+      ],
+      "sourceOverrides": [],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "CIRC-MYBOOKS-001",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CIRC-MYBOOKS-002",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CIRC-MYBOOKS-003",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CIRC-MYBOOKS-004",
+          "priority": "high",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CIRC-MYBOOKS-005",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "CIRC-SELF",
+      "plan": "specs/ui/circulation/self-checkout.md",
+      "status": "draft",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-03"
+      ],
+      "requirementRefs": [
+        "RQ-CIRC-005"
+      ],
+      "routes": [
+        "/scan"
+      ],
+      "roles": [
+        "MEMBER"
+      ],
+      "flags": [],
+      "components": [
+        "QRScannerPage"
+      ],
+      "sourceOverrides": [],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "CIRC-SELF-001",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CIRC-SELF-002",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "CIRC-SELF-003",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "PROD-SMOKE",
+      "plan": "specs/ui/platform/prod-smoke.md",
+      "status": "draft",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [],
+      "requirementRefs": [
+        "RQ-UI-001"
+      ],
+      "routes": [
+        "/login"
+      ],
+      "roles": [
+        "anonymous"
+      ],
+      "flags": [],
+      "components": [],
+      "sourceOverrides": [],
+      "tags": [
+        "prod"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "PROD-SMOKE-001",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "PROD-SMOKE-002",
+          "priority": "critical",
+          "type": "negative",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "PLATFORM-ROUTES",
+      "plan": "specs/ui/platform/route-availability.md",
+      "status": "approved",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-01"
+      ],
+      "requirementRefs": [
+        "RQ-UI-001"
+      ],
+      "routes": [
+        "/login",
+        "/"
+      ],
+      "roles": [
+        "anonymous"
+      ],
+      "flags": [],
+      "components": [
+        "LoginPage",
+        "Badge"
+      ],
+      "sourceOverrides": [
+        "frontend/src/main.tsx",
+        "frontend/src/App.tsx"
+      ],
+      "tags": [
+        "smoke"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "PLATFORM-ROUTES-001",
+          "priority": "normal",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "PLATFORM-ROUTES-002",
+          "priority": "critical",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "PLATFORM-ROUTES-003",
+          "priority": "high",
+          "type": "navigation",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "PLATFORM-ROUTES-004",
+          "priority": "high",
+          "type": "navigation",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "PLATFORM-ROUTES-005",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "component",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "PLATFORM-ROUTES-006",
+          "priority": "normal",
+          "type": "happy-path",
+          "layer": "component",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "RSV",
+      "plan": "specs/ui/reservations/lifecycle.md",
+      "status": "draft",
+      "priority": "high",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-05"
+      ],
+      "requirementRefs": [
+        "RQ-RSV-001",
+        "RQ-RSV-002",
+        "RQ-RSV-003",
+        "RQ-RSV-004"
+      ],
+      "routes": [
+        "/reservations"
+      ],
+      "roles": [
+        "MEMBER",
+        "LIBRARIAN",
+        "ADMIN"
+      ],
+      "flags": [],
+      "components": [
+        "ReservationsPage"
+      ],
+      "sourceOverrides": [],
+      "tags": [
+        "regression"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "RSV-001",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "RSV-002",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "RSV-003",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "RSV-004",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "RSV-005",
+          "priority": "high",
+          "type": "happy-path",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    },
+    {
+      "id": "VIS",
+      "plan": "specs/ui/visual/critical-pages.md",
+      "status": "draft",
+      "priority": "normal",
+      "owner": "saurabhbilakhia",
+      "criticalJourneys": [
+        "CJ-01",
+        "CJ-02"
+      ],
+      "requirementRefs": [
+        "RQ-UI-001"
+      ],
+      "routes": [
+        "/login",
+        "/dashboard"
+      ],
+      "roles": [
+        "anonymous",
+        "MEMBER"
+      ],
+      "flags": [],
+      "components": [
+        "LoginPage",
+        "DashboardPage"
+      ],
+      "sourceOverrides": [],
+      "tags": [
+        "visual"
+      ],
+      "lastReviewed": "2026-09-11",
+      "scenarios": [
+        {
+          "id": "VIS-001",
+          "priority": "normal",
+          "type": "visual",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "VIS-002",
+          "priority": "normal",
+          "type": "visual",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        },
+        {
+          "id": "VIS-003",
+          "priority": "normal",
+          "type": "visual",
+          "layer": "browser",
+          "target": "deployed",
+          "automation": "automated",
+          "status": "active"
+        }
+      ]
+    }
+  ]
+}

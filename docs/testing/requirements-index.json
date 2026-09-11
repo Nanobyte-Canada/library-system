@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "docs/superpowers/specs/*.md",
+  "requirements": [
+    {
+      "id": "RQ-AUTH-001",
+      "title": "Login with valid credentials issues a JWT and lands the user on `/dashboard`.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-auth-001"
+    },
+    {
+      "id": "RQ-AUTH-002",
+      "title": "Login with invalid credentials shows a generic error and stays on `/login`.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-auth-002"
+    },
+    {
+      "id": "RQ-AUTH-003",
+      "title": "Protected routes redirect unauthenticated visitors to `/login` and wrong-role visitors to `/dashboard`.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-auth-003"
+    },
+    {
+      "id": "RQ-AUTH-004",
+      "title": "Logout clears the client session (`token`/`user`) and returns to `/login`.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-auth-004"
+    },
+    {
+      "id": "RQ-AUTH-007",
+      "title": "The login form enforces required Username and Password fields before submission.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-auth-007"
+    },
+    {
+      "id": "RQ-CAT-001",
+      "title": "A visitor or member can search the public catalog and see matching books.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-cat-001"
+    },
+    {
+      "id": "RQ-CAT-002",
+      "title": "Book availability (copies and loan state) is exposed consistently on the book detail page and the copies API.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-cat-002"
+    },
+    {
+      "id": "RQ-CAT-003",
+      "title": "Book detail shows metadata, copies, and the reserve entry point for an authenticated member.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-cat-003"
+    },
+    {
+      "id": "RQ-CIRC-001",
+      "title": "A member can hold at most 3 active loans; a 4th checkout is rejected.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-circ-001"
+    },
+    {
+      "id": "RQ-CIRC-002",
+      "title": "A loan is due 21 days after checkout.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-circ-002"
+    },
+    {
+      "id": "RQ-CIRC-003",
+      "title": "A loan can be renewed once, and renewal is blocked while a PENDING reservation exists.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-circ-003"
+    },
+    {
+      "id": "RQ-CIRC-004",
+      "title": "Staff can return a loan by copy (`POST /api/return` takes the copy id).",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-circ-004"
+    },
+    {
+      "id": "RQ-CIRC-005",
+      "title": "An authenticated member can self-checkout by scanning a barcode, bound to the authenticated principal; self-return (`/api/return/scan`) accepts any barcode without a principal check — recorded as a product gap and asserted as-is.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-circ-005"
+    },
+    {
+      "id": "RQ-CIRC-006",
+      "title": "A member can view current loans (`/api/checkout/my`) and checkout history.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-circ-006"
+    },
+    {
+      "id": "RQ-RSV-001",
+      "title": "A member can reserve an unavailable book; duplicate reservations are rejected.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-rsv-001"
+    },
+    {
+      "id": "RQ-RSV-002",
+      "title": "Reservations carry a FIFO queue position, but `markReady` enforces only PENDING status — a front-of-queue gate and automatic allocation are not implemented, and staff can mark any pending reservation ready.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-rsv-002"
+    },
+    {
+      "id": "RQ-RSV-003",
+      "title": "A pending reservation expires after 7 days and a ready hold after 3 days, per the documented (unswept) policy.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-rsv-003"
+    },
+    {
+      "id": "RQ-RSV-004",
+      "title": "A member can cancel their own reservation (cancel is owner-only); staff can mark a reservation ready and fulfill it.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-rsv-004"
+    },
+    {
+      "id": "RQ-BOOK-001",
+      "title": "ADMIN/LIBRARIAN can create and update books.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-book-001"
+    },
+    {
+      "id": "RQ-BOOK-002",
+      "title": "ADMIN/LIBRARIAN can add copies to a book.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-book-002"
+    },
+    {
+      "id": "RQ-BOOK-003",
+      "title": "ADMIN/LIBRARIAN can transfer copies between branches.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-book-003"
+    },
+    {
+      "id": "RQ-BOOK-004",
+      "title": "A book QR code is available through `/api/books/{id}/qr`.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-book-004"
+    },
+    {
+      "id": "RQ-USER-001",
+      "title": "An ADMIN can create users with a role and optional branch, and the created account can log in.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-user-001"
+    },
+    {
+      "id": "RQ-USER-002",
+      "title": "An ADMIN can list, search, and update users, including role and status changes.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-user-002"
+    },
+    {
+      "id": "RQ-USER-003",
+      "title": "An authenticated user can view and update their own profile and change their own password.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-user-003"
+    },
+    {
+      "id": "RQ-BR-001",
+      "title": "An ADMIN can create, update, and delete branches; branch deletion cascades copies (tests never delete branches).",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-br-001"
+    },
+    {
+      "id": "RQ-BR-002",
+      "title": "Branch listing and detail are available to authenticated users.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-br-002"
+    },
+    {
+      "id": "RQ-AUD-001",
+      "title": "An ADMIN can query the append-only audit trail by entity type and limit.",
+      "spec": "docs/superpowers/specs/2026-07-26-library-system-sprint-plan-design.md",
+      "anchor": "rq-aud-001"
+    },
+    {
+      "id": "RQ-AUTH-005",
+      "title": "An expired or invalid token is rejected by the API (HTTP 403 under the current security configuration, which has no 401 authentication entry point); the client's 401-only interceptor does not redirect, so the failure surfaces as an error in the page.",
+      "spec": "docs/superpowers/specs/2026-08-23-library-system-infrastructure-and-capabilities-design.md",
+      "anchor": "rq-auth-005"
+    },
+    {
+      "id": "RQ-AUTH-006",
+      "title": "API calls require a valid bearer token; missing or invalid tokens are rejected without granting access (HTTP 403 under the current security configuration).",
+      "spec": "docs/superpowers/specs/2026-08-23-library-system-infrastructure-and-capabilities-design.md",
+      "anchor": "rq-auth-006"
+    },
+    {
+      "id": "RQ-AUTHZ-001",
+      "title": "Role-based access rules are enforced in the UI (navigation, pages, controls) and by the API, including direct navigation to a forbidden route.",
+      "spec": "docs/superpowers/specs/2026-09-05-library-ui-redesign-design.md",
+      "anchor": "rq-authz-001"
+    },
+    {
+      "id": "RQ-AUTHZ-002",
+      "title": "`/checkout-desk` is ADMIN-only in the sidebar while its route guard is authentication-only; the current behavior is asserted as-is.",
+      "spec": "docs/superpowers/specs/2026-09-05-library-ui-redesign-design.md",
+      "anchor": "rq-authz-002"
+    },
+    {
+      "id": "RQ-UI-001",
+      "title": "User-visible outcomes of core flows (login, catalog, circulation, reservations, administration) match the redesigned UI described in this spec.",
+      "spec": "docs/superpowers/specs/2026-09-05-library-ui-redesign-design.md",
+      "anchor": "rq-ui-001"
+    },
+    {
+      "id": "RQ-UI-002",
+      "title": "Navigation exposes only the sections the current role can use.",
+      "spec": "docs/superpowers/specs/2026-09-05-library-ui-redesign-design.md",
+      "anchor": "rq-ui-002"
+    }
+  ]
+}
