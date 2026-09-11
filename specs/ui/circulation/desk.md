@@ -2,7 +2,7 @@
 feature_id: CIRC-DESK
 feature: Staff circulation desk and loan lifecycle
 owner: saurabhbilakhia
-status: draft
+status: approved
 priority: critical
 critical_journeys: [CJ-04]
 requirement_refs: [RQ-CIRC-001, RQ-CIRC-002, RQ-CIRC-003, RQ-CIRC-004]
@@ -14,9 +14,9 @@ source_overrides: [frontend/src/pages/librarian/CheckoutDeskPage.tsx, frontend/s
 tags: [regression]
 last_reviewed: "2026-09-11"
 review:
-  approved_by: ""
-  approved_on: ""
-  requirement_version: ""
+  approved_by: saurabhbilakhia
+  approved_on: "2026-09-11"
+  requirement_version: "f13e2fa"
 next_id: "007"
 ---
 

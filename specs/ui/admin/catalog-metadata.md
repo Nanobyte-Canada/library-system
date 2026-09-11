@@ -2,7 +2,7 @@
 feature_id: ADMIN-META
 feature: Catalog metadata (categories)
 owner: saurabhbilakhia
-status: draft
+status: approved
 priority: high
 critical_journeys: [CJ-06]
 requirement_refs: [RQ-BOOK-001]
@@ -14,9 +14,9 @@ source_overrides: [frontend/src/pages/admin/CategoryListPage.tsx]
 tags: [regression]
 last_reviewed: "2026-09-11"
 review:
-  approved_by: ""
-  approved_on: ""
-  requirement_version: ""
+  approved_by: saurabhbilakhia
+  approved_on: "2026-09-11"
+  requirement_version: "f13e2fa"
 next_id: "005"
 ---
 

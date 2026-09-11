@@ -2,7 +2,7 @@
 feature_id: ADMIN-BOOKS
 feature: Book administration
 owner: saurabhbilakhia
-status: draft
+status: approved
 priority: critical
 critical_journeys: [CJ-06]
 requirement_refs: [RQ-BOOK-001, RQ-BOOK-002, RQ-BOOK-003, RQ-BOOK-004]
@@ -14,9 +14,9 @@ source_overrides: [frontend/src/pages/admin/BookListPage.tsx, frontend/src/pages
 tags: [regression]
 last_reviewed: "2026-09-11"
 review:
-  approved_by: ""
-  approved_on: ""
-  requirement_version: ""
+  approved_by: saurabhbilakhia
+  approved_on: "2026-09-11"
+  requirement_version: "f13e2fa"
 next_id: "006"
 ---
 

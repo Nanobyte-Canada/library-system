@@ -2,7 +2,7 @@
 feature_id: AUTH-SESSION
 feature: Session and logout
 owner: saurabhbilakhia
-status: draft
+status: approved
 priority: critical
 critical_journeys: [CJ-01, CJ-07]
 requirement_refs: [RQ-AUTH-004, RQ-AUTH-005, RQ-AUTH-006, RQ-AUTHZ-001]
@@ -14,9 +14,9 @@ source_overrides: [frontend/src/components/ProtectedRoute.tsx, frontend/src/stor
 tags: [regression]
 last_reviewed: "2026-09-11"
 review:
-  approved_by: ""
-  approved_on: ""
-  requirement_version: ""
+  approved_by: saurabhbilakhia
+  approved_on: "2026-09-11"
+  requirement_version: "f13e2fa"
 next_id: "010"
 ---
 

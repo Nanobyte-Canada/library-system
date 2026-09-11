@@ -2,7 +2,7 @@
 feature_id: AUTH-LOGIN
 feature: Login
 owner: saurabhbilakhia
-status: draft
+status: approved
 priority: critical
 critical_journeys: [CJ-01]
 requirement_refs: [RQ-AUTH-001, RQ-AUTH-002, RQ-AUTH-003, RQ-AUTH-007]
@@ -14,9 +14,9 @@ source_overrides: [frontend/src/pages/LoginPage.tsx, frontend/src/services/authS
 tags: [regression]
 last_reviewed: "2026-09-11"
 review:
-  approved_by: ""
-  approved_on: ""
-  requirement_version: ""
+  approved_by: saurabhbilakhia
+  approved_on: "2026-09-11"
+  requirement_version: "f13e2fa"
 next_id: "014"
 ---
 

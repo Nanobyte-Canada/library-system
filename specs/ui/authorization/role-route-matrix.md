@@ -2,7 +2,7 @@
 feature_id: AUTHZ
 feature: Authorization role x route matrix
 owner: saurabhbilakhia
-status: draft
+status: approved
 priority: critical
 critical_journeys: [CJ-07]
 requirement_refs: [RQ-AUTHZ-001, RQ-AUTHZ-002, RQ-UI-001, RQ-UI-002]
@@ -14,9 +14,9 @@ source_overrides: [frontend/src/App.tsx, frontend/src/components/ProtectedRoute.
 tags: [regression, authorization]
 last_reviewed: "2026-09-11"
 review:
-  approved_by: ""
-  approved_on: ""
-  requirement_version: ""
+  approved_by: saurabhbilakhia
+  approved_on: "2026-09-11"
+  requirement_version: "f13e2fa"
 next_id: "008"
 ---
 

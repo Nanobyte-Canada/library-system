@@ -2,7 +2,7 @@
 feature_id: ADMIN-USERS
 feature: User administration and self-service profile
 owner: saurabhbilakhia
-status: draft
+status: approved
 priority: high
 critical_journeys: [CJ-06, CJ-01]
 requirement_refs: [RQ-USER-001, RQ-USER-002, RQ-USER-003]
@@ -14,9 +14,9 @@ source_overrides: [frontend/src/pages/admin/UserListPage.tsx, frontend/src/pages
 tags: [regression]
 last_reviewed: "2026-09-11"
 review:
-  approved_by: ""
-  approved_on: ""
-  requirement_version: ""
+  approved_by: saurabhbilakhia
+  approved_on: "2026-09-11"
+  requirement_version: "f13e2fa"
 next_id: "008"
 ---
 
