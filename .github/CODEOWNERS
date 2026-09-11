@@ -1,0 +1,12 @@
+# UI testing platform ownership (design spec section 7.3)
+# Plan approver
+/specs/ui/**                            @saurabhbilakhia
+/docs/testing/**                        @saurabhbilakhia
+/docs/superpowers/specs/**              @saurabhbilakhia
+# Test owner (browser tests, component tests, platform scripts, workflows)
+/e2e/**                                 @saurabhbilakhia
+/frontend/src/**/*.test.tsx             @saurabhbilakhia
+/frontend/src/**/*.test.ts             @saurabhbilakhia
+/frontend/src/test/**                   @saurabhbilakhia
+/.github/workflows/ui-*.yml             @saurabhbilakhia
+/.github/CODEOWNERS                     @saurabhbilakhia

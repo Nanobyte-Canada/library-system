@@ -47,27 +47,27 @@ Applies to **any agent or model** working in this repo:
 - Any change to **compose files, ports, networks, CI/CD workflows, or DB schema REQUIRES adding a new ADR entry** to `docs/adr.md` **in the same commit/PR**. Never delete or rewrite past ADR entries — supersede them with a new entry referencing the old one.
 - If the high-level overview changes (stack, services, URLs, local dev), update `README.md` in the same change.
 
-## UAT E2E Testing
+## UI Testing
 
-The `e2e/` directory holds the Playwright suite that validates the deployed UAT
-environment (`https://uatlibrary.nanobyte.ca`).
+The UI testing platform is specified in
+`docs/superpowers/specs/2026-09-11-ui-testing-platform-design.md`.
 
-**Rule:** Any PR that changes user-visible behavior (API or frontend) must add or
-update tests in the matching `e2e/tests/<area>.spec.ts` **in the same PR**. A new
-area means a new spec file plus an entry in the `suite` choice list in
-`.github/workflows/uat-e2e.yml`.
+**Rules for any PR that changes user-visible behavior (API or frontend):**
 
-- Suites (per-area files): `auth`, `admin-books`, `admin-settings`, `librarian`,
-  `member`, `roles` — see the e2e README for what each covers.
-- Run locally: `cd e2e && npm ci && npx playwright install chromium && npx playwright test`
-  (single suite: append `tests/<area>.spec.ts`).
-- Run in CI: Actions → **UAT E2E** → Run workflow → pick a suite. Deploys and e2e
-  runs share a concurrency group and auto-serialize (ADR-0011) — dispatch anytime;
-  a run queues behind an in-flight deploy.
-- Test data: fixed "Playwright"-prefixed names, **tolerates duplicates** — creation
-  tests with fixed names (books, categories) pre-check the API and skip when the
-  entity already exists. Never delete shared seed data. Tests run sequentially
-  against the shared UAT DB.
+- Update or add scenarios in the matching plan under `specs/ui/<area>/`.
+- Keep scenario IDs stable; retire with a reason and allocate new IDs; never reuse an ID.
+- Add or update the executable test at the layer the plan declares: component tests in `frontend/`
+  (Vitest) or browser tests in `e2e/tests/`.
+- Browser tests execute only in CI against deployed UAT; they are never run locally. Verify through the
+  `UI Tests — Deployed (UAT)` workflow (automatic after deploy, or manual dispatch from the Actions tab).
+- PR checks (`UI PR Checks`) validate plans, the manifest, route coverage, impact, and test-change lint.
+  Do not bypass `ui-test-impact` or `test-weakening-approved` gates without the approver label and reason.
+
+**Test data:** run-namespaced (`pw-<runid>-*`); never delete shared data; never delete branches (deletion
+cascades book copies); UAT resets are manual and documented in `docs/testing/operations.md`.
+
+**Ownership:** CODEOWNERS routes `specs/ui/**`, `docs/testing/**`, `e2e/**`, component tests, and
+`ui-*` workflows to the plan approver and test owner.
 
 ## Git Rules
 

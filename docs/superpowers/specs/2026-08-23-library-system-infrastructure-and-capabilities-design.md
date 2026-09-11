@@ -148,3 +148,14 @@ PWA support, inventory audit mode, reservation pickup emails, membership-type-sp
 - Legacy free-text location strings follow mostly-parseable patterns; unparseable ones degrade gracefully to single-level nodes.
 - Compile status unverified locally; stabilization phase starts by making `./gradlew build` green inside Docker.
 - Slack deploy notifications reuse the existing webhook already configured for pc's pipelines.
+
+## UI requirement markers
+
+These IDs are consumed by the UI testing platform (`specs/ui/`, `docs/testing/requirements-index.json`).
+They record the JWT delivery decisions this repository implements.
+
+- <a id="rq-auth-005"></a> RQ-AUTH-005: An expired or invalid token is rejected by the API (HTTP 403 under the current security configuration, which has no 401 authentication entry point); the client's 401-only interceptor does not redirect, so the failure surfaces as an error in the page.
+- <a id="rq-auth-006"></a> RQ-AUTH-006: API calls require a valid bearer token; missing or invalid tokens are rejected without granting access (HTTP 403 under the current security configuration).
+
+`POST /api/auth/register` remains API-only (no frontend page); its behavior stays covered by backend
+integration tests and is recorded as `feature-absent` at the UI layer.

@@ -171,3 +171,36 @@ The deploy workflow assembles the `.env` file in-memory on the runner, scp's it 
 - The concurrency group `library-uat-pipeline` continues to serialize e2e with any subsequent deploys.
 
 **Consequences:** Every UAT deploy automatically gets full e2e regression testing. Manual dispatch is preserved for ad-hoc suite runs. E2e failures after deploy surface in the same workflow run as the deploy (linked via `needs: deploy`), and Slack notifications fire independently. Prod deploys are unaffected.
+
+## ADR-0013: UI testing platform (supersedes ADR-0010, ADR-0011, ADR-0012)
+
+**Status:** Accepted | **Date:** 2026-09-11
+
+**Context:** The repository has a 32-test Playwright suite that runs on manual dispatch and automatically after a
+successful UAT deploy, with no traceability, no coverage model, no PR UI checks, no accessibility or
+visual coverage, and no protection against silent test weakening. The UI testing design spec
+(`docs/superpowers/specs/2026-09-11-ui-testing-platform-design.md`) defines a deterministic platform.
+
+**Decision:**
+
+1. PR tier: deterministic checks (plan/manifest validation, route coverage, impact analysis, test-change
+   lint) plus Vitest component tests. No browser tests on PR; no local or preview test target.
+2. Deployed tier: the full Playwright regression, accessibility, and visual suites run against UAT
+   automatically after each successful UAT deploy, and on manual dispatch. No nightly execution.
+3. Requirements are marked with `RQ-*` IDs in existing design specs; plans in `specs/ui/` map scenarios
+   to tests; coverage and reliability history is published to a `test-reports` branch.
+4. Three on-demand OpenCode skills (planner, impact analyst, failure analyst) assist authoring and
+   analysis. No agent runs in CI and no agent gates a merge.
+5. Production deployment is gated on the latest successful UAT regression for the target commit.
+6. Test data is run-namespaced and never deleted by automation; UAT resets are manual. Tests never delete
+   branches (copy cascade) and `audit_log` is append-only.
+
+**Consequences:**
+
+- CI gains five UI workflows and modifies `build.yml`, `deploy.yml`, and `deploy-prod.yml`; each change is
+  covered by this ADR and per-phase ADR entries (ADR-0014 in Phase 1).
+- The legacy 32-test suite is rewritten feature by feature; `docs/testing/legacy-tests.md` tracks parity,
+  and `uat-e2e.yml` is retired at parity.
+- ADR-0010, ADR-0011, and ADR-0012 are superseded; their per-area suite conventions, the
+  `library-uat-pipeline` serialization/browser-cache design, and the `deploy.yml` -> `uat-e2e.yml`
+  auto-trigger are replaced by this platform.

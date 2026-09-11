@@ -20,3 +20,4 @@ HELP.md
 api/.gradle/
 api/build/
 
+.worktrees
