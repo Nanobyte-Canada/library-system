@@ -76,13 +76,19 @@ gh workflow run deploy.yml -f environment=uat -f tag=main-a1b2c3d   # or tag=lat
 gh workflow run deploy-prod.yml -f tag=main-a1b2c3d                 # or tag=latest
 ```
 
-**UAT E2E** runs the Playwright suite against UAT on demand:
+**UAT E2E** runs the Playwright suite against UAT automatically after each deploy, or on demand:
 
 ```bash
-gh workflow run uat-e2e.yml -f suite=all        # or: auth | admin-books | admin-settings | librarian | member | roles
+gh workflow run ui-tests-deployed.yml -f suite=all -f matrix=default    # or: smoke | all
 ```
 
-Deploys and e2e runs auto-serialize via a shared concurrency group (ADR-0011).
+Full browser matrix (firefox, webkit) on manual dispatch:
+
+```bash
+gh workflow run ui-tests-deployed.yml -f suite=all -f matrix=full
+```
+
+Deploys and e2e runs auto-serialize via a shared concurrency group (ADR-0014/ADR-0020).
 
 Deploys scp the compose file + Vault-generated `.env` to `/opt/library/{uat,prod}` on the server, run `docker compose pull && docker compose up -d`, then gate on the public health URL.
 
@@ -112,6 +118,14 @@ npm ci                              # install dependencies
 npx playwright install chromium     # one-time browser install
 npx playwright test                 # full suite against https://uatlibrary.nanobyte.ca
 ```
+
+## UI Testing
+
+Browser tests run in CI only against deployed UAT — never locally. Plans live under `specs/ui/`,
+tests under `e2e/tests/regression/`. See [docs/testing/ui-testing.md](docs/testing/ui-testing.md) for
+the full platform spec and
+[design spec](docs/superpowers/specs/2026-09-11-ui-testing-platform-design.md) for architecture
+decisions.
 
 ## Documentation
 

@@ -297,3 +297,21 @@ the dashboard, and records bypass/false-positive history on the `test-reports` b
 3. The `impact` job needs `contents: write` for the test-reports push.
 
 **Consequences:** Gate metrics are visible from Phase 5; thresholds are agreed after 30 days of data.
+
+## ADR-0020: Legacy suite retirement and full browser matrix
+
+**Status:** Accepted | **Date:** 2026-09-11
+
+**Context:** At Phase 6 parity the legacy per-area suite, its helper, and the `uat-e2e.yml` workflow are
+retired, and the emulated-mobile project joins the automatic post-deploy tier.
+
+**Decision:**
+1. `uat-e2e.yml`, the six legacy spec files, and `tests/helpers/shared.ts` are deleted at parity (green
+   dispatched run proof on the PR branch).
+2. The automatic deployed tier runs all projects (chromium, chromium-mobile); firefox/webkit run on
+   manual dispatch and release cadence.
+3. The `library-uat-pipeline` concurrency group retires with `uat-e2e.yml`; UAT serialization is
+   provided by `library-uat-deploy` (ADR-0014/ADR-0015).
+
+**Consequences:** One UI-test workflow remains for UAT; the ADR-0010 per-area conventions are fully
+replaced.

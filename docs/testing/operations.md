@@ -50,3 +50,14 @@ out of band:
 
 The exact infra commands live with the nanobyte-services runbooks; this file records the trigger,
 sequence, and verification.
+
+## Measured thresholds (recorded after 30 days)
+
+| Metric | Target | Measured | Decision |
+|---|---|---|---|
+| Impact-gate bypass rate | at most 1 bypass per 10 PRs | from dashboard | confirm or adjust |
+| Impact-gate false-positive rate | at most 20% of gate failures | from dashboard | confirm or adjust |
+| Smoke reliability | at least 99% clean runs over 30 days | from reliability.json | confirm or adjust |
+| Quarantine limit | at most 5 entries | from specs/ui/quarantine.json | confirm or adjust |
+
+Change these values only through an owner-reviewed PR with a recorded reason.
