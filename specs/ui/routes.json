@@ -1,0 +1,89 @@
+{
+  "generatedFrom": "frontend/src/App.tsx",
+  "routes": [
+    {
+      "path": "*",
+      "guarded": false
+    },
+    {
+      "path": "/admin/audit-logs",
+      "guarded": true
+    },
+    {
+      "path": "/admin/books",
+      "guarded": true
+    },
+    {
+      "path": "/admin/books/:id",
+      "guarded": true
+    },
+    {
+      "path": "/admin/books/new",
+      "guarded": true
+    },
+    {
+      "path": "/admin/branches",
+      "guarded": true
+    },
+    {
+      "path": "/admin/branches/:id",
+      "guarded": true
+    },
+    {
+      "path": "/admin/branches/new",
+      "guarded": true
+    },
+    {
+      "path": "/admin/categories",
+      "guarded": true
+    },
+    {
+      "path": "/admin/users",
+      "guarded": true
+    },
+    {
+      "path": "/admin/users/:id",
+      "guarded": true
+    },
+    {
+      "path": "/admin/users/new",
+      "guarded": true
+    },
+    {
+      "path": "/catalog",
+      "guarded": true
+    },
+    {
+      "path": "/catalog/:id",
+      "guarded": true
+    },
+    {
+      "path": "/checkout-desk",
+      "guarded": true
+    },
+    {
+      "path": "/checkouts",
+      "guarded": true
+    },
+    {
+      "path": "/dashboard",
+      "guarded": true
+    },
+    {
+      "path": "/login",
+      "guarded": false
+    },
+    {
+      "path": "/profile",
+      "guarded": true
+    },
+    {
+      "path": "/reservations",
+      "guarded": true
+    },
+    {
+      "path": "/scan",
+      "guarded": true
+    }
+  ]
+}

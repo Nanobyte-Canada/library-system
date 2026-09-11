@@ -1,0 +1,21 @@
+{
+  "exclusions": [
+    { "route": "*", "reason": "catch-all redirects to /dashboard; covered by route-availability redirect scenarios", "owner": "saurabhbilakhia" },
+    { "route": "/admin/books/new", "reason": "admin book creation plan scheduled for Phase 3", "owner": "saurabhbilakhia" },
+    { "route": "/admin/books/:id", "reason": "admin book editing plan scheduled for Phase 3", "owner": "saurabhbilakhia" },
+    { "route": "/admin/categories", "reason": "admin categories plan scheduled for Phase 3", "owner": "saurabhbilakhia" },
+    { "route": "/admin/users", "reason": "admin users plan scheduled for Phase 3", "owner": "saurabhbilakhia" },
+    { "route": "/admin/users/new", "reason": "admin user creation plan scheduled for Phase 3", "owner": "saurabhbilakhia" },
+    { "route": "/admin/users/:id", "reason": "admin user editing plan scheduled for Phase 3", "owner": "saurabhbilakhia" },
+    { "route": "/admin/branches", "reason": "branch administration plan scheduled for Phase 6", "owner": "saurabhbilakhia" },
+    { "route": "/admin/branches/new", "reason": "branch administration plan scheduled for Phase 6", "owner": "saurabhbilakhia" },
+    { "route": "/admin/branches/:id", "reason": "branch administration plan scheduled for Phase 6", "owner": "saurabhbilakhia" },
+    { "route": "/admin/audit-logs", "reason": "audit plan scheduled for Phase 6", "owner": "saurabhbilakhia" },
+    { "route": "/catalog", "reason": "catalog search plan scheduled for Phase 6", "owner": "saurabhbilakhia" },
+    { "route": "/catalog/:id", "reason": "book detail plan scheduled for Phase 6", "owner": "saurabhbilakhia" },
+    { "route": "/profile", "reason": "profile plan scheduled for Phase 6", "owner": "saurabhbilakhia" },
+    { "route": "/reservations", "reason": "reservations plan scheduled for Phase 6", "owner": "saurabhbilakhia" },
+    { "route": "/checkouts", "reason": "my-books plan scheduled for Phase 6", "owner": "saurabhbilakhia" },
+    { "route": "/scan", "reason": "self-checkout plan scheduled for Phase 6", "owner": "saurabhbilakhia" }
+  ]
+}
